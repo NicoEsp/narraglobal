@@ -197,11 +197,7 @@ Validada en más +100 clientes de verticales como Ciencia, Agro, Fintech, Stream
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-4xl font-bold text-slate-900 mb-6">Temporada</h2>
-              <p className="text-xl text-slate-600 mb-8 leading-relaxed">
-                Nuestro servicio productivizado para el monitoreo continuo de calidad e impacto de la comunicación 
-                de tu empresa o persona política. Un acompañamiento estratégico que te permite tomar decisiones 
-                informadas en tiempo real.
-              </p>
+              <p className="text-xl text-slate-600 mb-8 leading-relaxed">c para el monitoreo continuo de calidad e impacto de la comunicación de tu empresa o persona política. Un acompañamiento estratégico que te permite tomar decisiones informadas en tiempo real.</p>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
@@ -266,9 +262,8 @@ Validada en más +100 clientes de verticales como Ciencia, Agro, Fintech, Stream
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <h3 className="text-2xl font-bold mb-4">NarraGlobal</h3>
-              <p className="text-slate-300 leading-relaxed">
-                Consultoría especializada en comunicación y narrativa. Datos para decisores de comunicación.
-              </p>
+              <p className="text-slate-300 leading-relaxed">Consultoría especializada en comunicación y narrativa. Datos para decisores de comunicación.
+Por Lisandro Bregant</p>
             </div>
             
             <div>
@@ -301,7 +296,7 @@ Validada en más +100 clientes de verticales como Ciencia, Agro, Fintech, Stream
           </div>
           
           <div className="border-t border-slate-700 mt-12 pt-8 text-center text-slate-400">
-            <p>&copy; 2024 NarraGlobal. Todos los derechos reservados.</p>
+            <p>© 2025 NarraGlobal. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
