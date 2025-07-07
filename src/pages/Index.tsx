@@ -4,8 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { BarChart3, Eye, Shield, TrendingUp, Mail, Phone, MapPin } from "lucide-react";
+import { BarChart3, Eye, Shield, TrendingUp, Mail, Phone, MapPin, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
 const Index = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,19 +14,33 @@ const Index = () => {
     company: '',
     message: ''
   });
-  const {
-    toast
-  } = useToast();
+
+  const [reportFormData, setReportFormData] = useState({
+    name: '',
+    email: '',
+    company: '',
+    interest: '',
+    message: ''
+  });
+
+  const { toast } = useToast();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {
-      name,
-      value
-    } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
+
+  const handleReportInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setReportFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
@@ -40,7 +55,25 @@ const Index = () => {
       message: ''
     });
   };
-  return <div className="min-h-screen bg-white">
+
+  const handleReportSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Report form submitted:', reportFormData);
+    toast({
+      title: "Suscripción confirmada",
+      description: "Te notificaremos cuando los reportes estén disponibles."
+    });
+    setReportFormData({
+      name: '',
+      email: '',
+      company: '',
+      interest: '',
+      message: ''
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,6 +84,7 @@ const Index = () => {
             <div className="hidden md:flex space-x-8">
               <a href="#servicios" className="text-slate-700 hover:text-blue-600 transition-colors">Servicios</a>
               <a href="#metodologia" className="text-slate-700 hover:text-blue-600 transition-colors">Metodología</a>
+              <a href="#reportes" className="text-slate-700 hover:text-blue-600 transition-colors">Reportes</a>
               <a href="#temporada" className="text-slate-700 hover:text-blue-600 transition-colors">Temporada</a>
               <a href="#contacto" className="text-slate-700 hover:text-blue-600 transition-colors">Contacto</a>
             </div>
@@ -191,6 +225,126 @@ Validada en más +100 clientes de verticales como Ciencia, Agro, Fintech, Stream
         </div>
       </section>
 
+      {/* Reportes Section */}
+      <section id="reportes" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">Reportes especializados</h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Próximamente publicaremos reportes especializados sobre comunicación y narrativas en diferentes sectores
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg mb-6">
+                <FileText className="h-10 w-10 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Reportes en desarrollo</h3>
+              <p className="text-xl text-slate-600 mb-8 leading-relaxed">
+                Estamos preparando reportes detallados sobre tendencias narrativas, análisis sectoriales y mejores prácticas en comunicación. Suscríbete para ser el primero en recibir estos insights exclusivos.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <p className="text-slate-600">Análisis de tendencias narrativas por sector</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <p className="text-slate-600">Estudios de efectividad comunicacional</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <p className="text-slate-600">Mejores prácticas y casos de éxito</p>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <Card className="border-0 shadow-xl">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-6">Suscríbete a nuestros reportes</h3>
+                  <form onSubmit={handleReportSubmit} className="space-y-6">
+                    <div>
+                      <Label htmlFor="report-name" className="text-slate-700">Nombre completo</Label>
+                      <Input 
+                        id="report-name" 
+                        name="name" 
+                        value={reportFormData.name} 
+                        onChange={handleReportInputChange} 
+                        className="mt-1" 
+                        required 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="report-email" className="text-slate-700">Email</Label>
+                      <Input 
+                        id="report-email" 
+                        name="email" 
+                        type="email" 
+                        value={reportFormData.email} 
+                        onChange={handleReportInputChange} 
+                        className="mt-1" 
+                        required 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="report-company" className="text-slate-700">Empresa u organización</Label>
+                      <Input 
+                        id="report-company" 
+                        name="company" 
+                        value={reportFormData.company} 
+                        onChange={handleReportInputChange} 
+                        className="mt-1" 
+                        required 
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="report-interest" className="text-slate-700">Área de interés</Label>
+                      <Input 
+                        id="report-interest" 
+                        name="interest" 
+                        value={reportFormData.interest} 
+                        onChange={handleReportInputChange} 
+                        className="mt-1" 
+                        placeholder="Ej: Fintech, Política, Ciencia, etc."
+                        required 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="report-message" className="text-slate-700">Mensaje (opcional)</Label>
+                      <Textarea 
+                        id="report-message" 
+                        name="message" 
+                        value={reportFormData.message} 
+                        onChange={handleReportInputChange} 
+                        rows={4} 
+                        className="mt-1" 
+                        placeholder="¿Hay algún tema específico que te interese?"
+                      />
+                    </div>
+                    
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
+                      Suscribirme a reportes
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Temporada Section */}
       <section id="temporada" className="py-20 bg-gradient-to-br from-blue-50 to-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -300,6 +454,8 @@ Por Lisandro Bregant</p>
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
