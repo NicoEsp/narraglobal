@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { BarChart3, Eye, Shield, TrendingUp, Mail, Phone, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
 const Index = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -15,28 +13,34 @@ const Index = () => {
     company: '',
     message: ''
   });
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value
+    } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
     toast({
       title: "Mensaje enviado",
-      description: "Nos pondremos en contacto contigo pronto.",
+      description: "Nos pondremos en contacto contigo pronto."
     });
-    setFormData({ name: '', email: '', company: '', message: '' });
+    setFormData({
+      name: '',
+      email: '',
+      company: '',
+      message: ''
+    });
   };
-
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,7 +88,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div className="p-6">
               <div className="text-4xl font-bold text-blue-600 mb-2">2019</div>
-              <p className="text-slate-600">Perfeccionando nuestra metodología</p>
+              <p className="text-slate-600">Perfeccionando nuestra metodología para ofrecer el mejor servicio</p>
             </div>
             <div className="p-6">
               <div className="text-4xl font-bold text-blue-600 mb-2">+100</div>
@@ -92,7 +96,7 @@ const Index = () => {
             </div>
             <div className="p-6">
               <div className="text-4xl font-bold text-blue-600 mb-2">3</div>
-              <p className="text-slate-600">Familias de marcadores</p>
+              <p className="text-slate-600">Familias de marcadores utilizados en nuestros metodos</p>
             </div>
           </div>
         </div>
@@ -234,52 +238,22 @@ const Index = () => {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                       <Label htmlFor="name" className="text-slate-700">Nombre completo</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="mt-1"
-                        required
-                      />
+                      <Input id="name" name="name" value={formData.name} onChange={handleInputChange} className="mt-1" required />
                     </div>
                     
                     <div>
                       <Label htmlFor="email" className="text-slate-700">Email corporativo</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="mt-1"
-                        required
-                      />
+                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="mt-1" required />
                     </div>
                     
                     <div>
                       <Label htmlFor="company" className="text-slate-700">Empresa u organización</Label>
-                      <Input
-                        id="company"
-                        name="company"
-                        value={formData.company}
-                        onChange={handleInputChange}
-                        className="mt-1"
-                        required
-                      />
+                      <Input id="company" name="company" value={formData.company} onChange={handleInputChange} className="mt-1" required />
                     </div>
                     
                     <div>
                       <Label htmlFor="message" className="text-slate-700">Mensaje</Label>
-                      <Textarea
-                        id="message"
-                        name="message"
-                        value={formData.message}
-                        onChange={handleInputChange}
-                        rows={4}
-                        className="mt-1"
-                        placeholder="Cuéntanos sobre tus necesidades de comunicación..."
-                      />
+                      <Textarea id="message" name="message" value={formData.message} onChange={handleInputChange} rows={4} className="mt-1" placeholder="Cuéntanos sobre tus necesidades de comunicación..." />
                     </div>
                     
                     <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
@@ -338,8 +312,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
