@@ -134,11 +134,8 @@ const Index = () => {
                   <BarChart3 className="h-8 w-8 text-green-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-4">Análisis narrativo basado en evidencias</h3>
-                <p className="text-slate-600 leading-relaxed">
-                  Desde el 2019 perfeccionamos una metodología para la medición de efectividad en narrativas basadas 
-                  en tres familias de marcadores: atención, credibilidad e interés. Validada en más +100 clientes 
-                  de verticales como ciencia, agro, fintech, streaming, plataforma OTT, política, entre otros.
-                </p>
+                <p className="text-slate-600 leading-relaxed">Desde el 2019 perfeccionamos una metodología para la medición de efectividad en narrativas basadas en tres familias de marcadores: Atención, Credibilidad e Interés.
+Validada en más +100 clientes de verticales como Ciencia, Agro, Fintech, Streaming y Política, entre otros.</p>
               </CardContent>
             </Card>
 
@@ -149,11 +146,7 @@ const Index = () => {
                   <TrendingUp className="h-8 w-8 text-purple-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-4">Insights profundos para decisores</h3>
-                <p className="text-slate-600 leading-relaxed">
-                  Nuestros informes están pensados para los que deciden el rumbo de la comunicación pública en 
-                  organizaciones y negocios. Entregamos lecturas expertas sobre las narrativas que están operando 
-                  ayudando a bajar el riesgo de esas decisiones.
-                </p>
+                <p className="text-slate-600 leading-relaxed">Nuestros informes están pensados para los que deciden el rumbo de la comunicación pública en organizaciones y negocios. Entregamos lecturas expertas sobre las narrativas que están operando, ayudando a bajar el riesgo de esas decisiones.</p>
               </CardContent>
             </Card>
           </div>
