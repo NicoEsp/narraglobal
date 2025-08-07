@@ -138,7 +138,7 @@ const Index = () => {
               </div>
               <h2 className="text-4xl font-bold text-slate-900 mb-6">Menos ruido en Política</h2>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">Ayudamos con nuestros reportes basados en evidencia a bajar los errores no forzados de comunicación en candidatos, intendentes, gobernadores y presidentes de toda Latinoamérica.</p>
-              <p className="text-lg text-slate-700 font-medium">Completá los datos y en una call breve te contaremos c</p>
+              <p className="text-lg text-slate-700 font-medium">Completá los datos y en una call breve te contaremos cómo trabajamos</p>
             </div>
             
             <div>
