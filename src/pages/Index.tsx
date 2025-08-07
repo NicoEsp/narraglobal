@@ -124,16 +124,14 @@ const Index = () => {
             <p className="text-xl text-slate-600">Testimoniales</p>
           </div>
           
-          {/* Placeholder for company logos */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-items-center">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
-              <div 
-                key={i} 
-                className="w-32 h-20 bg-slate-100 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300"
-              >
-                <span className="text-slate-400 text-sm">Logo {i}</span>
-              </div>
-            ))}
+          {/* Imagen de clientes / testimoniales */}
+          <div className="max-w-4xl mx-auto">
+            <img
+              src="/lovable-uploads/81d0c622-2277-4a73-bec8-0eda27dde7f7.png"
+              alt="Clientes de NarraGlobal – testimoniales y logos de empresas"
+              loading="lazy"
+              className="w-full h-auto rounded-lg shadow-sm"
+            />
           </div>
         </div>
       </section>
