@@ -293,7 +293,7 @@ const Index = () => {
               Medimos la calidad narrativa en industrias competitivas como agro, ciencia, minería, fintech, 
               entretenimiento, deportes de alto rendimiento, juicio por jurados, y más.
             </p>
-            <p className="text-lg text-slate-700 mt-6 font-medium my-[25px] mx-[250px]">
+            <p className="text-base sm:text-lg text-slate-700 mt-6 font-medium max-w-2xl mx-auto px-4 text-center">
               Suscribite para ser el primero en conocer quiénes son las empresas, campañas y figuras públicas 
               que generan más impacto en su vertical.
             </p>
