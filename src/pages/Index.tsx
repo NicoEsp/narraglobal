@@ -193,7 +193,7 @@ const Index = () => {
               <h1 className="text-2xl font-bold text-slate-900">NarraGlobal</h1>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#clientes" className="text-slate-700 hover:text-blue-600 transition-colors">Reportes</a>
+              <a href="#clientes" className="text-slate-700 hover:text-blue-600 transition-colors">Clientes</a>
               <a href="#politica" className="text-slate-700 hover:text-blue-600 transition-colors">Política</a>
               <a href="#industrias" className="text-slate-700 hover:text-blue-600 transition-colors">Newsletter</a>
               <a href="#emergencia" className="text-slate-700 hover:text-blue-600 transition-colors">Emergencia</a>
