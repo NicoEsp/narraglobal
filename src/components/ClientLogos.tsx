@@ -75,24 +75,24 @@ const ClientLogos: React.FC = () => {
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="w-32 h-20 bg-slate-100 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300"
+          className="w-32 h-20 rounded-lg flex items-center justify-center border-2 border-dashed border-border bg-muted/30"
         >
-          <span className="text-slate-400 text-sm">Logo {i + 1}</span>
+          <span className="text-muted-foreground text-sm">Logo {i + 1}</span>
         </div>
       ))}
     </>
   );
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-items-center">
+    <div className="grid grid-cols-4 gap-8 items-center justify-items-center">
       {loading && <PlaceholderGrid />}
       
       {!loading &&
         logos.length > 0 &&
-        logos.map((logo) => (
+        logos.slice(0, 8).map((logo) => (
           <div
             key={logo.name}
-            className="w-32 h-20 bg-white rounded-lg flex items-center justify-center border border-slate-200 shadow-sm p-2"
+            className="w-32 h-20 rounded-lg flex items-center justify-center border border-border bg-muted/30 shadow-sm p-2"
             title={formatAlt(logo.name)}
           >
             <img
