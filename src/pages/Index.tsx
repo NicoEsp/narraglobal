@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Users, Building2, Zap, ExternalLink, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabaseClient";
 const Index = () => {
   // Form for political section
   const [politicalFormData, setPoliticalFormData] = useState({
@@ -19,7 +19,9 @@ const Index = () => {
   const [industryFormData, setIndustryFormData] = useState({
     email: ''
   });
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [savingPolitical, setSavingPolitical] = useState(false);
   const [savingIndustry, setSavingIndustry] = useState(false);
 
@@ -27,28 +29,46 @@ const Index = () => {
   useEffect(() => {
     const run = async () => {
       try {
-
-        const check = async (table: 'political_contacts' | 'industry_subscriptions') => {
-          const { error } = await supabase.from(table).select('*', { head: true, count: 'exact' });
-          if (!error) return { table, status: 'exists_select_allowed' as const };
+        const supabase = getSupabase();
+        const check = async (table: string) => {
+          const {
+            error
+          } = await supabase.from(table).select('*', {
+            head: true,
+            count: 'exact'
+          });
+          if (!error) return {
+            table,
+            status: 'exists_select_allowed' as const
+          };
           const text = `${(error as any).code ?? ''} ${(error as any).message ?? ''}`.toLowerCase();
           if (text.includes('not found') || text.includes('does not exist') || text.includes('42p01')) {
-            return { table, status: 'missing' as const, error };
+            return {
+              table,
+              status: 'missing' as const,
+              error
+            };
           }
           if (text.includes('permission') || text.includes('select') || text.includes('anonymous') || text.includes('rls')) {
-            return { table, status: 'exists_select_forbidden' as const, error };
+            return {
+              table,
+              status: 'exists_select_forbidden' as const,
+              error
+            };
           }
-          return { table, status: 'unknown' as const, error };
+          return {
+            table,
+            status: 'unknown' as const,
+            error
+          };
         };
-
-        const results = await Promise.all([
-          check('political_contacts'),
-          check('industry_subscriptions'),
-        ]);
-
+        const results = await Promise.all([check('political_contacts'), check('industry_subscriptions')]);
         console.groupCollapsed('[Supabase] Verificación de tablas');
         (results as any[]).forEach((r: any) => {
-          console.log(`${r.table}: ${r.status}`, r.error ? { code: r.error.code, message: r.error.message } : '');
+          console.log(`${r.table}: ${r.status}`, r.error ? {
+            code: r.error.code,
+            message: r.error.message
+          } : '');
         });
         console.groupEnd();
       } catch (e) {
@@ -57,7 +77,6 @@ const Index = () => {
     };
     run();
   }, []);
-
   const handlePoliticalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       name,
@@ -82,28 +101,33 @@ const Index = () => {
     e.preventDefault();
     setSavingPolitical(true);
     try {
-      const { error } = await supabase.from('political_contacts').insert([
-        {
-          name: politicalFormData.name,
-          email: politicalFormData.email,
-          phone: politicalFormData.phone,
-          organization: politicalFormData.organization,
-          source: 'web',
-        },
-      ]);
+      const supabase = getSupabase();
+      const {
+        error
+      } = await supabase.from('political_contacts').insert([{
+        name: politicalFormData.name,
+        email: politicalFormData.email,
+        phone: politicalFormData.phone,
+        organization: politicalFormData.organization,
+        source: 'web'
+      }]);
       if (error) throw error;
-
       toast({
         title: "Solicitud enviada",
-        description: "Te contactaremos pronto para coordinar una call.",
+        description: "Te contactaremos pronto para coordinar una call."
       });
-      setPoliticalFormData({ name: '', email: '', phone: '', organization: '' });
+      setPoliticalFormData({
+        name: '',
+        email: '',
+        phone: '',
+        organization: ''
+      });
     } catch (err) {
       console.error('Political form error:', err);
       toast({
         title: "No se pudo enviar",
         description: "Intentalo nuevamente en unos minutos.",
-        variant: "destructive",
+        variant: "destructive"
       } as any);
     } finally {
       setSavingPolitical(false);
@@ -113,17 +137,19 @@ const Index = () => {
     e.preventDefault();
     setSavingIndustry(true);
     try {
-      
-      const { error } = await supabase
-        .from('industry_subscriptions')
-        .insert([{ email: industryFormData.email, source: 'web' }] );
-
+      const supabase = getSupabase();
+      const {
+        error
+      } = await supabase.from('industry_subscriptions').insert([{
+        email: industryFormData.email,
+        source: 'web'
+      }]);
       if (error) {
         // Duplicado por unique index (email)
         if ((error as any).code === '23505') {
           toast({
             title: "Ya estás suscripto",
-            description: "Ese email ya está en nuestra lista.",
+            description: "Ese email ya está en nuestra lista."
           });
         } else {
           throw error;
@@ -131,16 +157,18 @@ const Index = () => {
       } else {
         toast({
           title: "Suscripción confirmada",
-          description: "Serás el primero en conocer nuestros reportes de industria.",
+          description: "Serás el primero en conocer nuestros reportes de industria."
         });
-        setIndustryFormData({ email: '' });
+        setIndustryFormData({
+          email: ''
+        });
       }
     } catch (err) {
       console.error('Industry subscription error:', err);
       toast({
         title: "No se pudo suscribir",
         description: "Intentalo nuevamente en unos minutos.",
-        variant: "destructive",
+        variant: "destructive"
       } as any);
     } finally {
       setSavingIndustry(false);
@@ -161,9 +189,9 @@ const Index = () => {
               <h1 className="text-2xl font-bold text-slate-900">NarraGlobal</h1>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#clientes" className="text-slate-700 hover:text-blue-600 transition-colors">Clientes</a>
+              <a href="#clientes" className="text-slate-700 hover:text-blue-600 transition-colors">Reportes</a>
               <a href="#politica" className="text-slate-700 hover:text-blue-600 transition-colors">Política</a>
-              <a href="#industrias" className="text-slate-700 hover:text-blue-600 transition-colors">Industrias</a>
+              <a href="#industrias" className="text-slate-700 hover:text-blue-600 transition-colors">Newsletter</a>
               <a href="#emergencia" className="text-slate-700 hover:text-blue-600 transition-colors">Emergencia</a>
               <Button onClick={openSubstack} className="bg-blue-600 hover:bg-blue-700 text-white">
                 Reportes
