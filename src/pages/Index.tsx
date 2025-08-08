@@ -7,7 +7,6 @@ import { Shield, Users, Building2, Zap, ExternalLink, Calendar } from "lucide-re
 import { useToast } from "@/hooks/use-toast";
 import { getSupabase } from "@/lib/supabaseClient";
 import ClientLogos from "@/components/ClientLogos";
-
 const Index = () => {
   // Form for political section
   const [politicalFormData, setPoliticalFormData] = useState({
@@ -226,7 +225,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">Clientes</h2>
-            <p className="text-xl text-blue-100">Testimoniales</p>
+            <p className="text-xl text-blue-100">Acompañamos a estos clientes en su Comunicación y sus Narrativas</p>
           </div>
 
           {/* Logos desde Supabase Storage */}
@@ -367,5 +366,4 @@ const Index = () => {
       </footer>
     </div>;
 };
-
 export default Index;
