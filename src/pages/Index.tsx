@@ -215,9 +215,7 @@ const Index = () => {
               <span className="text-blue-600 block">Más impacto</span>
             </h1>
             <p className="text-xl text-slate-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Con nuestro método NarraNoise detectamos y limpiamos el ruido que hay actualmente en su narrativa pública. 
-              Ayudando a que sus mensajes lleguen claros y confiables al cerebro de sus audiencias. 
-              Ah, y también le ayudamos a dejar de invertir tiempo y dinero en comunicación basura.
+              Detectamos y limpiamos el ruido que hay actualmente en su narrativa pública para que sus mensajes lleguen claros y confiables al cerebro de sus audiencias.
             </p>
           </div>
         </div>
@@ -245,8 +243,8 @@ const Index = () => {
                 <Shield className="h-10 w-10 text-blue-600" />
               </div>
               <h2 className="text-4xl font-bold text-slate-900 mb-6">Menos ruido en Política</h2>
-              <p className="text-xl text-slate-600 mb-8 leading-relaxed">Ayudamos con nuestros reportes basados en evidencia a bajar los errores no forzados de comunicación en candidatos, intendentes, gobernadores y presidentes de toda Latinoamérica.</p>
-              <p className="text-lg text-slate-700 font-medium">Completá los datos y en una call breve te contaremos cómo trabajamos</p>
+              <p className="text-xl text-slate-600 mb-8 leading-relaxed">Con nuestros reportes basados en evidencia ayudamos a bajar errores no forzados de comunicación en candidatos, intendentes, gobernadores y presidentes de toda latinoamérica.</p>
+              <p className="text-lg text-slate-700 font-medium">Completá los datos y en una call breve te contaremos cómo podemos colaborar</p>
             </div>
             
             <div>
@@ -337,6 +335,17 @@ const Index = () => {
           <Button onClick={openEmergencyWhatsApp} size="lg" className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg">
             <Calendar className="mr-2 h-5 w-5" />
             Agendar reunión de emergencia
+          </Button>
+        </div>
+      </section>
+
+      {/* Reporte más reciente */}
+      <section className="py-16 bg-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg">
+            <a href="https://drive.google.com/file/d/1ZINMjFAW6WQucYvk25ek1hcrXAY8_2YS/view" target="_blank" rel="noopener noreferrer" aria-label="Accedé al Reporte más reciente - NarraGlobal">
+              Accedé al Reporte más reciente
+            </a>
           </Button>
         </div>
       </section>
