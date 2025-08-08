@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Users, Building2, Zap, ExternalLink, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getSupabase } from "@/lib/supabaseClient";
 const Index = () => {
   // Form for political section
   const [politicalFormData, setPoliticalFormData] = useState({
@@ -18,9 +19,9 @@ const Index = () => {
   const [industryFormData, setIndustryFormData] = useState({
     email: ''
   });
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const [savingPolitical, setSavingPolitical] = useState(false);
+  const [savingIndustry, setSavingIndustry] = useState(false);
   const handlePoliticalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       name,
@@ -41,30 +42,74 @@ const Index = () => {
       [name]: value
     }));
   };
-  const handlePoliticalSubmit = (e: React.FormEvent) => {
+  const handlePoliticalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Political form submitted:', politicalFormData);
-    toast({
-      title: "Solicitud enviada",
-      description: "Te contactaremos pronto para coordinar una call."
-    });
-    setPoliticalFormData({
-      name: '',
-      email: '',
-      phone: '',
-      organization: ''
-    });
+    setSavingPolitical(true);
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase.from('political_contacts').insert([
+        {
+          name: politicalFormData.name,
+          email: politicalFormData.email,
+          phone: politicalFormData.phone,
+          organization: politicalFormData.organization,
+          source: 'web',
+        },
+      ]);
+      if (error) throw error;
+
+      toast({
+        title: "Solicitud enviada",
+        description: "Te contactaremos pronto para coordinar una call.",
+      });
+      setPoliticalFormData({ name: '', email: '', phone: '', organization: '' });
+    } catch (err) {
+      console.error('Political form error:', err);
+      toast({
+        title: "No se pudo enviar",
+        description: "Intentalo nuevamente en unos minutos.",
+        variant: "destructive",
+      } as any);
+    } finally {
+      setSavingPolitical(false);
+    }
   };
-  const handleIndustrySubmit = (e: React.FormEvent) => {
+  const handleIndustrySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Industry subscription submitted:', industryFormData);
-    toast({
-      title: "Suscripción confirmada",
-      description: "Serás el primero en conocer nuestros reportes de industria."
-    });
-    setIndustryFormData({
-      email: ''
-    });
+    setSavingIndustry(true);
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('industry_subscriptions')
+        .insert([{ email: industryFormData.email, source: 'web' }] );
+
+      if (error) {
+        // Duplicado por unique index (email)
+        if ((error as any).code === '23505') {
+          toast({
+            title: "Ya estás suscripto",
+            description: "Ese email ya está en nuestra lista.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Suscripción confirmada",
+          description: "Serás el primero en conocer nuestros reportes de industria.",
+        });
+        setIndustryFormData({ email: '' });
+      }
+    } catch (err) {
+      console.error('Industry subscription error:', err);
+      toast({
+        title: "No se pudo suscribir",
+        description: "Intentalo nuevamente en unos minutos.",
+        variant: "destructive",
+      } as any);
+    } finally {
+      setSavingIndustry(false);
+    }
   };
   const openCalendly = () => {
     window.open('https://calendly.com/narraglobal', '_blank');
@@ -166,7 +211,7 @@ const Index = () => {
                       <Input id="political-organization" name="organization" value={politicalFormData.organization} onChange={handlePoliticalChange} className="mt-1" required />
                     </div>
                     
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">Solicitar llamada</Button>
+                    <Button type="submit" disabled={savingPolitical} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">{savingPolitical ? 'Enviando…' : 'Solicitar llamada'}</Button>
                   </form>
                 </CardContent>
               </Card>
@@ -203,9 +248,7 @@ const Index = () => {
                     <Input id="industry-email" name="email" type="email" value={industryFormData.email} onChange={handleIndustryChange} className="mt-1" placeholder="tu@email.com" required />
                   </div>
                   
-                  <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white py-3">
-                    Suscribirme
-                  </Button>
+                  <Button type="submit" disabled={savingIndustry} className="w-full bg-green-600 hover:bg-green-700 text-white py-3">{savingIndustry ? 'Enviando…' : 'Suscribirme'}</Button>
                 </form>
               </CardContent>
             </Card>
