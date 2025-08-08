@@ -13,12 +13,14 @@ const Index = () => {
     name: '',
     email: '',
     phone: '',
-    organization: ''
+    organization: '',
+    hp: ''
   });
 
   // Form for industry subscription
   const [industryFormData, setIndustryFormData] = useState({
-    email: ''
+    email: '',
+    hp: ''
   });
   const {
     toast
@@ -103,16 +105,20 @@ const Index = () => {
     setSavingPolitical(true);
     try {
       const supabase = getSupabase();
-      const {
-        error
-      } = await supabase.from('political_contacts').insert([{
-        name: politicalFormData.name,
-        email: politicalFormData.email,
-        phone: politicalFormData.phone,
-        organization: politicalFormData.organization,
-        source: 'web'
-      }]);
-      if (error) throw error;
+      const { data, error } = await supabase.rpc('submit_political_contact', {
+        _name: politicalFormData.name,
+        _email: politicalFormData.email,
+        _phone: politicalFormData.phone,
+        _organization: politicalFormData.organization,
+        _source: 'web',
+        _honeypot: politicalFormData.hp || null,
+      });
+      if (error) {
+        if ((error as any).code === 'P0001') {
+          throw new Error((error as any).message || 'Validación fallida');
+        }
+        throw error;
+      }
       toast({
         title: "Solicitud enviada",
         description: "Te contactaremos pronto para coordinar una call."
@@ -121,13 +127,14 @@ const Index = () => {
         name: '',
         email: '',
         phone: '',
-        organization: ''
+        organization: '',
+        hp: '',
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Political form error:', err);
       toast({
         title: "No se pudo enviar",
-        description: "Intentalo nuevamente en unos minutos.",
+        description: err?.message || "Intentalo nuevamente en unos minutos.",
         variant: "destructive"
       } as any);
     } finally {
@@ -139,19 +146,19 @@ const Index = () => {
     setSavingIndustry(true);
     try {
       const supabase = getSupabase();
-      const {
-        error
-      } = await supabase.from('industry_subscriptions').insert([{
-        email: industryFormData.email,
-        source: 'web'
-      }]);
+      const { data, error } = await supabase.rpc('submit_industry_subscription', {
+        _email: industryFormData.email,
+        _source: 'web',
+        _honeypot: industryFormData.hp || null,
+      });
       if (error) {
-        // Duplicado por unique index (email)
         if ((error as any).code === '23505') {
           toast({
             title: "Ya estás suscripto",
             description: "Ese email ya está en nuestra lista."
           });
+        } else if ((error as any).code === 'P0001') {
+          throw new Error((error as any).message || 'Validación fallida');
         } else {
           throw error;
         }
@@ -160,15 +167,13 @@ const Index = () => {
           title: "Suscripción confirmada",
           description: "Serás el primero en conocer nuestros reportes de industria."
         });
-        setIndustryFormData({
-          email: ''
-        });
+        setIndustryFormData({ email: '', hp: '' });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Industry subscription error:', err);
       toast({
         title: "No se pudo suscribir",
-        description: "Intentalo nuevamente en unos minutos.",
+        description: err?.message || "Intentalo nuevamente en unos minutos.",
         variant: "destructive"
       } as any);
     } finally {
@@ -278,6 +283,18 @@ const Index = () => {
                       <Input id="political-organization" name="organization" value={politicalFormData.organization} onChange={handlePoliticalChange} className="mt-1" required />
                     </div>
                     
+                    {/* Honeypot anti-bot */}
+                    <input
+                      type="text"
+                      name="hp"
+                      value={politicalFormData.hp}
+                      onChange={handlePoliticalChange}
+                      className="hidden"
+                      autoComplete="off"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                    />
+                    
                     <Button type="submit" disabled={savingPolitical} className="w-full py-3">{savingPolitical ? 'Enviando…' : 'Solicitar llamada'}</Button>
                   </form>
                 </CardContent>
@@ -314,6 +331,18 @@ const Index = () => {
                     <Label htmlFor="industry-email" className="text-slate-700">Email</Label>
                     <Input id="industry-email" name="email" type="email" value={industryFormData.email} onChange={handleIndustryChange} className="mt-1" placeholder="tu@email.com" required />
                   </div>
+                  
+                  {/* Honeypot anti-bot */}
+                  <input
+                    type="text"
+                    name="hp"
+                    value={industryFormData.hp}
+                    onChange={handleIndustryChange}
+                    className="hidden"
+                    autoComplete="off"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  />
                   
                   <Button type="submit" disabled={savingIndustry} className="w-full bg-green-600 hover:bg-green-700 text-white py-3">{savingIndustry ? 'Enviando…' : 'Suscribirme'}</Button>
                 </form>
