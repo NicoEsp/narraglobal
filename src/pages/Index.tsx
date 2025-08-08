@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Users, Building2, Zap, ExternalLink, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getSupabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 const Index = () => {
   // Form for political section
   const [politicalFormData, setPoliticalFormData] = useState({
@@ -27,9 +27,8 @@ const Index = () => {
   useEffect(() => {
     const run = async () => {
       try {
-        const supabase = getSupabase();
 
-        const check = async (table: string) => {
+        const check = async (table: 'political_contacts' | 'industry_subscriptions') => {
           const { error } = await supabase.from(table).select('*', { head: true, count: 'exact' });
           if (!error) return { table, status: 'exists_select_allowed' as const };
           const text = `${(error as any).code ?? ''} ${(error as any).message ?? ''}`.toLowerCase();
@@ -83,7 +82,6 @@ const Index = () => {
     e.preventDefault();
     setSavingPolitical(true);
     try {
-      const supabase = getSupabase();
       const { error } = await supabase.from('political_contacts').insert([
         {
           name: politicalFormData.name,
@@ -115,7 +113,7 @@ const Index = () => {
     e.preventDefault();
     setSavingIndustry(true);
     try {
-      const supabase = getSupabase();
+      
       const { error } = await supabase
         .from('industry_subscriptions')
         .insert([{ email: industryFormData.email, source: 'web' }] );
