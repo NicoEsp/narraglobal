@@ -202,6 +202,12 @@ const Index = () => {
                 <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
             </div>
+            <div className="md:hidden">
+              <Button onClick={openSubstack} className="bg-blue-600 hover:bg-blue-700 text-white" aria-label="Abrir Reportes">
+                Reportes
+                <ExternalLink className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
