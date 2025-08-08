@@ -98,6 +98,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      submit_industry_subscription: {
+        Args: { _email: string; _source?: string; _honeypot?: string }
+        Returns: string
+      }
+      submit_political_contact: {
+        Args: {
+          _name: string
+          _email: string
+          _phone: string
+          _organization?: string
+          _source?: string
+          _honeypot?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
