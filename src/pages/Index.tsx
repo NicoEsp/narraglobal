@@ -222,11 +222,11 @@ const Index = () => {
       </section>
 
       {/* Clientes Section */}
-      <section id="clientes" className="py-20 bg-white">
+      <section id="clientes" className="py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">Clientes</h2>
-            <p className="text-xl text-slate-600">Testimoniales</p>
+            <h2 className="text-4xl font-bold text-white mb-4">Clientes</h2>
+            <p className="text-xl text-blue-100">Testimoniales</p>
           </div>
 
           {/* Logos desde Supabase Storage */}
