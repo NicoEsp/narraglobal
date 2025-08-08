@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,43 @@ const Index = () => {
   const { toast } = useToast();
   const [savingPolitical, setSavingPolitical] = useState(false);
   const [savingIndustry, setSavingIndustry] = useState(false);
+
+  // Supabase setup verification (non-mutating)
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const supabase = getSupabase();
+
+        const check = async (table: string) => {
+          const { error } = await supabase.from(table).select('*', { head: true, count: 'exact' });
+          if (!error) return { table, status: 'exists_select_allowed' as const };
+          const text = `${(error as any).code ?? ''} ${(error as any).message ?? ''}`.toLowerCase();
+          if (text.includes('not found') || text.includes('does not exist') || text.includes('42p01')) {
+            return { table, status: 'missing' as const, error };
+          }
+          if (text.includes('permission') || text.includes('select') || text.includes('anonymous') || text.includes('rls')) {
+            return { table, status: 'exists_select_forbidden' as const, error };
+          }
+          return { table, status: 'unknown' as const, error };
+        };
+
+        const results = await Promise.all([
+          check('political_contacts'),
+          check('industry_subscriptions'),
+        ]);
+
+        console.groupCollapsed('[Supabase] Verificación de tablas');
+        (results as any[]).forEach((r: any) => {
+          console.log(`${r.table}: ${r.status}`, r.error ? { code: r.error.code, message: r.error.message } : '');
+        });
+        console.groupEnd();
+      } catch (e) {
+        console.error('[Supabase] Verificación fallida', e);
+      }
+    };
+    run();
+  }, []);
+
   const handlePoliticalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       name,
