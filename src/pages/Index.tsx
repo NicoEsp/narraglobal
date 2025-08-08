@@ -190,20 +190,20 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-slate-900">NarraGlobal</h1>
+              <img src="https://aydtxqhtkcyytsamervs.supabase.co/storage/v1/object/public/client-logos/id_simpleazul.png" alt="NarraGlobal logo" className="h-8 md:h-10 w-auto" loading="eager" decoding="async" />
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#clientes" className="text-slate-700 hover:text-blue-600 transition-colors">Clientes</a>
-              <a href="#politica" className="text-slate-700 hover:text-blue-600 transition-colors">Política</a>
-              <a href="#industrias" className="text-slate-700 hover:text-blue-600 transition-colors">Newsletter</a>
-              <a href="#emergencia" className="text-slate-700 hover:text-blue-600 transition-colors">Emergencia</a>
-              <Button onClick={openSubstack} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <a href="#clientes" className="text-slate-700 hover:text-primary transition-colors">Clientes</a>
+              <a href="#politica" className="text-slate-700 hover:text-primary transition-colors">Política</a>
+              <a href="#industrias" className="text-slate-700 hover:text-primary transition-colors">Newsletter</a>
+              <a href="#emergencia" className="text-slate-700 hover:text-primary transition-colors">Emergencia</a>
+              <Button onClick={openSubstack}>
                 Reportes
                 <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
             </div>
             <div className="md:hidden">
-              <Button onClick={openSubstack} className="bg-blue-600 hover:bg-blue-700 text-white" aria-label="Abrir Reportes">
+              <Button onClick={openSubstack} aria-label="Abrir Reportes">
                 Reportes
                 <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
@@ -213,12 +213,12 @@ const Index = () => {
       </nav>
 
       {/* Hero Section - Menos ruido. Más impacto */}
-      <section className="pt-20 pb-32 bg-gradient-to-br from-slate-50 to-blue-50">
+       <section className="pt-20 pb-32 bg-gradient-to-br from-slate-50 to-[hsl(var(--primary)/0.1)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-8 leading-tight">
               Menos ruido.
-              <span className="text-blue-600 block">Más impacto</span>
+              <span className="text-primary block">Más impacto</span>
             </h1>
             <p className="text-xl text-slate-600 mb-12 max-w-4xl mx-auto leading-relaxed">
               Detectamos y limpiamos el ruido que hay actualmente en su narrativa pública para que sus mensajes lleguen claros y confiables al cerebro de sus audiencias.
@@ -228,11 +228,11 @@ const Index = () => {
       </section>
 
       {/* Clientes Section */}
-      <section id="clientes" className="py-20 bg-blue-600">
+      <section id="clientes" className="py-20 bg-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">Clientes</h2>
-            <p className="text-xl text-blue-100">Acompañamos a estos clientes en su Comunicación y sus Narrativas</p>
+            <p className="text-xl text-primary-foreground/80">Acompañamos a estos clientes en su Comunicación y sus Narrativas</p>
           </div>
 
           {/* Logos desde Supabase Storage */}
@@ -245,8 +245,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-lg mb-6">
-                <Shield className="h-10 w-10 text-blue-600" />
+              <div className="flex items-center justify-center w-20 h-20 bg-[hsl(var(--primary)/0.1)] rounded-lg mb-6">
+                <Shield className="h-10 w-10 text-primary" />
               </div>
               <h2 className="text-4xl font-bold text-slate-900 mb-6">Menos ruido en Política</h2>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">Con nuestros reportes basados en evidencia ayudamos a bajar errores no forzados de comunicación en candidatos, intendentes, gobernadores y presidentes de toda latinoamérica.</p>
@@ -278,7 +278,7 @@ const Index = () => {
                       <Input id="political-organization" name="organization" value={politicalFormData.organization} onChange={handlePoliticalChange} className="mt-1" required />
                     </div>
                     
-                    <Button type="submit" disabled={savingPolitical} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">{savingPolitical ? 'Enviando…' : 'Solicitar llamada'}</Button>
+                    <Button type="submit" disabled={savingPolitical} className="w-full py-3">{savingPolitical ? 'Enviando…' : 'Solicitar llamada'}</Button>
                   </form>
                 </CardContent>
               </Card>
