@@ -181,6 +181,9 @@ const Index = () => {
   const openSubstack = () => {
     window.open('https://lisandrobregant.substack.com/', '_blank');
   };
+  const openEmergencyWhatsApp = () => {
+    window.open('https://wa.link/zslnkf', '_blank', 'noopener,noreferrer');
+  };
   return <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
@@ -331,7 +334,7 @@ const Index = () => {
           <p className="text-xl text-slate-600 mb-12 leading-relaxed">Tenemos un método de triage para situaciones de alta complejidad pública.
         </p>
           
-          <Button onClick={openCalendly} size="lg" className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg">
+          <Button onClick={openEmergencyWhatsApp} size="lg" className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg">
             <Calendar className="mr-2 h-5 w-5" />
             Agendar reunión de emergencia
           </Button>
