@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { supabase as generatedClient } from "@/integrations/supabase/client";
 
 declare global {
   interface Window {
@@ -14,13 +15,18 @@ export function getSupabase(): SupabaseClient {
     const url = window.__SUPABASE_URL__;
     const key = window.__SUPABASE_ANON_KEY__;
 
-    if (!url || !key) {
-      throw new Error(
-        "Supabase no está configurado aún. Conecta la integración en Lovable y asegúrate de que el cliente del navegador tenga URL y anon key."
-      );
+    if (url && key) {
+      client = createClient(url, key, {
+        auth: {
+          storage: localStorage,
+          persistSession: true,
+          autoRefreshToken: true,
+        },
+      });
+    } else {
+      console.info("[Supabase] Usando cliente auto-generado (fallback)");
+      client = generatedClient as unknown as SupabaseClient;
     }
-
-    client = createClient(url, key);
   }
 
   return client;
