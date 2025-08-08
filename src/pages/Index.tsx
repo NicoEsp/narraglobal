@@ -179,7 +179,7 @@ const Index = () => {
     window.open('https://calendly.com/narraglobal', '_blank');
   };
   const openSubstack = () => {
-    window.open('https://lisandrobregant.substack.com/', '_blank');
+    window.open('https://drive.google.com/file/d/1ZINMjFAW6WQucYvk25ek1hcrXAY8_2YS/view', '_blank', 'noopener,noreferrer');
   };
   const openEmergencyWhatsApp = () => {
     window.open('https://wa.link/zslnkf', '_blank', 'noopener,noreferrer');
@@ -339,16 +339,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Reporte más reciente */}
-      <section className="py-16 bg-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg">
-            <a href="https://drive.google.com/file/d/1ZINMjFAW6WQucYvk25ek1hcrXAY8_2YS/view" target="_blank" rel="noopener noreferrer" aria-label="Accedé al Reporte más reciente - NarraGlobal">
-              Accedé al Reporte más reciente
-            </a>
-          </Button>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="bg-slate-900 text-white py-16">
