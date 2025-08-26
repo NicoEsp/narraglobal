@@ -21,13 +21,12 @@ const HeroSection = () => {
         </div>
         
         <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-          Datos para decisores de{" "}
-          <span className="text-primary">comunicación</span>
+          Dato mejora{" "}
+          <span className="text-primary">relato</span>
         </h1>
         
         <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-          Consultoría especializada en comunicación y narrativa. Análisis narrativo basado en evidencias 
-          para decisores de comunicación.
+          Evidencia aplicada a mensajes públicos
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
