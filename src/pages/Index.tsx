@@ -3,10 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Users, Building2, Zap, ExternalLink, Calendar, Check, Star } from "lucide-react";
+import { Shield, Building2, Zap, ExternalLink, Calendar, Check, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getSupabase } from "@/lib/supabaseClient";
 import ClientLogos from "@/components/ClientLogos";
+import Navigation from "@/components/Navigation";
+import HeroSection from "@/components/HeroSection";
+import PricingSection from "@/components/PricingSection";
 const Index = () => {
   // Form for political section
   const [politicalFormData, setPoliticalFormData] = useState({
@@ -190,48 +193,8 @@ const Index = () => {
     window.open('https://wa.link/zslnkf', '_blank', 'noopener,noreferrer');
   };
   return <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <img src="https://aydtxqhtkcyytsamervs.supabase.co/storage/v1/object/public/client-logos/id_simpleazul.png" alt="NarraGlobal logo" className="h-8 md:h-10 w-auto" loading="eager" decoding="async" />
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#clientes" className="text-slate-700 hover:text-primary transition-colors">Clientes</a>
-              <a href="#politica" className="text-slate-700 hover:text-primary transition-colors">Política</a>
-              <a href="#industrias" className="text-slate-700 hover:text-primary transition-colors">Newsletter</a>
-              <a href="#pricing" className="text-slate-700 hover:text-primary transition-colors">Planes</a>
-              <a href="#emergencia" className="text-slate-700 hover:text-primary transition-colors">Emergencia</a>
-              <Button onClick={openSubstack}>
-                Reportes
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-            <div className="md:hidden">
-              <Button onClick={openSubstack} aria-label="Abrir Reportes">
-                Reportes
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section - Menos ruido. Más impacto */}
-       <section className="pt-20 pb-32 bg-gradient-to-br from-slate-50 to-[hsl(var(--primary)/0.1)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-8 leading-tight">
-              Menos ruido.
-              <span className="text-primary block">Más impacto</span>
-            </h1>
-            <p className="text-xl text-slate-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Detectamos y limpiamos el ruido que hay actualmente en su narrativa pública para que sus mensajes lleguen claros y confiables al cerebro de sus audiencias.
-            </p>
-          </div>
-        </div>
-      </section>
+      <Navigation />
+      <HeroSection />
 
       {/* Clientes Section */}
       <section id="clientes" className="py-20 bg-primary">
@@ -353,152 +316,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">Planes y Precios</h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Elige el plan que mejor se adapte a tus necesidades de análisis narrativo y comunicación
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Plan Reporte */}
-            <Card className="border-0 shadow-xl bg-white relative">
-              <CardContent className="p-8">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Reporte</h3>
-                  <div className="text-4xl font-bold text-primary mb-2">$99</div>
-                  <div className="text-slate-600">por mes</div>
-                </div>
-                
-                <div className="mb-6">
-                  <div className="text-center text-slate-700 font-medium mb-4">10 análisis mensuales</div>
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Reportes básicos de narrativa</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Análisis de ruido comunicacional</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Dashboard básico</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Soporte por email</span>
-                  </li>
-                </ul>
-
-                <Button className="w-full" variant="outline">
-                  Comenzar
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Plan Profesional */}
-            <Card className="border-0 shadow-xl bg-white relative border-2 border-primary">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium flex items-center">
-                  <Star className="h-4 w-4 mr-1" />
-                  Más Popular
-                </div>
-              </div>
-              
-              <CardContent className="p-8 pt-12">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Profesional</h3>
-                  <div className="text-4xl font-bold text-primary mb-2">$299</div>
-                  <div className="text-slate-600">por mes</div>
-                </div>
-                
-                <div className="mb-6">
-                  <div className="text-center text-slate-700 font-medium mb-4">50 análisis mensuales</div>
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Todo lo del Plan Reporte</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Análisis político avanzado</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Reportes de industria personalizados</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Consultoría mensual (2 horas)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Soporte prioritario</span>
-                  </li>
-                </ul>
-
-                <Button className="w-full">
-                  Comenzar
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Plan Corporativo */}
-            <Card className="border-0 shadow-xl bg-white relative">
-              <CardContent className="p-8">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Corporativo</h3>
-                  <div className="text-4xl font-bold text-primary mb-2">$899</div>
-                  <div className="text-slate-600">por mes</div>
-                </div>
-                
-                <div className="mb-6">
-                  <div className="text-center text-slate-700 font-medium mb-4">Análisis ilimitados</div>
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Todo lo del Plan Profesional</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Método NarraNoise completo</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Triage de crisis incluido</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Consultoría semanal dedicada</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">Acceso directo a Lisandro Bregant</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Check className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">SLA garantizado</span>
-                  </li>
-                </ul>
-
-                <Button className="w-full" variant="outline">
-                  Contactar
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      <PricingSection />
 
       {/* Divider */}
       <div className="border-t border-gray-200"></div>
