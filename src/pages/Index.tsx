@@ -275,14 +275,12 @@ const Index = () => {
             <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg mb-6 mx-auto">
               <Building2 className="h-10 w-10 text-green-600" />
             </div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-6">Más impacto en Industrias</h2>
+            <h2 className="text-4xl font-bold text-slate-900 mb-6">Narrativas para industrias</h2>
             <p className="text-xl text-slate-600 max-w-4xl mx-auto leading-relaxed">
-              Medimos la calidad narrativa en industrias competitivas como agro, ciencia, minería, fintech, 
-              entretenimiento, deportes de alto rendimiento, juicio por jurados, y más.
+              Medimos y mejoramos la calidad narrativa para que nuestros clientes hablen directo al cerebro de sus audiencias.
             </p>
             <p className="text-base sm:text-lg text-slate-700 mt-6 font-medium max-w-2xl mx-auto px-4 text-center">
-              Suscribite para ser el primero en conocer quiénes son las empresas, campañas y figuras públicas 
-              que generan más impacto en su vertical.
+              Suscribite para ser el primero en conocer quiénes son las empresas, campañas y figuras públicas que generan más impacto en su vertical.
             </p>
           </div>
 
