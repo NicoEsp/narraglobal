@@ -18,14 +18,14 @@ const PricingSection = () => {
   const plans = [
     {
       name: "Reporte",
-      description: "Perfecto para comenzar con análisis narrativo",
-      credits: "10 análisis mensuales",
+      description: "Insights de tu vertical directo a tu cerebro",
+      credits: "Reporte Top 5 mensual",
       features: [
-        "Reportes básicos de narrativa",
-        "Análisis de ruido comunicacional",
-        "Dashboard básico",
-        "Soporte por email",
-        "Acceso a metodología base"
+        "Reporte mensual de las 5 empresas que mejor comunicaron en tu vertical",
+        "Análisis de cómo copiar sus recursos o diferenciarte",
+        "Envío de PDF 'Top 5' con recomendaciones",
+        "Recomendaciones basadas en evidencia",
+        "Listas para aplicar en tu empresa-marca"
       ],
       cta: "Comenzar",
       action: openContactForm,
@@ -33,15 +33,16 @@ const PricingSection = () => {
     },
     {
       name: "Profesional",
-      description: "Ideal para profesionales y empresas medianas",
-      credits: "50 análisis mensuales",
+      description: "Del insight al cambio narrativo en pocos minutos",
+      credits: "Plan Reporte + Consultoría",
       features: [
-        "Todo lo del Plan Reporte",
-        "Análisis político avanzado",
-        "Reportes de industria personalizados",
-        "Consultoría mensual (2 horas)",
-        "Soporte prioritario",
-        "Alertas en tiempo real"
+        "Todo el Plan Reporte",
+        "1 videollamada de 60min con Lisandro Bregant",
+        "Estrategia y ordenamiento narrativo",
+        "1 crédito a elección al mes:",
+        "• Análisis de documentos, o",
+        "• Encuentro de mentoría personal, o",
+        "• Taller grupal"
       ],
       cta: "Agendar consulta",
       action: openCalendly,
@@ -49,15 +50,16 @@ const PricingSection = () => {
     },
     {
       name: "Corporativo",
-      description: "Solución completa para grandes organizaciones",
-      credits: "Análisis ilimitados",
+      description: "Menos ruptura, más lealtad",
+      credits: "Plan Completo",
       features: [
-        "Todo lo del Plan Profesional",
-        "Método NarraNoise completo",
-        "Triage de crisis incluido",
-        "Consultoría semanal dedicada",
-        "SLA especiales",
-        "Acompañamiento personalizado"
+        "Todo el Plan Reporte",
+        "1 videollamada estratégica de 60min con Lisandro",
+        "Plan de acción rápido basado en desafío organizacional",
+        "3 créditos a elección en el mes:",
+        "• 3 Talleres grupales, o",
+        "• 3 Mentorías personales (virtuales), o",
+        "• 3 Análisis de documentos"
       ],
       cta: "Contactar ventas",
       action: openContactForm,
