@@ -18,7 +18,6 @@ const PricingSection = () => {
   const plans = [
     {
       name: "Reporte",
-      price: "$99",
       description: "Perfecto para comenzar con análisis narrativo",
       credits: "10 análisis mensuales",
       features: [
@@ -34,7 +33,6 @@ const PricingSection = () => {
     },
     {
       name: "Profesional",
-      price: "$299",
       description: "Ideal para profesionales y empresas medianas",
       credits: "50 análisis mensuales",
       features: [
@@ -51,7 +49,6 @@ const PricingSection = () => {
     },
     {
       name: "Corporativo",
-      price: "$899",
       description: "Solución completa para grandes organizaciones",
       credits: "Análisis ilimitados",
       features: [
@@ -95,10 +92,6 @@ const PricingSection = () => {
                 <CardTitle className="text-xl font-bold text-foreground">
                   {plan.name}
                 </CardTitle>
-                <div className="text-3xl font-bold text-primary">
-                  {plan.price}
-                  <span className="text-sm font-normal text-muted-foreground">/mes</span>
-                </div>
                 <CardDescription className="text-sm text-muted-foreground">
                   {plan.description}
                 </CardDescription>
