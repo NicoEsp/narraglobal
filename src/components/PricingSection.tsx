@@ -56,9 +56,8 @@ const PricingSection = () => {
         "Método NarraNoise completo",
         "Triage de crisis incluido",
         "Consultoría semanal dedicada",
-        "Acceso directo a Lisandro Bregant",
-        "SLA garantizado",
-        "Implementación personalizada"
+        "SLA especiales",
+        "Acompañamiento personalizado"
       ],
       cta: "Contactar ventas",
       action: openContactForm,
