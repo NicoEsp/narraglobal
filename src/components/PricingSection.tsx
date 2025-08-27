@@ -74,7 +74,7 @@ const PricingSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
-            <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''}`}>
+            <Card key={index} className={`relative flex flex-col h-full ${plan.popular ? 'border-primary shadow-lg scale-105' : ''}`}>
               {plan.popular && (
                 <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
                   <Star className="w-3 h-3 mr-1" />
@@ -91,7 +91,7 @@ const PricingSection = () => {
                 </CardDescription>
               </CardHeader>
 
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 flex-1">
                 <div className="text-center">
                   <Badge variant="outline" className="text-xs">
                     {plan.credits}
