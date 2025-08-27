@@ -89,7 +89,7 @@ const PricingSection = () => {
               )}
               
               <CardHeader className="text-center">
-                <CardTitle className="text-xl font-bold text-foreground">
+                <CardTitle className="text-3xl font-bold text-foreground">
                   {plan.name}
                 </CardTitle>
                 <CardDescription className="text-sm text-muted-foreground">
