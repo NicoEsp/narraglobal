@@ -19,7 +19,7 @@ const Navigation = () => {
 
   const navItems = [
     { label: "Política", id: "politica" },
-    { label: "Newsletter", id: "industrias" },
+    { label: "Industrias", id: "industrias" },
     { label: "Planes", id: "pricing" },
     { label: "Emergencia", id: "emergencia" },
   ];

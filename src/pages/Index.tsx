@@ -275,7 +275,7 @@ const Index = () => {
             <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg mb-6 mx-auto">
               <Building2 className="h-10 w-10 text-green-600" />
             </div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-6">Narrativas para industrias</h2>
+            <h2 className="text-4xl font-bold text-slate-900 mb-6">Narrativas para Industrias</h2>
             <p className="text-xl text-slate-600 max-w-4xl mx-auto leading-relaxed">
               Medimos y mejoramos la calidad narrativa para que nuestros clientes hablen directo al cerebro de sus audiencias.
             </p>
