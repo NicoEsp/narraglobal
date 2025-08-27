@@ -190,7 +190,7 @@ const Index = () => {
     window.open('https://drive.google.com/file/d/1ZINMjFAW6WQucYvk25ek1hcrXAY8_2YS/view', '_blank', 'noopener,noreferrer');
   };
   const openEmergencyWhatsApp = () => {
-    window.open('https://wa.me/5491130731011?text=Quiero%20agendar%252', '_blank', 'noopener,noreferrer');
+    window.open('https://wa.me/5491130731011?text=Quiero%20agendar', '_blank', 'noopener,noreferrer');
   };
   return <div className="min-h-screen bg-white">
       <Navigation />
