@@ -217,8 +217,8 @@ const Index = () => {
               <div className="flex items-center justify-center w-20 h-20 bg-[hsl(var(--primary)/0.1)] rounded-lg mb-6">
                 <Shield className="h-10 w-10 text-primary" />
               </div>
-              <h2 className="text-4xl font-bold text-slate-900 mb-6">Menos ruido en Política</h2>
-              <p className="text-xl text-slate-600 mb-8 leading-relaxed">Con nuestros reportes basados en evidencia ayudamos a bajar errores no forzados de comunicación en candidatos, intendentes, gobernadores y presidentes de toda latinoamérica.</p>
+              <h2 className="text-4xl font-bold text-slate-900 mb-6">Narrativas para política</h2>
+              <p className="text-xl text-slate-600 mb-8 leading-relaxed">Nuestros reportes basados en evidencia son utilizados para reducir errores no forzados de comunicación en campañas y gobiernos.</p>
               <p className="text-lg text-slate-700 font-medium">Completá los datos y en una call breve te contaremos cómo podemos colaborar</p>
             </div>
             
