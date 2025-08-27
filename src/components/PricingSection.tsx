@@ -4,65 +4,58 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const PricingSection = () => {
-  const openCalendly = () => {
-    window.open("https://calendly.com/lisandro-bregant/30min", "_blank");
+  const openWhatsApp = () => {
+    window.open("https://wa.me/5491130731011?text=Quiero%20saber%20m%C3%A1s%20del%20plan%20Reporte%20Mensual", "_blank");
   };
 
-  const openContactForm = () => {
-    const element = document.getElementById("politica");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+  const openProfessionalCalendar = () => {
+    window.open("https://calendar.app.google/uZRAFWUtt2A9zGyM7", "_blank");
+  };
+
+  const openCorporateCalendar = () => {
+    window.open("https://calendar.app.google/a3VFH7YVh7Qkskf48", "_blank");
   };
 
   const plans = [
     {
-      name: "Reporte",
-      description: "Insights de tu vertical directo a tu cerebro",
-      credits: "Reporte Top 5 mensual",
+      name: "Reporte Mensual",
+      description: "Data fresca para mejorar tu narrativa",
+      credits: "Los que lideran tu sector",
       features: [
-        "Reporte mensual de las 5 empresas que mejor comunicaron en tu vertical",
-        "Análisis de cómo copiar sus recursos o diferenciarte",
-        "Envío de PDF 'Top 5' con recomendaciones",
-        "Recomendaciones basadas en evidencia",
-        "Listas para aplicar en tu empresa-marca"
+        "Ponemos tu vertical bajo la lupa",
+        "Te contamos quiénes lideran la comunicación este mes",
+        "Te damos claves para superarlos o sumarte a su lógica"
       ],
-      cta: "Comenzar",
-      action: openContactForm,
+      cta: "Quiero",
+      action: openWhatsApp,
       popular: false
     },
     {
       name: "Profesional",
-      description: "Del insight al cambio narrativo en pocos minutos",
-      credits: "Plan Reporte + Consultoría",
+      description: "Del dato a tu narrativa estratégica",
+      credits: "Reunión estratégica al mes",
       features: [
-        "Todo el Plan Reporte",
-        "1 videollamada de 60min con Lisandro Bregant",
-        "Estrategia y ordenamiento narrativo",
-        "1 crédito a elección al mes:",
-        "• Análisis de documentos, o",
-        "• Encuentro de mentoría personal, o",
-        "• Taller grupal"
+        "Plan Reporte Mensual",
+        "Sesión virtual 1:1 con Lisandro Bregant (Director de Narraglobal)",
+        "1 crédito virtual para elegir entre: mentoría personal, taller grupal o análisis de documentos"
       ],
       cta: "Agendar consulta",
-      action: openCalendly,
+      action: openProfessionalCalendar,
       popular: true
     },
     {
       name: "Corporativo",
-      description: "Menos ruptura, más lealtad",
-      credits: "Plan Completo",
+      description: "Alinear, controlar y blindar tu narrativa",
+      credits: "Socio mensual de comunicación",
       features: [
-        "Todo el Plan Reporte",
-        "1 videollamada estratégica de 60min con Lisandro",
-        "Plan de acción rápido basado en desafío organizacional",
-        "3 créditos a elección en el mes:",
-        "• 3 Talleres grupales, o",
-        "• 3 Mentorías personales (virtuales), o",
-        "• 3 Análisis de documentos"
+        "Plan Reporte Mensual",
+        "Sesión virtual 1:1 con Lisandro Bregant (Director de Narraglobal)",
+        "3 créditos virtuales para elegir entre: mentoría personal para líderes, taller grupal para entrenar colaboradores o análisis de documentos/mensajes claves",
+        "Roadmap trimestral de la narrativa (hacia dónde va, priorizaciones, riesgos a prevenir)",
+        "Línea directa a Lisandro para validar en momentos de crisis o lanzamientos"
       ],
       cta: "Contactar ventas",
-      action: openContactForm,
+      action: openCorporateCalendar,
       popular: false
     }
   ];
@@ -133,7 +126,7 @@ const PricingSection = () => {
           <p className="text-sm text-muted-foreground">
             ¿Necesitas algo personalizado? 
             <button 
-              onClick={openContactForm}
+              onClick={openWhatsApp}
               className="text-primary hover:underline ml-1"
             >
               Contáctanos
