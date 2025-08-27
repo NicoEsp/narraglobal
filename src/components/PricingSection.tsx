@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 
 const PricingSection = () => {
   const openWhatsApp = () => {
-    window.open("https://wa.me/5491130731011?text=Quiero%20saber%20más%20del%20plan%20Reporte%20Mensual", "_blank", "noopener,noreferrer");
+    window.open("https://wa.me/5491130731011?text=Quiero%20saber%20m%C3%A1s%20del%20plan%20Reporte%20Mensual", "_blank");
   };
 
   const openProfessionalCalendar = () => {
