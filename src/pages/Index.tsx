@@ -259,7 +259,7 @@ const Index = () => {
                       aria-hidden="true"
                     />
                     
-                    <Button type="submit" disabled={savingPolitical} className="w-full py-3">{savingPolitical ? 'Enviando…' : 'Solicitar llamada'}</Button>
+                    <Button type="submit" disabled={savingPolitical} className="w-full py-3">{savingPolitical ? 'Enviando…' : 'Hablemos'}</Button>
                   </form>
                 </CardContent>
               </Card>
