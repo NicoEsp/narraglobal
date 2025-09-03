@@ -9,8 +9,8 @@ const HeroSection = () => {
       });
     }
   };
-  const openSubstack = () => {
-    window.open("https://narraglobal.substack.com/", "_blank");
+  const openReports = () => {
+    window.open("https://drive.google.com/file/d/1WP8-hfyL8yENtQRCxH85H5X56PElVu-j/view?usp=drivesdk", "_blank");
   };
   return <section className="py-20 bg-gradient-to-br from-background to-muted/20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -31,7 +31,7 @@ const HeroSection = () => {
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
           
-          <Button onClick={openSubstack} variant="outline" size="lg" className="text-lg px-8 py-3">
+          <Button onClick={openReports} variant="outline" size="lg" className="text-lg px-8 py-3">
             Ver reportes
           </Button>
         </div>
