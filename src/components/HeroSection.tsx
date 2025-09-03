@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BarChart3 } from "lucide-react";
-import DossierImage from "@/components/DossierImage";
 const HeroSection = () => {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -13,16 +12,8 @@ const HeroSection = () => {
   const openSubstack = () => {
     window.open("https://narraglobal.substack.com/", "_blank");
   };
-  return <section className="py-20 bg-gradient-to-br from-background to-muted/20 relative overflow-hidden">
-      {/* Decorative background image */}
-      <DossierImage 
-        filename="Copia de 20.png"
-        className="absolute top-4 right-4 w-32 h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 z-0"
-        alt="Decorative background for Hero section"
-        opacity="opacity-10 md:opacity-15"
-      />
-      
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+  return <section className="py-20 bg-gradient-to-br from-background to-muted/20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="flex justify-center mb-6">
           <BarChart3 className="w-16 h-16 text-primary" />
         </div>
