@@ -35,7 +35,8 @@ const ClientLogos: React.FC = () => {
 
           const candidates = (data ?? [])
             .filter((f) => !f.name.startsWith("."))
-            .filter((f) => /\.(png|jpe?g|svg|webp|gif)$/i.test(f.name));
+            .filter((f) => /\.(png|jpe?g|svg|webp|gif)$/i.test(f.name))
+            .filter((f) => !["Copia de 20.png", "Copia de 23.png", "Copia de 26.png"].includes(f.name));
 
           if (candidates.length > 0) {
             selectedBucket = bucket;
