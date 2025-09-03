@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const openSubstack = () => {
-    window.open("https://narraglobal.substack.com/", "_blank");
+  const openReports = () => {
+    window.open("https://drive.google.com/file/d/1WP8-hfyL8yENtQRCxH85H5X56PElVu-j/view?usp=drivesdk", "_blank");
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -45,7 +45,7 @@ const Navigation = () => {
                   {item.label}
                 </button>
               ))}
-              <Button onClick={openSubstack} variant="outline" size="sm">
+              <Button onClick={openReports} variant="outline" size="sm">
                 Reportes
               </Button>
             </div>
@@ -83,7 +83,7 @@ const Navigation = () => {
               </button>
             ))}
             <div className="px-3 py-2">
-              <Button onClick={openSubstack} variant="outline" size="sm" className="w-full">
+              <Button onClick={openReports} variant="outline" size="sm" className="w-full">
                 Reportes
               </Button>
             </div>
