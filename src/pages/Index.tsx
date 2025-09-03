@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Building2, Zap, ExternalLink, Calendar, Check, Star } from "lucide-react";
+import DossierImage from "@/components/DossierImage";
 import { useToast } from "@/hooks/use-toast";
 import { getSupabase } from "@/lib/supabaseClient";
 import ClientLogos from "@/components/ClientLogos";
@@ -210,9 +211,17 @@ const Index = () => {
       </section>
 
       {/* Menos ruido en política Section */}
-      <section id="politica" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section id="politica" className="py-20 bg-slate-50 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Decorative background image */}
+          <DossierImage 
+            filename="Copia de 26.png"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 w-40 h-40 md:w-56 md:h-56 lg:w-72 lg:h-72 z-0"
+            alt="Decorative background for Política section"
+            opacity="opacity-8 md:opacity-12"
+          />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-20">
             <div>
               <div className="flex items-center justify-center w-20 h-20 bg-[hsl(var(--primary)/0.1)] rounded-lg mb-6">
                 <Shield className="h-10 w-10 text-primary" />
@@ -269,9 +278,17 @@ const Index = () => {
       </section>
 
       {/* Más impacto en industrias Section */}
-      <section id="industrias" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+      <section id="industrias" className="py-20 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Decorative background image */}
+          <DossierImage 
+            filename="Copia de 23.png"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-36 h-36 md:w-52 md:h-52 lg:w-68 lg:h-68 z-0"
+            alt="Decorative background for Industrias section"
+            opacity="opacity-10 md:opacity-15"
+          />
+          
+          <div className="text-center mb-16 relative z-20">
             <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg mb-6 mx-auto">
               <Building2 className="h-10 w-10 text-green-600" />
             </div>
