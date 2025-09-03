@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BarChart3 } from "lucide-react";
-import SectionImage from "@/components/SectionImage";
+import DossierImage from "@/components/DossierImage";
 const HeroSection = () => {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -16,11 +16,11 @@ const HeroSection = () => {
   return <section className="py-20 bg-gradient-to-br from-background to-muted/20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="flex justify-center mb-6">
-          <SectionImage 
+          <DossierImage 
             filename="Copia de 20.png" 
-            className="w-16 h-16" 
+            className="w-12 h-12 sm:w-16 sm:h-16" 
             alt="Dato mejora relato"
-            fallback={<BarChart3 className="w-16 h-16 text-primary" />}
+            fallback={<BarChart3 className="w-12 h-12 sm:w-16 sm:h-16 text-primary" />}
           />
         </div>
         
