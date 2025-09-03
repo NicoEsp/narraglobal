@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Building2, Zap, ExternalLink, Calendar, Check, Star } from "lucide-react";
-import SectionImage from "@/components/SectionImage";
 import { useToast } from "@/hooks/use-toast";
 import { getSupabase } from "@/lib/supabaseClient";
 import ClientLogos from "@/components/ClientLogos";
@@ -216,12 +215,7 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="flex items-center justify-center w-20 h-20 bg-[hsl(var(--primary)/0.1)] rounded-lg mb-6">
-                <SectionImage 
-                  filename="Copia de 26.png" 
-                  className="h-10 w-10" 
-                  alt="Narrativas para política"
-                  fallback={<Shield className="h-10 w-10 text-primary" />}
-                />
+                <Shield className="h-10 w-10 text-primary" />
               </div>
               <h2 className="text-4xl font-bold text-slate-900 mb-6">Narrativas para política</h2>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">Nuestros reportes basados en evidencia son utilizados para reducir errores no forzados de comunicación en campañas y gobiernos.</p>
@@ -279,12 +273,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-lg mb-6 mx-auto">
-              <SectionImage 
-                filename="Copia de 23.png" 
-                className="h-10 w-10" 
-                alt="Narrativas para industrias"
-                fallback={<Building2 className="h-10 w-10 text-green-600" />}
-              />
+              <Building2 className="h-10 w-10 text-green-600" />
             </div>
             <h2 className="text-4xl font-bold text-slate-900 mb-6">Narrativas para Industrias</h2>
             <p className="text-xl text-slate-600 max-w-4xl mx-auto leading-relaxed">
