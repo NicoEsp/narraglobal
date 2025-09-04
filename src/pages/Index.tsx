@@ -10,7 +10,6 @@ import ClientLogos from "@/components/ClientLogos";
 import Navigation from "@/components/Navigation";
 import HeroSection from "@/components/HeroSection";
 import PricingSection from "@/components/PricingSection";
-import SectionImage from "@/components/SectionImage";
 const Index = () => {
   // Form for political section
   const [politicalFormData, setPoliticalFormData] = useState({
@@ -345,12 +344,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <SectionImage
-                filename="id_simpleazul.png"
-                alt="NarraGlobal Logo"
-                className="h-8 w-auto"
-                fallback={<h3 className="text-2xl font-bold mb-4">NarraGlobal</h3>}
-              />
+              <h3 className="text-2xl font-bold mb-4">NarraGlobal</h3>
               <p className="text-slate-300 leading-relaxed">Consultoría especializada en Comunicación y Narrativa. Detectamos y limpiamos el ruido en su narrativa pública para que sus mensajes lleguen claros y confiables.</p>
               <p className="text-slate-400 mt-4">Por Lisandro Bregant</p>
             </div>
