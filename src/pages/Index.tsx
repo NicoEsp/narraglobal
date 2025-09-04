@@ -108,13 +108,16 @@ const Index = () => {
     setSavingPolitical(true);
     try {
       const supabase = getSupabase();
-      const { data, error } = await supabase.rpc('submit_political_contact', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('submit_political_contact', {
         _name: politicalFormData.name,
         _email: politicalFormData.email,
         _phone: politicalFormData.phone,
         _organization: politicalFormData.organization,
         _source: 'web',
-        _honeypot: politicalFormData.hp || null,
+        _honeypot: politicalFormData.hp || null
       });
       if (error) {
         if ((error as any).code === 'P0001') {
@@ -131,7 +134,7 @@ const Index = () => {
         email: '',
         phone: '',
         organization: '',
-        hp: '',
+        hp: ''
       });
     } catch (err: any) {
       console.error('Political form error:', err);
@@ -149,10 +152,13 @@ const Index = () => {
     setSavingIndustry(true);
     try {
       const supabase = getSupabase();
-      const { data, error } = await supabase.rpc('submit_industry_subscription', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('submit_industry_subscription', {
         _email: industryFormData.email,
         _source: 'web',
-        _honeypot: industryFormData.hp || null,
+        _honeypot: industryFormData.hp || null
       });
       if (error) {
         if ((error as any).code === '23505') {
@@ -170,7 +176,10 @@ const Index = () => {
           title: "Suscripción confirmada",
           description: "Serás el primero en conocer nuestros reportes de industria."
         });
-        setIndustryFormData({ email: '', hp: '' });
+        setIndustryFormData({
+          email: '',
+          hp: ''
+        });
       }
     } catch (err: any) {
       console.error('Industry subscription error:', err);
@@ -248,16 +257,7 @@ const Index = () => {
                     </div>
                     
                     {/* Honeypot anti-bot */}
-                    <input
-                      type="text"
-                      name="hp"
-                      value={politicalFormData.hp}
-                      onChange={handlePoliticalChange}
-                      className="hidden"
-                      autoComplete="off"
-                      tabIndex={-1}
-                      aria-hidden="true"
-                    />
+                    <input type="text" name="hp" value={politicalFormData.hp} onChange={handlePoliticalChange} className="hidden" autoComplete="off" tabIndex={-1} aria-hidden="true" />
                     
                     <Button type="submit" disabled={savingPolitical} className="w-full py-3">{savingPolitical ? 'Enviando…' : 'Hablemos'}</Button>
                   </form>
@@ -295,16 +295,7 @@ const Index = () => {
                   </div>
                   
                   {/* Honeypot anti-bot */}
-                  <input
-                    type="text"
-                    name="hp"
-                    value={industryFormData.hp}
-                    onChange={handleIndustryChange}
-                    className="hidden"
-                    autoComplete="off"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                  />
+                  <input type="text" name="hp" value={industryFormData.hp} onChange={handleIndustryChange} className="hidden" autoComplete="off" tabIndex={-1} aria-hidden="true" />
                   
                   <Button type="submit" disabled={savingIndustry} className="w-full bg-green-600 hover:bg-green-700 text-white py-3">{savingIndustry ? 'Enviando…' : 'Suscribirme'}</Button>
                 </form>
@@ -353,8 +344,8 @@ const Index = () => {
               <h4 className="text-lg font-semibold mb-4">Servicios</h4>
               <ul className="space-y-2 text-slate-300">
                 <li>Método NarraNoise</li>
-                <li>Comunicación política</li>
-                <li>Análisis de industrias</li>
+                <li>Narrativas para Politica</li>
+                <li>Narrativas para Industrias</li>
                 <li>Triage de crisis</li>
               </ul>
             </div>
