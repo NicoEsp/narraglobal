@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SectionImage from "@/components/SectionImage";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,7 +31,12 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <h1 className="text-xl font-bold text-primary">NarraGlobal</h1>
+            <SectionImage
+              filename="id_simpleazul.png"
+              alt="NarraGlobal Logo"
+              className="h-8 w-auto"
+              fallback={<h1 className="text-xl font-bold text-primary">NarraGlobal</h1>}
+            />
           </div>
 
           {/* Desktop Navigation */}
