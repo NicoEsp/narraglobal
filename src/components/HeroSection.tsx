@@ -23,7 +23,7 @@ const HeroSection = () => {
           <span className="text-primary">relato</span>
         </h1>
         
-        <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">Metricas confiables hacen narrativas fuertes</p>
+        <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">Métricas confiables hacen narrativas fuertes</p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button onClick={() => scrollToSection("politica")} size="lg" className="text-lg px-8 py-3">
