@@ -19,6 +19,7 @@ const PricingSection = () => {
   const plans = [
     {
       name: "Reporte Mensual",
+      price: "USD 599",
       description: "Data fresca para mejorar tu narrativa",
       credits: "Los que lideran tu sector",
       features: [
@@ -32,6 +33,7 @@ const PricingSection = () => {
     },
     {
       name: "Profesional",
+      price: "USD 1999",
       description: "Del dato a tu narrativa estratégica",
       credits: "Reunión estratégica al mes",
       features: [
@@ -45,6 +47,7 @@ const PricingSection = () => {
     },
     {
       name: "Corporativo",
+      price: "USD 4999",
       description: "Alinear, controlar y blindar tu narrativa",
       credits: "Socio mensual de comunicación",
       features: [
@@ -86,6 +89,9 @@ const PricingSection = () => {
                 <CardTitle className="text-3xl font-bold text-foreground">
                   {plan.name}
                 </CardTitle>
+                <div className="text-4xl font-bold text-primary mt-2 mb-3">
+                  {plan.price}
+                </div>
                 <CardDescription className="text-sm text-muted-foreground">
                   {plan.description}
                 </CardDescription>
