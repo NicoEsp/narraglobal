@@ -64,7 +64,7 @@ const PricingSection = () => {
   ];
 
   return (
-    <section id="pricing" className="py-16 bg-muted/30">
+    <section id="pricing" className="py-24 bg-muted/30">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-foreground mb-4">
@@ -77,7 +77,14 @@ const PricingSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
-            <Card key={index} className={`relative flex flex-col h-full ${plan.popular ? 'border-primary shadow-lg scale-105' : ''}`}>
+            <Card 
+              key={index} 
+              className={`relative flex flex-col h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
+                plan.popular 
+                  ? 'border-primary shadow-lg scale-105 hover:scale-[1.07]' 
+                  : 'hover:border-primary/50'
+              }`}
+            >
               {plan.popular && (
                 <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
                   <Star className="w-3 h-3 mr-1" />
@@ -117,7 +124,7 @@ const PricingSection = () => {
               <CardFooter>
                 <Button 
                   onClick={plan.action}
-                  className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
+                  className={`w-full transition-all duration-300 hover:scale-[1.02] ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                   variant={plan.popular ? "default" : "outline"}
                 >
                   {plan.cta}
@@ -133,7 +140,7 @@ const PricingSection = () => {
             ¿Necesitas algo personalizado? 
             <button 
               onClick={openWhatsApp}
-              className="text-primary hover:underline ml-1"
+              className="text-primary hover:underline ml-1 transition-colors"
             >
               Contáctanos
             </button>
