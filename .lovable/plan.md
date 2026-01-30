@@ -1,93 +1,44 @@
 
-## Plan: Mejoras de Impacto Alto + Esfuerzo Bajo
 
-Voy a implementar mejoras visuales y de UX que transformarán significativamente la percepción del sitio con cambios relativamente simples.
+## Plan: Revertir Tipografía y Agrandar Logos de Clientes
 
----
-
-### 1. Animaciones de Scroll (Fade-in al aparecer)
-
-Agregaré un componente reutilizable que detecta cuando los elementos entran en pantalla y les aplica una animación suave de aparición.
-
-**Archivos a crear/modificar:**
-- Crear `src/hooks/useScrollAnimation.tsx` - Hook personalizado con Intersection Observer
-- Crear `src/components/AnimatedSection.tsx` - Wrapper que aplica la animación
-
-**Secciones que animarán:**
-- Hero Section
-- Clientes
-- Política
-- Industrias
-- Pricing
-- Emergencia
+### Cambios a Realizar
 
 ---
 
-### 2. Tipografía Profesional
+### 1. Revertir Tipografía a la Original
 
-Agregaré Google Fonts con una combinación elegante:
-- **Playfair Display** para títulos (serif, elegante)
-- **Inter** para texto (sans-serif, legible)
+Eliminaré las fuentes personalizadas (Playfair Display e Inter) para volver a la tipografía del sistema.
 
 **Archivos a modificar:**
-- `index.html` - Agregar link a Google Fonts
-- `tailwind.config.ts` - Configurar font families
-- `src/index.css` - Aplicar fuentes base
+
+| Archivo | Cambio |
+|---------|--------|
+| `index.html` | Eliminar los links de Google Fonts (líneas 7-9) |
+| `tailwind.config.ts` | Eliminar la configuración de `fontFamily` personalizada |
+| `src/index.css` | Eliminar las reglas de `font-display` para headings |
 
 ---
 
-### 3. Mayor Espaciado entre Secciones
+### 2. Agrandar Imágenes de Clientes
 
-Aumentaré el padding vertical de las secciones para dar más "aire" y sensación premium.
+Aumentaré el tamaño de los contenedores de logos para que sean más visibles.
 
-**Archivo a modificar:**
-- `src/pages/Index.tsx` - Cambiar `py-20` a `py-28` o `py-32` en secciones clave
+**Archivo a modificar:** `src/components/ClientLogos.tsx`
 
----
+| Tamaño Actual | Tamaño Nuevo |
+|--------------|--------------|
+| `w-36 h-24` (móvil) | `w-44 h-32` (móvil) |
+| `w-40 h-28` (sm) | `w-52 h-36` (sm) |
+| - | `w-56 h-40` (md) - nuevo breakpoint |
 
-### 4. Mejoras en Hover States
-
-Agregaré transiciones suaves a las cards de pricing y botones:
-- Cards con elevación al hover
-- Transiciones más fluidas
-
-**Archivos a modificar:**
-- `tailwind.config.ts` - Agregar keyframes para animaciones
-- `src/components/PricingSection.tsx` - Agregar clases de hover
-
----
-
-### 5. Indicador de Sección Activa en Navegación
-
-El menú mostrará qué sección está visible actualmente mientras el usuario hace scroll.
-
-**Archivo a modificar:**
-- `src/components/Navigation.tsx` - Agregar Intersection Observer para detectar sección activa
-
----
-
-### Resumen de Cambios
-
-| Archivo | Tipo de Cambio |
-|---------|----------------|
-| `index.html` | Agregar Google Fonts |
-| `tailwind.config.ts` | Fonts + animaciones |
-| `src/index.css` | Variables de fuentes |
-| `src/hooks/useScrollAnimation.tsx` | Nuevo hook |
-| `src/components/AnimatedSection.tsx` | Nuevo componente |
-| `src/pages/Index.tsx` | Envolver secciones + espaciado |
-| `src/components/Navigation.tsx` | Indicador activo |
-| `src/components/PricingSection.tsx` | Hover mejorado |
-| `src/components/HeroSection.tsx` | Animación de entrada |
+Esto representa un aumento aproximado del **30-40%** en el tamaño visible de cada logo.
 
 ---
 
 ### Resultado Esperado
 
-- Transiciones suaves al hacer scroll (elementos aparecen gradualmente)
-- Tipografía más elegante y profesional
-- Mejor jerarquía visual
-- Interacciones más pulidas
-- Navegación que indica dónde está el usuario
+- Tipografía limpia del sistema (sin fuentes externas)
+- Logos de clientes significativamente más grandes y visibles
+- Carga más rápida del sitio (sin descargar fuentes de Google)
 
-Todas estas mejoras son sutiles pero en conjunto elevan significativamente la percepción de calidad y profesionalismo del sitio.
