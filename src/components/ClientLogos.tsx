@@ -76,7 +76,7 @@ const ClientLogos: React.FC = () => {
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="w-36 h-24 sm:w-40 sm:h-28 rounded-lg flex items-center justify-center border-2 border-dashed border-border bg-muted/30"
+          className="w-44 h-32 sm:w-52 sm:h-36 md:w-56 md:h-40 rounded-lg flex items-center justify-center border-2 border-dashed border-border bg-muted/30"
         >
           <span className="text-muted-foreground text-sm">Logo {i + 1}</span>
         </div>
@@ -93,7 +93,7 @@ const ClientLogos: React.FC = () => {
         logos.slice(0, 8).map((logo) => (
           <div
             key={logo.name}
-            className="w-36 h-24 sm:w-40 sm:h-28 rounded-lg flex items-center justify-center border border-border bg-muted/30 shadow-sm p-2 sm:p-3"
+            className="w-44 h-32 sm:w-52 sm:h-36 md:w-56 md:h-40 rounded-lg flex items-center justify-center border border-border bg-muted/30 shadow-sm p-3 sm:p-4"
             title={formatAlt(logo.name)}
           >
             <img
