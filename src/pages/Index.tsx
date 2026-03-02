@@ -177,8 +177,10 @@ const Index = () => {
             <text x="120" y="22" fontFamily="Source Serif 4,Georgia,serif" fontWeight="600" fontSize="21" letterSpacing="2" fill="#3E1CFF">GLOBAL</text>
           </svg>
         </a>
-        <a className="nav-cta" href="https://narra-assist.lovable.app/" target="_blank" rel="noopener noreferrer">NarraAsist</a>
-        <a className="nav-cta" href="#narraasist">Medir mi narrativa</a>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a className="nav-cta" href="https://narra-assist.lovable.app/" target="_blank" rel="noopener noreferrer">NarraAsist</a>
+          <a className="nav-cta" href="#narraasist">Medir mi narrativa</a>
+        </div>
       </nav>
 
       {/* HERO */}
