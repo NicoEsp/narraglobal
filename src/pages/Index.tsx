@@ -178,6 +178,7 @@ const Index = () => {
           </svg>
         </a>
         <a className="nav-cta" href="#narraasist">Medir mi narrativa</a>
+        <a className="nav-cta" href="https://narra-assist.lovable.app/" target="_blank" rel="noopener noreferrer">Chatea con NarraAsist</a>
       </nav>
 
       {/* HERO */}
