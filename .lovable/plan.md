@@ -1,44 +1,24 @@
 
 
-## Plan: Revertir Tipografía y Agrandar Logos de Clientes
+## Plan: Agregar botón "Chatea con NarraAsist" junto a "Medir mi narrativa"
 
-### Cambios a Realizar
+### Cambio
 
----
+Agregar un segundo botón en la barra de navegación, al lado de "Medir mi narrativa", que abra `https://narra-assist.lovable.app/` en una nueva pestaña.
 
-### 1. Revertir Tipografía a la Original
+### Archivo a modificar
 
-Eliminaré las fuentes personalizadas (Playfair Display e Inter) para volver a la tipografía del sistema.
+**`src/pages/Index.tsx` (línea 180)**
 
-**Archivos a modificar:**
+Agregar un enlace `<a>` con la clase `nav-cta` justo al lado del botón existente, con `target="_blank"` para abrir en nueva pestaña:
 
-| Archivo | Cambio |
-|---------|--------|
-| `index.html` | Eliminar los links de Google Fonts (líneas 7-9) |
-| `tailwind.config.ts` | Eliminar la configuración de `fontFamily` personalizada |
-| `src/index.css` | Eliminar las reglas de `font-display` para headings |
+```tsx
+<a className="nav-cta" href="#narraasist">Medir mi narrativa</a>
+<a className="nav-cta" href="https://narra-assist.lovable.app/" target="_blank" rel="noopener noreferrer">Chatea con NarraAsist</a>
+```
 
----
+Ambos botones compartirán exactamente los mismos estilos (`nav-cta`), manteniendo la consistencia visual del sitio. El enlace externo se abrirá en una nueva pestaña para no sacar al usuario del sitio principal.
 
-### 2. Agrandar Imágenes de Clientes
+### Ajuste responsive opcional
 
-Aumentaré el tamaño de los contenedores de logos para que sean más visibles.
-
-**Archivo a modificar:** `src/components/ClientLogos.tsx`
-
-| Tamaño Actual | Tamaño Nuevo |
-|--------------|--------------|
-| `w-36 h-24` (móvil) | `w-44 h-32` (móvil) |
-| `w-40 h-28` (sm) | `w-52 h-36` (sm) |
-| - | `w-56 h-40` (md) - nuevo breakpoint |
-
-Esto representa un aumento aproximado del **30-40%** en el tamaño visible de cada logo.
-
----
-
-### Resultado Esperado
-
-- Tipografía limpia del sistema (sin fuentes externas)
-- Logos de clientes significativamente más grandes y visibles
-- Carga más rápida del sitio (sin descargar fuentes de Google)
-
+En la media query móvil del CSS, los dos botones ya deberían caber bien gracias al `white-space:nowrap` y padding reducido. Si se ven apretados, se puede agregar un pequeño `gap` al contenedor de la navbar.
