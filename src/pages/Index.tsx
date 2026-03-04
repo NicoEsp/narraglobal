@@ -277,7 +277,7 @@ const Index = () => {
               </div>
             </div>
             <div className="pubs-index">
-              <a href="#" className="pubs-index-item">
+              <div className="pubs-index-item" style={{ cursor: 'default' }}>
                 <div className="pubs-idx-cover">
                   <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1"/><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/></svg>
                 </div>
@@ -287,8 +287,8 @@ const Index = () => {
                   <div className="pubs-idx-meta">56% ruido comunicacional</div>
                 </div>
                 <div className="pubs-idx-arrow">→</div>
-              </a>
-              <a href="#" className="pubs-index-item">
+              </div>
+              <div className="pubs-index-item" style={{ cursor: 'default' }}>
                 <div className="pubs-idx-cover">
                   <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1"/><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/></svg>
                 </div>
@@ -298,8 +298,8 @@ const Index = () => {
                   <div className="pubs-idx-meta">El camino difícil hacia la inmersión</div>
                 </div>
                 <div className="pubs-idx-arrow">→</div>
-              </a>
-              <a href="#" className="pubs-index-item">
+              </div>
+              <div className="pubs-index-item" style={{ cursor: 'default' }}>
                 <div className="pubs-idx-cover">
                   <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1"/><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/></svg>
                 </div>
@@ -309,7 +309,7 @@ const Index = () => {
                   <div className="pubs-idx-meta">Cómo viajan los mensajes en ventanas de alta exigencia</div>
                 </div>
                 <div className="pubs-idx-arrow">→</div>
-              </a>
+              </div>
             </div>
           </div>
         </div>
@@ -471,7 +471,7 @@ const Index = () => {
                 <li className="feat-strong">Hacks semanales para mejorar tu narrativa</li>
                 <li className="feat-strong">Chat NarraAsist customizado con tus datos, 24/7</li>
               </ul>
-              <a href="#medicion" className="na-plan-cta cta-outline">Empezar con Data →</a>
+              <a href="https://wa.me/5491130731011?text=Hola%2C%20me%20interesa%20el%20Plan%20Data" target="_blank" rel="noopener noreferrer" className="na-plan-cta cta-outline">Empezar con Data →</a>
             </div>
 
             {/* PLAN DATA + ESTRATEGIA */}
@@ -489,7 +489,7 @@ const Index = () => {
                 <li className="feat-highlight">1 sesión virtual de estrategia</li>
                 <li className="feat-strong">Chat NarraAsist customizado con tus datos y los insights de estrategia, 24/7</li>
               </ul>
-              <a href="#medicion" className="na-plan-cta cta-blue">Empezar con Estrategia →</a>
+              <a href="https://wa.me/5491130731011?text=Hola%2C%20me%20interesa%20el%20Plan%20Data%20%2B%20Estrategia" target="_blank" rel="noopener noreferrer" className="na-plan-cta cta-blue">Empezar con Estrategia →</a>
             </div>
 
             {/* PLAN MESA CHICA */}
@@ -509,7 +509,7 @@ const Index = () => {
                 <li className="feat-highlight">1 sesión presencial de entrenamiento a equipo o voceros</li>
                 <li className="feat-strong">NarraAsist optimizado para equipos</li>
               </ul>
-              <a href="#medicion" className="na-plan-cta cta-outline">Consultar disponibilidad →</a>
+              <a href="https://wa.me/5491130731011?text=Hola%2C%20me%20interesa%20el%20Plan%20Mesa%20Chica" target="_blank" rel="noopener noreferrer" className="na-plan-cta cta-outline">Consultar disponibilidad →</a>
             </div>
           </div>
 
