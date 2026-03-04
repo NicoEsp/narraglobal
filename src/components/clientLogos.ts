@@ -1,5 +1,3 @@
-// Auto-extracted client logos from NARRAGLOBAL HTML
-// Each logo contains the alt text and full base64-encoded image data
 
 export interface ClientLogo {
   alt: string;
