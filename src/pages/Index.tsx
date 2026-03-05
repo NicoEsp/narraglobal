@@ -16,9 +16,9 @@ const Index = () => {
     window.addEventListener('scroll', handleScroll);
 
     // Hero chart animation
-    const marca = [[100,120],[150,92],[200,68],[250,52],[300,44]];
-    const sector = [[100,108],[150,110],[200,112],[250,108],[300,110]];
-    const comp = [[100,92],[150,116],[200,136],[250,152],[300,162]];
+    const marca = [[100, 120], [150, 92], [200, 68], [250, 52], [300, 44]];
+    const sector = [[100, 108], [150, 110], [200, 112], [250, 108], [300, 110]];
+    const comp = [[100, 92], [150, 116], [200, 136], [250, 152], [300, 162]];
     const L1 = document.getElementById('hL1');
     const L2 = document.getElementById('hL2');
     const L3 = document.getElementById('hL3');
@@ -34,17 +34,17 @@ const Index = () => {
       let lastL = -1;
       let breatheId: number;
 
-      function ease(t: number) { return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
-      function lerp(a: number, b: number, t: number) { return a+(b-a)*t; }
+      function ease(t: number) {return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;}
+      function lerp(a: number, b: number, t: number) {return a + (b - a) * t;}
       function getPts(data: number[][], p: number) {
-        const seg = data.length-1;
-        const cl = p*seg;
+        const seg = data.length - 1;
+        const cl = p * seg;
         const pts: number[][] = [];
-        for (let i=0; i<data.length; i++) {
-          if (i<=cl) pts.push([data[i][0],data[i][1]]);
-          else if (i-1<cl) {
-            const sp = cl-(i-1);
-            pts.push([lerp(data[i-1][0],data[i][0],sp),lerp(data[i-1][1],data[i][1],sp)]);
+        for (let i = 0; i < data.length; i++) {
+          if (i <= cl) pts.push([data[i][0], data[i][1]]);else
+          if (i - 1 < cl) {
+            const sp = cl - (i - 1);
+            pts.push([lerp(data[i - 1][0], data[i][0], sp), lerp(data[i - 1][1], data[i][1], sp)]);
             break;
           }
         }
@@ -52,25 +52,25 @@ const Index = () => {
       }
       function p2s(pts: number[][]) {
         let s = '';
-        for (let i=0; i<pts.length; i++) s += pts[i][0].toFixed(1)+','+pts[i][1].toFixed(1)+' ';
+        for (let i = 0; i < pts.length; i++) s += pts[i][0].toFixed(1) + ',' + pts[i][1].toFixed(1) + ' ';
         return s.trim();
       }
       function bArea(pts: number[][]) {
-        if (pts.length<2) return '';
-        let d = 'M'+pts[0][0].toFixed(1)+','+pts[0][1].toFixed(1);
-        for (let i=1; i<pts.length; i++) d += ' L'+pts[i][0].toFixed(1)+','+pts[i][1].toFixed(1);
-        d += ' L'+pts[pts.length-1][0].toFixed(1)+',176 L'+pts[0][0].toFixed(1)+',176 Z';
+        if (pts.length < 2) return '';
+        let d = 'M' + pts[0][0].toFixed(1) + ',' + pts[0][1].toFixed(1);
+        for (let i = 1; i < pts.length; i++) d += ' L' + pts[i][0].toFixed(1) + ',' + pts[i][1].toFixed(1);
+        d += ' L' + pts[pts.length - 1][0].toFixed(1) + ',176 L' + pts[0][0].toFixed(1) + ',176 Z';
         return d;
       }
       function sL(i: number) {
         const el = xlabels[i] as HTMLElement;
-        if (el) { el.style.transition = 'opacity 0.8s'; el.style.opacity = '1'; }
+        if (el) {el.style.transition = 'opacity 0.8s';el.style.opacity = '1';}
       }
 
       function draw(ts: number) {
         if (!st) st = ts;
         const el = ts - st;
-        const rp = Math.min(el/dur, 1);
+        const rp = Math.min(el / dur, 1);
         const p = ease(rp);
         const p1 = getPts(marca, p);
         const p2 = getPts(sector, p);
@@ -78,51 +78,51 @@ const Index = () => {
         L1!.setAttribute('points', p2s(p1));
         L2!.setAttribute('points', p2s(p2));
         L3!.setAttribute('points', p2s(p3));
-        const l1 = p1[p1.length-1];
-        const l2 = p2[p2.length-1];
-        const l3 = p3[p3.length-1];
-        D1!.setAttribute('cx', String(l1[0])); D1!.setAttribute('cy', String(l1[1])); D1!.setAttribute('r', '5');
-        D2!.setAttribute('cx', String(l2[0])); D2!.setAttribute('cy', String(l2[1])); D2!.setAttribute('r', '3');
-        D3!.setAttribute('cx', String(l3[0])); D3!.setAttribute('cy', String(l3[1])); D3!.setAttribute('r', '3');
-        A!.setAttribute('d', bArea(p1)); A!.setAttribute('opacity', '0.25');
-        const cl = Math.floor(p*(marca.length-1));
-        while (lastL < cl) { lastL++; sL(lastL); }
+        const l1 = p1[p1.length - 1];
+        const l2 = p2[p2.length - 1];
+        const l3 = p3[p3.length - 1];
+        D1!.setAttribute('cx', String(l1[0]));D1!.setAttribute('cy', String(l1[1]));D1!.setAttribute('r', '5');
+        D2!.setAttribute('cx', String(l2[0]));D2!.setAttribute('cy', String(l2[1]));D2!.setAttribute('r', '3');
+        D3!.setAttribute('cx', String(l3[0]));D3!.setAttribute('cy', String(l3[1]));D3!.setAttribute('r', '3');
+        A!.setAttribute('d', bArea(p1));A!.setAttribute('opacity', '0.25');
+        const cl = Math.floor(p * (marca.length - 1));
+        while (lastL < cl) {lastL++;sL(lastL);}
         if (rp < 1) {
           requestAnimationFrame(draw);
         } else {
           sL(4);
           setTimeout(() => {
-            ['hBadge','hRuido','hUmbral','hUmT1','hUmT2','hLeg'].forEach(id => {
+            ['hBadge', 'hRuido', 'hUmbral', 'hUmT1', 'hUmT2', 'hLeg'].forEach((id) => {
               const e = document.getElementById(id);
-              if (e) { e.style.transition = 'opacity 1.2s'; e.setAttribute('opacity', '1'); }
+              if (e) {e.style.transition = 'opacity 1.2s';e.setAttribute('opacity', '1');}
             });
           }, 400);
-          setTimeout(() => { breatheId = requestAnimationFrame(heroBreathe); }, 1400);
+          setTimeout(() => {breatheId = requestAnimationFrame(heroBreathe);}, 1400);
         }
       }
 
       let bt = 0;
       function heroBreathe() {
         bt += 0.02;
-        let s1='', s2='', s3='';
-        for (let i=0; i<marca.length; i++) {
-          s1 += marca[i][0]+','+(marca[i][1]+Math.sin(bt*1.1+i*0.9)*3).toFixed(1)+' ';
-          s2 += sector[i][0]+','+(sector[i][1]+Math.sin(bt*0.8+i*0.6)*1.5).toFixed(1)+' ';
-          s3 += comp[i][0]+','+(comp[i][1]+Math.sin(bt*0.7+i*1.1)*2.5).toFixed(1)+' ';
+        let s1 = '',s2 = '',s3 = '';
+        for (let i = 0; i < marca.length; i++) {
+          s1 += marca[i][0] + ',' + (marca[i][1] + Math.sin(bt * 1.1 + i * 0.9) * 3).toFixed(1) + ' ';
+          s2 += sector[i][0] + ',' + (sector[i][1] + Math.sin(bt * 0.8 + i * 0.6) * 1.5).toFixed(1) + ' ';
+          s3 += comp[i][0] + ',' + (comp[i][1] + Math.sin(bt * 0.7 + i * 1.1) * 2.5).toFixed(1) + ' ';
         }
         L1!.setAttribute('points', s1.trim());
         L2!.setAttribute('points', s2.trim());
         L3!.setAttribute('points', s3.trim());
-        D1!.setAttribute('cy', (marca[4][1]+Math.sin(bt*1.1+4*0.9)*3).toFixed(1));
-        D3!.setAttribute('cy', (comp[4][1]+Math.sin(bt*0.7+4*1.1)*2.5).toFixed(1));
+        D1!.setAttribute('cy', (marca[4][1] + Math.sin(bt * 1.1 + 4 * 0.9) * 3).toFixed(1));
+        D3!.setAttribute('cy', (comp[4][1] + Math.sin(bt * 0.7 + 4 * 1.1) * 2.5).toFixed(1));
         breatheId = requestAnimationFrame(heroBreathe);
       }
 
-      const drawTimeout = setTimeout(() => { requestAnimationFrame(draw); }, 700);
+      const drawTimeout = setTimeout(() => {requestAnimationFrame(draw);}, 700);
 
       // IntersectionObserver for donut and bars
       const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             (entry.target as HTMLElement).classList.add('visible');
             observer.unobserve(entry.target);
@@ -131,7 +131,7 @@ const Index = () => {
       }, { threshold: 0.15 });
 
       document.querySelectorAll('.na-msg').forEach((el, i) => {
-        (el as HTMLElement).style.transitionDelay = (i * 0.3) + 's';
+        (el as HTMLElement).style.transitionDelay = i * 0.3 + 's';
         observer.observe(el);
       });
 
@@ -190,13 +190,13 @@ const Index = () => {
 
         <div className="hero-chart">
           <svg viewBox="0 0 420 260" preserveAspectRatio="xMidYMid meet" id="heroChart">
-            <line x1="50" y1="24" x2="350" y2="24" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5"/>
-            <line x1="50" y1="56" x2="350" y2="56" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5"/>
-            <line x1="50" y1="88" x2="350" y2="88" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" strokeDasharray="3,3"/>
-            <line x1="50" y1="120" x2="350" y2="120" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5"/>
-            <line x1="50" y1="152" x2="350" y2="152" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5"/>
-            <line x1="150" y1="24" x2="150" y2="176" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5"/>
-            <line x1="250" y1="24" x2="250" y2="176" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5"/>
+            <line x1="50" y1="24" x2="350" y2="24" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
+            <line x1="50" y1="56" x2="350" y2="56" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
+            <line x1="50" y1="88" x2="350" y2="88" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" strokeDasharray="3,3" />
+            <line x1="50" y1="120" x2="350" y2="120" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
+            <line x1="50" y1="152" x2="350" y2="152" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+            <line x1="150" y1="24" x2="150" y2="176" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
+            <line x1="250" y1="24" x2="250" y2="176" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
             <text x="42" y="27" fill="rgba(255,255,255,0.15)" fontSize="8" textAnchor="end" fontFamily="Space Mono,monospace">100</text>
             <text x="42" y="59" fill="rgba(255,255,255,0.15)" fontSize="8" textAnchor="end" fontFamily="Space Mono,monospace">80</text>
             <text x="42" y="91" fill="rgba(255,255,255,0.15)" fontSize="8" textAnchor="end" fontFamily="Space Mono,monospace">60</text>
@@ -207,34 +207,34 @@ const Index = () => {
             <text x="200" y="192" fill="rgba(255,255,255,0.25)" fontSize="9" textAnchor="middle" fontFamily="DM Sans,sans-serif" className="xl" style={{ opacity: 0 }}>S3</text>
             <text x="250" y="192" fill="rgba(255,255,255,0.25)" fontSize="9" textAnchor="middle" fontFamily="DM Sans,sans-serif" className="xl" style={{ opacity: 0 }}>S4</text>
             <text x="300" y="192" fill="rgba(255,255,255,0.25)" fontSize="9" textAnchor="middle" fontFamily="DM Sans,sans-serif" className="xl" style={{ opacity: 0 }}>S5</text>
-            <rect id="hUmbral" x="50" y="152" width="300" height="24" fill="rgba(255,255,255,0.06)" opacity="0"/>
+            <rect id="hUmbral" x="50" y="152" width="300" height="24" fill="rgba(255,255,255,0.06)" opacity="0" />
             <text id="hUmT1" x="355" y="164" fill="rgba(255,255,255,0.3)" fontSize="8" fontFamily="Space Mono,monospace" opacity="0">UMBRAL</text>
             <text id="hUmT2" x="355" y="173" fill="rgba(255,255,255,0.3)" fontSize="8" fontFamily="Space Mono,monospace" opacity="0">DE RUIDO</text>
             <defs>
               <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#FFF" stopOpacity="0.15"/>
-                <stop offset="100%" stopColor="#FFF" stopOpacity="0"/>
+                <stop offset="0%" stopColor="#FFF" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#FFF" stopOpacity="0" />
               </linearGradient>
             </defs>
-            <path id="hArea" fill="url(#ag)" opacity="0"/>
-            <polyline id="hL1" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" points="100,120 150,92 200,68 250,52 300,44"/>
-            <polyline id="hL2" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" points="100,108 150,110 200,112 250,108 300,110"/>
-            <polyline id="hL3" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" points="100,92 150,116 200,136 250,152 300,162"/>
-            <circle id="hD1" r="0" fill="#FFF"/>
-            <circle id="hD2" r="0" fill="rgba(255,255,255,0.4)"/>
-            <circle id="hD3" r="0" fill="rgba(255,255,255,0.3)"/>
-            <g id="hBadge" opacity="1"><rect x="306" y="33" width="42" height="22" rx="3" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.5)" strokeWidth="0.5"/><text x="327" y="48" fill="#FFF" fontSize="11" textAnchor="middle" fontFamily="Space Mono,monospace" fontWeight="700">78%</text></g>
-            <g id="hRuido" opacity="1"><rect x="306" y="150" width="42" height="16" rx="2" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5"/><text x="327" y="161" fill="rgba(255,255,255,0.4)" fontSize="7" textAnchor="middle" fontFamily="Space Mono,monospace" fontWeight="700">RUIDO</text></g>
+            <path id="hArea" fill="url(#ag)" opacity="0" />
+            <polyline id="hL1" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" points="100,120 150,92 200,68 250,52 300,44" />
+            <polyline id="hL2" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" points="100,108 150,110 200,112 250,108 300,110" />
+            <polyline id="hL3" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" points="100,92 150,116 200,136 250,152 300,162" />
+            <circle id="hD1" r="0" fill="#FFF" />
+            <circle id="hD2" r="0" fill="rgba(255,255,255,0.4)" />
+            <circle id="hD3" r="0" fill="rgba(255,255,255,0.3)" />
+            <g id="hBadge" opacity="1"><rect x="306" y="33" width="42" height="22" rx="3" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" /><text x="327" y="48" fill="#FFF" fontSize="11" textAnchor="middle" fontFamily="Space Mono,monospace" fontWeight="700">78%</text></g>
+            <g id="hRuido" opacity="1"><rect x="306" y="150" width="42" height="16" rx="2" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" /><text x="327" y="161" fill="rgba(255,255,255,0.4)" fontSize="7" textAnchor="middle" fontFamily="Space Mono,monospace" fontWeight="700">RUIDO</text></g>
             <g id="hLeg" opacity="0">
-              <circle cx="60" cy="215" r="4" fill="#FFF"/><text x="70" y="219" fill="rgba(255,255,255,0.4)" fontSize="9" fontFamily="DM Sans,sans-serif">Tu marca</text>
-              <circle cx="160" cy="215" r="4" fill="rgba(255,255,255,0.35)"/><text x="170" y="219" fill="rgba(255,255,255,0.25)" fontSize="9" fontFamily="DM Sans,sans-serif">Prom. sector</text>
-              <circle cx="280" cy="215" r="4" fill="rgba(255,255,255,0.25)"/><text x="290" y="219" fill="rgba(255,255,255,0.25)" fontSize="9" fontFamily="DM Sans,sans-serif">Competidor</text>
+              <circle cx="60" cy="215" r="4" fill="#FFF" /><text x="70" y="219" fill="rgba(255,255,255,0.4)" fontSize="9" fontFamily="DM Sans,sans-serif">Tu marca</text>
+              <circle cx="160" cy="215" r="4" fill="rgba(255,255,255,0.35)" /><text x="170" y="219" fill="rgba(255,255,255,0.25)" fontSize="9" fontFamily="DM Sans,sans-serif">Prom. sector</text>
+              <circle cx="280" cy="215" r="4" fill="rgba(255,255,255,0.25)" /><text x="290" y="219" fill="rgba(255,255,255,0.25)" fontSize="9" fontFamily="DM Sans,sans-serif">Competidor</text>
             </g>
           </svg>
         </div>
 
         <div className="hero-inner">
-          <h1>Amamos las<br/><span className="serif">narrativas.</span><br/>Y sabemos<br/>medirlas.</h1>
+          <h1>Amamos las<br /><span className="serif">narrativas.</span><br />Y sabemos<br />medirlas.</h1>
           <p className="claim">Más de una década midiendo con NarraNoise® cómo empresas, políticos y figuras públicas entregan sus mensajes a sus audiencias.</p>
         </div>
         <a href="#medicion" className="hero-reportes-link">Conocé nuestro modelo NarraNoise® ↓</a>
@@ -245,13 +245,13 @@ const Index = () => {
         <div className="logos-label">Miden su narrativa con nosotros</div>
         <div className="logos-track">
           <div className="logos-slide">
-            {clientLogos.map((logo, i) => (
-              <img key={i} className="client-logo" src={logo.src} alt={logo.alt} />
-            ))}
+            {clientLogos.map((logo, i) =>
+            <img key={i} className="client-logo" src={logo.src} alt={logo.alt} />
+            )}
             {/* Duplicate for infinite scroll */}
-            {clientLogos.map((logo, i) => (
-              <img key={`dup-${i}`} className="client-logo" src={logo.src} alt={logo.alt} />
-            ))}
+            {clientLogos.map((logo, i) =>
+            <img key={`dup-${i}`} className="client-logo" src={logo.src} alt={logo.alt} />
+            )}
           </div>
         </div>
       </section>
@@ -266,7 +266,7 @@ const Index = () => {
               <h2>Reportes e <span className="serif">Insights</span></h2>
               <p className="intro">Cada semana publicamos rankings y análisis de efectividad narrativa en negocios, política y entretenimiento. Disponibles en tiempo real y gratis en nuestro canal de WhatsApp.</p>
               <a href="https://wa.me/5491130731011?text=Quiero%20recibir%20los%20reportes" className="pubs-wa-cta" target="_blank" rel="noopener noreferrer">
-                <svg className="wa-svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.634-1.215A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.115 0-4.093-.65-5.727-1.763l-.41-.244-2.75.721.735-2.683-.268-.426A9.71 9.71 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/></svg>
+                <svg className="wa-svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.634-1.215A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.115 0-4.093-.65-5.727-1.763l-.41-.244-2.75.721.735-2.683-.268-.426A9.71 9.71 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z" /></svg>
                 Unirme al canal
               </a>
               <div className="pubs-press">
@@ -279,7 +279,7 @@ const Index = () => {
             <div className="pubs-index">
               <div className="pubs-index-item" style={{ cursor: 'default' }}>
                 <div className="pubs-idx-cover">
-                  <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1"/><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/></svg>
+                  <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1" /><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /></svg>
                 </div>
                 <div className="pubs-idx-content">
                   <div className="pubs-idx-type">Política</div>
@@ -290,7 +290,7 @@ const Index = () => {
               </div>
               <div className="pubs-index-item" style={{ cursor: 'default' }}>
                 <div className="pubs-idx-cover">
-                  <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1"/><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/></svg>
+                  <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1" /><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /></svg>
                 </div>
                 <div className="pubs-idx-content">
                   <div className="pubs-idx-type">Política</div>
@@ -301,7 +301,7 @@ const Index = () => {
               </div>
               <div className="pubs-index-item" style={{ cursor: 'default' }}>
                 <div className="pubs-idx-cover">
-                  <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1"/><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/></svg>
+                  <svg viewBox="0 0 24 30" width="24" height="30" fill="none"><rect x="2" y="2" width="20" height="26" rx="2" stroke="rgba(255,255,255,0.3)" strokeWidth="1" /><line x1="6" y1="8" x2="18" y2="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /><line x1="6" y1="12" x2="18" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /><line x1="6" y1="16" x2="14" y2="16" stroke="rgba(255,255,255,0.15)" strokeWidth="1" /></svg>
                 </div>
                 <div className="pubs-idx-content">
                   <div className="pubs-idx-type">Deportes</div>
@@ -319,7 +319,7 @@ const Index = () => {
       <section className="sec-products" id="medicion">
         <div className="prod-inner">
           <div className="prod-headline">
-            <h2 className="prod-h2">Nuestro modelo de medición +<br/>un asistente 24/7 <span className="serif">para vos.</span></h2>
+            <h2 className="prod-h2">Nuestro modelo de medición +<br />un asistente 24/7 <span className="serif">para vos.</span></h2>
           </div>
           <div className="prod-grid">
             {/* NarraNoise® */}
@@ -327,7 +327,7 @@ const Index = () => {
               <div className="prod-stag">Modelo de medición</div>
               <div className="prod-title-row">
                 <div className="prod-logo-icon">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="4" y="14" width="4" height="6" rx="1" fill="rgba(255,255,255,0.5)"/><rect x="10" y="9" width="4" height="11" rx="1" fill="rgba(255,255,255,0.75)"/><rect x="16" y="4" width="4" height="16" rx="1" fill="#fff"/></svg>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="4" y="14" width="4" height="6" rx="1" fill="rgba(255,255,255,0.5)" /><rect x="10" y="9" width="4" height="11" rx="1" fill="rgba(255,255,255,0.75)" /><rect x="16" y="4" width="4" height="16" rx="1" fill="#fff" /></svg>
                 </div>
                 <div className="prod-title" style={{ marginBottom: 0 }}>Narra<span className="serif">Noise®</span></div>
               </div>
@@ -344,10 +344,10 @@ const Index = () => {
                   <div style={{ marginTop: '16px', borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '12px' }}>
                     <svg viewBox="0 0 300 50" style={{ width: '100%', height: '50px' }} preserveAspectRatio="none">
                       <text x="0" y="8" fill="rgba(255,255,255,0.12)" fontSize="7" fontFamily="Space Mono,monospace">EVOLUCIÓN</text>
-                      <rect x="0" y="38" width="300" height="10" fill="rgba(255,255,255,0.015)"/>
+                      <rect x="0" y="38" width="300" height="10" fill="rgba(255,255,255,0.015)" />
                       <text x="290" y="46" fill="rgba(255,255,255,0.08)" fontSize="5" fontFamily="Space Mono,monospace" textAnchor="end">RUIDO</text>
-                      <polyline points="0,35 43,30 86,27 129,24 172,21 215,18 258,14 300,10" fill="none" stroke="var(--white)" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
-                      <polyline points="0,25 43,26 86,26 129,25 172,26 215,27 258,26 300,26" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeLinecap="round"/>
+                      <polyline points="0,35 43,30 86,27 129,24 172,21 215,18 258,14 300,10" fill="none" stroke="var(--white)" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+                      <polyline points="0,25 43,26 86,26 129,25 172,26 215,27 258,26 300,26" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeLinecap="round" />
                     </svg>
                   </div>
                   <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
@@ -433,7 +433,7 @@ const Index = () => {
             </div>
             <div className="na-tl-step">
               <div className="na-tl-dot">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="5" y="14" width="3.5" height="5" rx="0.5" fill="rgba(255,255,255,0.5)"/><rect x="10.25" y="10" width="3.5" height="9" rx="0.5" fill="rgba(255,255,255,0.7)"/><rect x="15.5" y="5" width="3.5" height="14" rx="0.5" fill="#fff"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="5" y="14" width="3.5" height="5" rx="0.5" fill="rgba(255,255,255,0.5)" /><rect x="10.25" y="10" width="3.5" height="9" rx="0.5" fill="rgba(255,255,255,0.7)" /><rect x="15.5" y="5" width="3.5" height="14" rx="0.5" fill="#fff" /></svg>
               </div>
               <div className="na-tl-text">
                 <div className="na-tl-when">10 días</div>
@@ -523,7 +523,7 @@ const Index = () => {
       {/* CARTA DEL FOUNDER */}
       <section className="sec-letter">
         <div className="letter-inner">
-          <h2 className="letter-headline">¿Tu comunicación funciona?<br/>No debería ser tan difícil <span className="serif">saberlo.</span></h2>
+          <h2 className="letter-headline">¿Tu comunicación funciona?<br />No debería ser tan difícil <span className="serif">saberlo.</span></h2>
           <div className="letter-cols">
             <div>
               <p>Hay mil formas de comunicar. Y miles de consultoras prometiendo ayudarte. Seguramente ya probaste alguna.</p>
@@ -535,7 +535,7 @@ const Index = () => {
               <p>Después, NarraAsist — nuestro asistente con IA — se queda con vos para que no dependas de nosotros cada vez que necesitás ajustar algo. <strong>La idea es que seas autónomo, no rehén de una consultora.</strong></p>
               <p>Escribime directo. Leo todo, contesto todo. Sin asistentes, sin bots. Gracias.</p>
               <div className="letter-sig">
-                <img src={SIGNATURE_BASE64} alt="Firma" style={{ height: '100px', width: 'auto', display: 'block', marginBottom: '10px' }}/>
+                
                 <div className="sig-line">Lisandro Bregant, <a href="mailto:lisandro@narraglobal.com">lisandro@narraglobal.com</a></div>
                 <div className="sig-role">Fundador, NARRAGLOBAL</div>
               </div>
@@ -568,8 +568,8 @@ const Index = () => {
                 <div className="nw-pill nw-pill--show"><span>SHOW</span> Entretenimiento</div>
               </div>
               <div className="nw-fmts">
-                <strong>Cápsula</strong> — 1 encuentro, 2hs<br/>
-                <strong>Serie</strong> — 3 encuentros con challenge real<br/>
+                <strong>Cápsula</strong> — 1 encuentro, 2hs<br />
+                <strong>Serie</strong> — 3 encuentros con challenge real<br />
                 <strong>Programa</strong> — 6 módulos, capacidad instalada
               </div>
             </div>
@@ -588,7 +588,7 @@ const Index = () => {
       <section className="sec-close">
         <div className="ht"></div>
         <div className="content">
-          <h2>La narrativa no es lo que decís.<br/>Es lo que el otro <span className="serif">entiende.</span></h2>
+          <h2>La narrativa no es lo que decís.<br />Es lo que el otro <span className="serif">entiende.</span></h2>
           <p className="sub">Es tiempo que puedas tomar decisiones de comunicación basadas en evidencia.</p>
           <div className="ctas">
             <a href="#narraasist" className="btn-white">Comenzá ahora</a>
@@ -610,8 +610,8 @@ const Index = () => {
           <a href="mailto:lisandro@narraglobal.com">lisandro@narraglobal.com</a> · <a href="https://narraglobal.com">narraglobal.com</a>
         </div>
       </footer>
-    </>
-  );
+    </>);
+
 };
 
 export default Index;
