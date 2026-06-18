@@ -1,14 +1,10 @@
 import { useEffect } from 'react';
-import { clientLogos } from '../components/clientLogos';
 
 // WhatsApp number (código país + número, sin + ni espacios)
 const WA = '5491130731011';
 
-// Reuse the existing base64 client logos where the new design needs them.
-const logoSrc = (alt: string) => clientLogos.find((l) => l.alt === alt)?.src;
-
-// Client logos: row → design label, fallback text, clientLogos alt, asset file, size class
-interface ClientDef { label: string; fallback: string; mapAlt?: string; file: string; ext?: string; size?: 'md' | 'lg'; }
+// Client logos: row → design label, fallback text, asset file, extension, size class
+interface ClientDef { label: string; fallback: string; file: string; ext?: string; size?: 'md' | 'lg'; }
 const CLIENT_ROWS: ClientDef[][] = [
   [
     { label: 'Google', fallback: 'Google', file: 'google', ext: 'webp', size: 'md' },
@@ -343,7 +339,7 @@ const Index = () => {
             <div className="logo-row" key={ri}>
               {row.map((c) => (
                 <div className={'logo' + (c.size ? ' ' + c.size : '')} key={c.label}>
-                  <img src={(c.mapAlt && logoSrc(c.mapAlt)) || `logos/${c.file}.${c.ext || 'png'}`} alt={c.label} loading="lazy" decoding="async" onError={imgError} />
+                  <img src={`logos/${c.file}.${c.ext || 'png'}`} alt={c.label} loading="lazy" decoding="async" onError={imgError} />
                   <span className="lf">{c.fallback}</span>
                 </div>
               ))}
