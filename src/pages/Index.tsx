@@ -36,7 +36,7 @@ const MEDIA: MediaDef[] = [
   { alt: 'Infobae', file: 'infobae', fallback: 'Infobae' },
   { alt: 'Telefe', file: 'telefe', ext: 'jpg', fallback: 'Telefe' },
   { alt: 'Clarín', file: 'clarin', ext: 'jpg', fallback: 'Clarín' },
-  { alt: 'La Nación', file: 'lanacion', fallback: 'La Nación' },
+  { alt: 'La Nación', file: 'lanacion', ext: 'webp', fallback: 'La Nación' },
   { alt: 'Todo Noticias', file: 'tn', ext: 'webp', fallback: 'TN' },
 ];
 
