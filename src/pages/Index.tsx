@@ -1,28 +1,24 @@
 import { useEffect } from 'react';
-import { clientLogos } from '../components/clientLogos';
 
 // WhatsApp number (código país + número, sin + ni espacios)
 const WA = '5491130731011';
 
-// Reuse the existing base64 client logos where the new design needs them.
-const logoSrc = (alt: string) => clientLogos.find((l) => l.alt === alt)?.src;
-
-// Client logos: row → design label, fallback text, clientLogos alt, asset file, size class
-interface ClientDef { label: string; fallback: string; mapAlt?: string; file: string; ext?: string; size?: 'md' | 'lg'; }
+// Client logos: row → design label, fallback text, asset file, extension, size class
+interface ClientDef { label: string; fallback: string; file: string; ext?: string; size?: 'md' | 'lg'; }
 const CLIENT_ROWS: ClientDef[][] = [
   [
-    { label: 'Google', fallback: 'Google', mapAlt: 'Google', file: 'google', size: 'md' },
-    { label: 'HBO Max', fallback: 'HBO Max', mapAlt: 'HBO Max', file: 'hbomax' },
-    { label: 'Bayer', fallback: 'Bayer', mapAlt: 'Bayer', file: 'bayer', size: 'lg' },
+    { label: 'Google', fallback: 'Google', file: 'google', ext: 'webp', size: 'md' },
+    { label: 'HBO Max', fallback: 'HBO Max',     file: 'hbomax', ext: 'webp' },
+    { label: 'Bayer', fallback: 'Bayer', file: 'bayer', ext: 'webp', size: 'lg' },
     { label: 'Syngenta', fallback: 'Syngenta', file: 'syngenta', ext: 'webp' },
     { label: 'Amgen', fallback: 'AMGEN', file: 'amgen' },
   ],
   [
-    { label: "L'Oréal", fallback: "L'ORÉAL", mapAlt: "L'Oréal", file: 'loreal' },
-    { label: 'BID', fallback: 'BID', mapAlt: 'IDB', file: 'bid', size: 'md' },
-    { label: 'Volkswagen', fallback: 'Volkswagen', mapAlt: 'VW', file: 'volkswagen', size: 'lg' },
-    { label: 'Accenture', fallback: 'accenture', mapAlt: 'Accenture', file: 'accenture' },
-    { label: 'River Plate', fallback: 'River Plate', mapAlt: 'River Plate', file: 'river', size: 'lg' },
+    { label: "L'Oréal", fallback: "L'ORÉAL", file: 'loreal' },
+    { label: 'BID', fallback: 'BID', file: 'bid', size: 'md' },
+    { label: 'Volkswagen', fallback: 'Volkswagen', file: 'volkswagen', ext: 'webp', size: 'lg' },
+    { label: 'Accenture', fallback: 'accenture', file: 'accenture', ext: 'webp' },
+    { label: 'River Plate', fallback: 'River Plate', file: 'river', ext: 'webp', size: 'lg' },
   ],
 ];
 
@@ -343,7 +339,7 @@ const Index = () => {
             <div className="logo-row" key={ri}>
               {row.map((c) => (
                 <div className={'logo' + (c.size ? ' ' + c.size : '')} key={c.label}>
-                  <img src={(c.mapAlt && logoSrc(c.mapAlt)) || `logos/${c.file}.${c.ext || 'png'}`} alt={c.label} loading="lazy" decoding="async" onError={imgError} />
+                  <img src={`logos/${c.file}.${c.ext || 'png'}`} alt={c.label} loading="lazy" decoding="async" onError={imgError} />
                   <span className="lf">{c.fallback}</span>
                 </div>
               ))}
