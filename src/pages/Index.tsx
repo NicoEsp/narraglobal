@@ -11,7 +11,7 @@ const logoSrc = (alt: string) => clientLogos.find((l) => l.alt === alt)?.src;
 interface ClientDef { label: string; fallback: string; mapAlt?: string; file: string; ext?: string; size?: 'md' | 'lg'; }
 const CLIENT_ROWS: ClientDef[][] = [
   [
-    { label: 'Google', fallback: 'Google', mapAlt: 'Google', file: 'google', size: 'md' },
+    { label: 'Google', fallback: 'Google', file: 'google', ext: 'webp', size: 'md' },
     { label: 'HBO Max', fallback: 'HBO Max',     file: 'hbomax', ext: 'webp' },
     { label: 'Bayer', fallback: 'Bayer', file: 'bayer', ext: 'webp', size: 'lg' },
     { label: 'Syngenta', fallback: 'Syngenta', file: 'syngenta', ext: 'webp' },
@@ -20,9 +20,9 @@ const CLIENT_ROWS: ClientDef[][] = [
   [
     { label: "L'Oréal", fallback: "L'ORÉAL", file: 'loreal' },
     { label: 'BID', fallback: 'BID', file: 'bid', size: 'md' },
-    { label: 'Volkswagen', fallback: 'Volkswagen', mapAlt: 'VW', file: 'volkswagen', size: 'lg' },
+    { label: 'Volkswagen', fallback: 'Volkswagen', file: 'volkswagen', ext: 'webp', size: 'lg' },
     { label: 'Accenture', fallback: 'accenture', file: 'accenture', ext: 'webp' },
-    { label: 'River Plate', fallback: 'River Plate', mapAlt: 'River Plate', file: 'river', size: 'lg' },
+    { label: 'River Plate', fallback: 'River Plate', file: 'river', ext: 'webp', size: 'lg' },
   ],
 ];
 
