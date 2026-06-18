@@ -12,7 +12,7 @@ interface ClientDef { label: string; fallback: string; mapAlt?: string; file: st
 const CLIENT_ROWS: ClientDef[][] = [
   [
     { label: 'Google', fallback: 'Google', mapAlt: 'Google', file: 'google', size: 'md' },
-    { label: 'HBO Max', fallback: 'HBO&nbsp;Max', mapAlt: 'HBO Max', file: 'hbomax' },
+    { label: 'HBO Max', fallback: 'HBO Max', mapAlt: 'HBO Max', file: 'hbomax' },
     { label: 'Bayer', fallback: 'Bayer', mapAlt: 'Bayer', file: 'bayer', size: 'lg' },
     { label: 'Syngenta', fallback: 'Syngenta', file: 'syngenta', ext: 'webp' },
     { label: 'Amgen', fallback: 'AMGEN', file: 'amgen' },
@@ -22,7 +22,7 @@ const CLIENT_ROWS: ClientDef[][] = [
     { label: 'BID', fallback: 'BID', mapAlt: 'IDB', file: 'bid', size: 'md' },
     { label: 'Volkswagen', fallback: 'Volkswagen', mapAlt: 'VW', file: 'volkswagen', size: 'lg' },
     { label: 'Accenture', fallback: 'accenture', mapAlt: 'Accenture', file: 'accenture' },
-    { label: 'River Plate', fallback: 'River&nbsp;Plate', mapAlt: 'River Plate', file: 'river', size: 'lg' },
+    { label: 'River Plate', fallback: 'River Plate', mapAlt: 'River Plate', file: 'river', size: 'lg' },
   ],
 ];
 
@@ -57,18 +57,28 @@ const imgHide = (e: React.SyntheticEvent<HTMLImageElement>) => {
 const Index = () => {
   useEffect(() => {
     const byId = (id: string) => document.getElementById(id);
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const at = (ms: number, fn: () => void) => { timers.push(setTimeout(fn, ms)); };
-    const rafs: number[] = [];
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+    // Track only active handles so they don't accumulate for the page lifetime.
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+    const at = (ms: number, fn: () => void) => {
+      const id = setTimeout(() => { timers.delete(id); fn(); }, ms);
+      timers.add(id);
+    };
+    const rafs = new Set<number>();
+    const queueRaf = (fn: FrameRequestCallback) => {
+      const id = requestAnimationFrame((now) => { rafs.delete(id); fn(now); });
+      rafs.add(id);
+    };
 
     const countTo = (el: HTMLElement, to: number, dur: number) => {
       const start = performance.now();
       const step = (now: number) => {
         const p = Math.min((now - start) / dur, 1);
         el.textContent = String(Math.round(p * to));
-        if (p < 1) rafs.push(requestAnimationFrame(step));
+        if (p < 1) queueRaf(step);
       };
-      rafs.push(requestAnimationFrame(step));
+      queueRaf(step);
     };
 
     // ===== HERO scorecard → WhatsApp =====
@@ -103,7 +113,16 @@ const Index = () => {
       at(7600, () => byId('b-3')?.classList.add('in'));
       at(10600, loop);
     };
-    loop();
+    const heroFinalState = () => {
+      document.querySelectorAll<HTMLElement>('.track i').forEach((i) => { i.style.width = (i.dataset.w || '0') + '%'; });
+      document.querySelectorAll<HTMLElement>('.pv').forEach((p) => { p.textContent = p.dataset.v || '0'; });
+      if (scoreEl) scoreEl.textContent = '72';
+      byId('delta')?.classList.add('in');
+      byId('phone')?.classList.add('show');
+      card?.classList.add('away');
+      ['b-mini', 'b-1', 'b-2', 'b-3'].forEach((i) => byId(i)?.classList.add('in'));
+    };
+    if (reduceMotion) heroFinalState(); else loop();
 
     // ===== cstage: gráfico → número → chat =====
     const cChart = byId('cs-chart');
@@ -137,7 +156,16 @@ const Index = () => {
       at(7600, () => { cTyping?.classList.remove('show'); byId('cs-b4')?.classList.add('in'); });
       at(11200, loopC);
     };
-    loopC();
+    const cstageFinalState = () => {
+      if (cPlot) cPlot.style.opacity = '0';
+      cNum?.classList.add('show');
+      if (cScore) cScore.textContent = '72';
+      if (cState) cState.textContent = 'listo';
+      cCard?.classList.add('away');
+      cPhone?.classList.add('show');
+      ['cs-b1', 'cs-b2', 'cs-b3', 'cs-b4'].forEach((i) => byId(i)?.classList.add('in'));
+    };
+    if (reduceMotion) cstageFinalState(); else loopC();
 
     // ===== Packs (sumar a la suscripción) → WhatsApp deep-link =====
     const PNAMES: Record<string, string> = { seg: 'Pack Llamados tácticos', mesa: 'Pack Mesa chica' };
@@ -160,11 +188,13 @@ const Index = () => {
       const b = c.querySelector('.ptoggle');
       const x = b?.querySelector('.x');
       const lbl = b?.querySelector('.lbl');
+      b?.setAttribute('aria-pressed', String(psel[id]));
       if (x) x.textContent = psel[id] ? '✓' : '+';
       if (lbl) lbl.textContent = psel[id] ? 'Sumado ✓' : 'Sumar a mi suscripción';
       pbuild();
     };
     const packHandlers = Array.from(document.querySelectorAll<HTMLButtonElement>('.packs-strip .ptoggle')).map((b) => {
+      b.setAttribute('aria-pressed', 'false');
       const id = b.dataset.pack || '';
       const h = () => ptoggle(id);
       b.addEventListener('click', h);
@@ -186,6 +216,7 @@ const Index = () => {
     };
     const ictoggle = (b: HTMLElement) => {
       const on = b.classList.toggle('on');
+      b.setAttribute('aria-pressed', String(on));
       const cx = b.querySelector('.cx');
       if (cx) cx.textContent = on ? '✓' : '+';
       const t = b.dataset.t || '';
@@ -194,6 +225,7 @@ const Index = () => {
     };
     const icotra = (b: HTMLElement) => {
       const on = b.classList.toggle('on');
+      b.setAttribute('aria-pressed', String(on));
       const cx = b.querySelector('.cx');
       if (cx) cx.textContent = on ? '✓' : '+';
       const inp = byId('ic-otra') as HTMLInputElement | null;
@@ -204,6 +236,7 @@ const Index = () => {
       icbuild();
     };
     const chipHandlers = Array.from(document.querySelectorAll<HTMLButtonElement>('.ic-topics .chip')).map((b) => {
+      b.setAttribute('aria-pressed', 'false');
       const h = () => (b.classList.contains('chip-otra') ? icotra(b) : ictoggle(b));
       b.addEventListener('click', h);
       return { b, h };
@@ -310,8 +343,8 @@ const Index = () => {
             <div className="logo-row" key={ri}>
               {row.map((c) => (
                 <div className={'logo' + (c.size ? ' ' + c.size : '')} key={c.label}>
-                  <img src={(c.mapAlt && logoSrc(c.mapAlt)) || `logos/${c.file}.${c.ext || 'png'}`} alt={c.label} onError={imgError} />
-                  <span className="lf" dangerouslySetInnerHTML={{ __html: c.fallback }} />
+                  <img src={(c.mapAlt && logoSrc(c.mapAlt)) || `logos/${c.file}.${c.ext || 'png'}`} alt={c.label} loading="lazy" decoding="async" onError={imgError} />
+                  <span className="lf">{c.fallback}</span>
                 </div>
               ))}
             </div>
@@ -412,7 +445,7 @@ const Index = () => {
       <div className="incompany" id="incompany">
         <div className="ic-photo">
           <div className="ph">Workshop in-company · NarraGlobal</div>
-          <img className="ic-img" src="fotos/workshop.jpg" alt="Workshop in-company NarraGlobal" onError={imgHide} />
+          <img className="ic-img" src="fotos/workshop.jpg" alt="Workshop in-company NarraGlobal" loading="lazy" decoding="async" onError={imgHide} />
         </div>
         <div className="ic-body">
           <div className="ic-eyebrow">Workshops in-company</div>
@@ -450,7 +483,7 @@ const Index = () => {
         <div className="rp-carousel">
           <a className="rp-cover" href="https://narraglobal.substack.com/p/relato-desorganizado-y-50-de-ruido" target="_blank" rel="noopener noreferrer">
             <div className="cover-card">
-              <img className="cc-bg" src="https://substackcdn.com/image/fetch/$s_!hkcH!,w_1200,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F5747a69a-3bb5-4c0c-acb1-519364316fcc_1100x480.png" alt="" onError={imgHide} />
+              <img className="cc-bg" src="https://substackcdn.com/image/fetch/$s_!hkcH!,w_1200,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F5747a69a-3bb5-4c0c-acb1-519364316fcc_1100x480.png" alt="" loading="lazy" decoding="async" onError={imgHide} />
               <div className="cc-shade" />
               <div className="cc-top"><span className="cc-wm">narra<span className="dotg">global</span></span><span className="cc-tag">Reporte · Política</span></div>
               <div className="cc-bottom">
@@ -462,7 +495,7 @@ const Index = () => {
           </a>
           <a className="rp-cover" href="https://narraglobal.substack.com/p/gebel-bajo-un-73-su-cuota-dios-en" target="_blank" rel="noopener noreferrer">
             <div className="cover-card">
-              <img className="cc-bg" src="https://substackcdn.com/image/fetch/$s_!qwNw!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F758310d6-c074-4698-a49c-f8f46c047b20_2200x1041.png" alt="" onError={imgHide} />
+              <img className="cc-bg" src="https://substackcdn.com/image/fetch/$s_!qwNw!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F758310d6-c074-4698-a49c-f8f46c047b20_2200x1041.png" alt="" loading="lazy" decoding="async" onError={imgHide} />
               <div className="cc-shade" />
               <div className="cc-top"><span className="cc-wm">narra<span className="dotg">global</span></span><span className="cc-tag">Reporte · Política</span></div>
               <div className="cc-bottom">
@@ -474,7 +507,7 @@ const Index = () => {
           </a>
           <a className="rp-cover" href="https://x.com/lisandrobregant/status/1733928007423717588" target="_blank" rel="noopener noreferrer">
             <div className="cover-card cover-x">
-              <img className="cc-bg" src="reportes/milei-asuncion.jpg" alt="" onError={imgHide} />
+              <img className="cc-bg" src="reportes/milei-asuncion.jpg" alt="" loading="lazy" decoding="async" onError={imgHide} />
               <div className="cc-shade" />
               <svg className="cc-xmark" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
               <div className="cc-top"><span className="cc-wm">narra<span className="dotg">global</span></span><span className="cc-tag">Análisis · X</span></div>
@@ -502,7 +535,7 @@ const Index = () => {
           <div className="rp-media-logos">
             {MEDIA.map((m) => (
               <span key={m.alt} style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <img src={`medios/${m.file}.${m.ext || 'png'}`} alt={m.alt} onError={imgError} />
+                <img src={`medios/${m.file}.${m.ext || 'png'}`} alt={m.alt} loading="lazy" decoding="async" onError={imgError} />
                 <span className="mf">{m.fallback}</span>
               </span>
             ))}
