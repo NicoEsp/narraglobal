@@ -8,13 +8,13 @@ const WA = '5491130731011';
 const logoSrc = (alt: string) => clientLogos.find((l) => l.alt === alt)?.src;
 
 // Client logos: row → design label, fallback text, clientLogos alt, asset file, size class
-interface ClientDef { label: string; fallback: string; mapAlt?: string; file: string; size?: 'md' | 'lg'; }
+interface ClientDef { label: string; fallback: string; mapAlt?: string; file: string; ext?: string; size?: 'md' | 'lg'; }
 const CLIENT_ROWS: ClientDef[][] = [
   [
     { label: 'Google', fallback: 'Google', mapAlt: 'Google', file: 'google', size: 'md' },
     { label: 'HBO Max', fallback: 'HBO&nbsp;Max', mapAlt: 'HBO Max', file: 'hbomax' },
     { label: 'Bayer', fallback: 'Bayer', mapAlt: 'Bayer', file: 'bayer', size: 'lg' },
-    { label: 'Syngenta', fallback: 'Syngenta', file: 'syngenta' },
+    { label: 'Syngenta', fallback: 'Syngenta', file: 'syngenta', ext: 'webp' },
     { label: 'Amgen', fallback: 'AMGEN', file: 'amgen' },
   ],
   [
@@ -30,7 +30,7 @@ const CLIENT_ROWS: ClientDef[][] = [
 interface MediaDef { alt: string; file: string; ext?: string; fallback: string; }
 const MEDIA: MediaDef[] = [
   { alt: 'CNN', file: 'cnn', fallback: 'CNN' },
-  { alt: 'Forbes', file: 'forbes', fallback: 'Forbes' },
+  { alt: 'Forbes', file: 'forbes', ext: 'webp', fallback: 'Forbes' },
   { alt: 'Univisión', file: 'univision', fallback: 'Univisión' },
   { alt: 'TVE Internacional', file: 'tve', fallback: 'TVE' },
   { alt: 'Infobae', file: 'infobae', fallback: 'Infobae' },
@@ -310,7 +310,7 @@ const Index = () => {
             <div className="logo-row" key={ri}>
               {row.map((c) => (
                 <div className={'logo' + (c.size ? ' ' + c.size : '')} key={c.label}>
-                  <img src={(c.mapAlt && logoSrc(c.mapAlt)) || `logos/${c.file}.png`} alt={c.label} onError={imgError} />
+                  <img src={(c.mapAlt && logoSrc(c.mapAlt)) || `logos/${c.file}.${c.ext || 'png'}`} alt={c.label} onError={imgError} />
                   <span className="lf" dangerouslySetInnerHTML={{ __html: c.fallback }} />
                 </div>
               ))}
