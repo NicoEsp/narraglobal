@@ -32,12 +32,12 @@ const MEDIA: MediaDef[] = [
   { alt: 'CNN', file: 'cnn', fallback: 'CNN' },
   { alt: 'Forbes', file: 'forbes', ext: 'webp', fallback: 'Forbes' },
   { alt: 'Univisión', file: 'univision', fallback: 'Univisión' },
-  { alt: 'TVE Internacional', file: 'tve', fallback: 'TVE' },
+  { alt: 'TVE Internacional', file: 'tve', ext: 'webp', fallback: 'TVE' },
   { alt: 'Infobae', file: 'infobae', fallback: 'Infobae' },
   { alt: 'Telefe', file: 'telefe', ext: 'jpg', fallback: 'Telefe' },
   { alt: 'Clarín', file: 'clarin', ext: 'jpg', fallback: 'Clarín' },
   { alt: 'La Nación', file: 'lanacion', fallback: 'La Nación' },
-  { alt: 'Todo Noticias', file: 'tn', fallback: 'TN' },
+  { alt: 'Todo Noticias', file: 'tn', ext: 'webp', fallback: 'TN' },
 ];
 
 const WaIcon = () => (
