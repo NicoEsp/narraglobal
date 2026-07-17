@@ -1,547 +1,518 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-// WhatsApp number (código país + número, sin + ni espacios)
+// WhatsApp (código país + número, sin + ni espacios)
 const WA = '5491130731011';
 
-// Client logos: row → design label, fallback text, asset file, extension, size class
-interface ClientDef { label: string; fallback: string; file: string; ext?: string; size?: 'md' | 'lg'; }
-const CLIENT_ROWS: ClientDef[][] = [
-  [
-    { label: 'Google', fallback: 'Google', file: 'google', ext: 'webp', size: 'md' },
-    { label: 'HBO Max', fallback: 'HBO Max',     file: 'hbomax', ext: 'webp' },
-    { label: 'Bayer', fallback: 'Bayer', file: 'bayer', ext: 'webp', size: 'lg' },
-    { label: 'Syngenta', fallback: 'Syngenta', file: 'syngenta', ext: 'webp' },
-    { label: 'Amgen', fallback: 'AMGEN', file: 'amgen' },
-  ],
-  [
-    { label: "L'Oréal", fallback: "L'ORÉAL", file: 'loreal' },
-    { label: 'BID', fallback: 'BID', file: 'bid', size: 'md' },
-    { label: 'Volkswagen', fallback: 'Volkswagen', file: 'volkswagen', ext: 'webp', size: 'lg' },
-    { label: 'Accenture', fallback: 'accenture', file: 'accenture', ext: 'webp' },
-    { label: 'River Plate', fallback: 'River Plate', file: 'river', ext: 'webp', size: 'lg' },
-  ],
+// Suscripción → por ahora WhatsApp. Reemplazar por la URL de checkout cuando esté.
+const CHECKOUT = 'https://wa.me/5491130731011?text=Hola%2C%20quiero%20comenzar%20mi%20suscripci%C3%B3n%20al%20tablero%20narraglobal.';
+
+// Logos de clientes del carrusel (marquee)
+interface ClientDef { file: string; alt: string; fallback: string; size?: 'md' | 'lg'; }
+const CLIENTS: ClientDef[] = [
+  { file: 'cli-google', alt: 'Google', fallback: 'Google', size: 'md' },
+  { file: 'cli-hbomax', alt: 'HBO Max', fallback: 'HBO Max' },
+  { file: 'cli-bayer', alt: 'Bayer', fallback: 'Bayer', size: 'lg' },
+  { file: 'cli-syngenta', alt: 'Syngenta', fallback: 'Syngenta' },
+  { file: 'cli-amgen', alt: 'AMGEN', fallback: 'AMGEN' },
+  { file: 'cli-loreal', alt: "L'Oréal", fallback: "L'Oréal" },
+  { file: 'cli-bid', alt: 'BID', fallback: 'BID', size: 'md' },
+  { file: 'cli-volkswagen', alt: 'Volkswagen', fallback: 'Volkswagen', size: 'lg' },
+  { file: 'cli-accenture', alt: 'accenture', fallback: 'accenture' },
+  { file: 'cli-river', alt: 'River Plate', fallback: 'River Plate', size: 'lg' },
 ];
 
-// Press / media logos (no base64 available → text fallback on error)
-interface MediaDef { alt: string; file: string; ext?: string; fallback: string; }
+// Logos de medios que publican nuestros datos
+interface MediaDef { file: string; ext: string; alt: string; }
 const MEDIA: MediaDef[] = [
-  { alt: 'CNN', file: 'cnn', fallback: 'CNN' },
-  { alt: 'Forbes', file: 'forbes', ext: 'webp', fallback: 'Forbes' },
-  { alt: 'Univisión', file: 'univision', fallback: 'Univisión' },
-  { alt: 'TVE Internacional', file: 'tve', ext: 'webp', fallback: 'TVE' },
-  { alt: 'Infobae', file: 'infobae', fallback: 'Infobae' },
-  { alt: 'Telefe', file: 'telefe', ext: 'jpg', fallback: 'Telefe' },
-  { alt: 'Clarín', file: 'clarin', ext: 'jpg', fallback: 'Clarín' },
-  { alt: 'La Nación', file: 'lanacion', ext: 'webp', fallback: 'La Nación' },
-  { alt: 'Todo Noticias', file: 'tn', ext: 'webp', fallback: 'TN' },
+  { file: 'med-cnn', ext: 'png', alt: 'CNN' },
+  { file: 'med-forbes', ext: 'png', alt: 'Forbes' },
+  { file: 'med-univision', ext: 'png', alt: 'Univisión' },
+  { file: 'med-tve', ext: 'png', alt: 'TVE Internacional' },
+  { file: 'med-infobae', ext: 'png', alt: 'Infobae' },
+  { file: 'med-telefe', ext: 'jpg', alt: 'Telefe' },
+  { file: 'med-clarin', ext: 'jpg', alt: 'Clarín' },
+  { file: 'med-lanacion', ext: 'png', alt: 'La Nación' },
+  { file: 'med-tn', ext: 'png', alt: 'Todo Noticias' },
 ];
 
-const WaIcon = () => (
-  <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.82 9.82 0 001.523 5.215l-.999 3.648 3.965-.962zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" /></svg>
-);
+// Temáticas seleccionables del workshop in-company
+const TEMAS = [
+  'Oratoria', 'Storytelling', 'Data storytelling', 'Presentaciones de alto impacto',
+  'Pitch de ventas', 'Coaching ejecutivo', 'Comunicación interna', 'Contar el cambio',
+  'Comunicación de crisis', 'Charla de Q',
+];
 
+// onError: oculta la imagen y muestra el fallback de texto (siguiente hermano)
 const imgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
   const img = e.currentTarget;
   img.style.display = 'none';
   const sib = img.nextElementSibling as HTMLElement | null;
   if (sib) sib.style.display = 'inline';
 };
+// onError: solo oculta la imagen
 const imgHide = (e: React.SyntheticEvent<HTMLImageElement>) => {
   e.currentTarget.style.display = 'none';
 };
 
+const WaIcon = () => (
+  <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.82 9.82 0 001.523 5.215l-.999 3.648 3.965-.962zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" /></svg>
+);
+
+const ClientLogo = ({ c, hidden }: { c: ClientDef; hidden?: boolean }) => (
+  <span className="mq-it" {...(hidden ? { 'aria-hidden': true } : {})}>
+    <img className={c.size} src={`/land/${c.file}.png`} alt={hidden ? '' : c.alt} onError={imgError} />
+    <i className="lf">{c.fallback}</i>
+  </span>
+);
+
 const Index = () => {
+  const shotWrapRef = useRef<HTMLDivElement>(null);
+  const shotRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const [icSel, setIcSel] = useState<Set<string>>(new Set());
+  const [otraOn, setOtraOn] = useState(false);
+  const [otra, setOtra] = useState('');
+
+  // ===== escala de la captura del tablero (se comporta como una foto) =====
   useEffect(() => {
-    const byId = (id: string) => document.getElementById(id);
-    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-    // Track only active handles so they don't accumulate for the page lifetime.
-    const timers = new Set<ReturnType<typeof setTimeout>>();
-    const at = (ms: number, fn: () => void) => {
-      const id = setTimeout(() => { timers.delete(id); fn(); }, ms);
-      timers.add(id);
+    const wrap = shotWrapRef.current;
+    const shot = shotRef.current;
+    if (!wrap || !shot) return;
+    const fit = () => {
+      const s = Math.min(1, wrap.clientWidth / 1060);
+      shot.style.transform = 'scale(' + s + ')';
+      wrap.style.height = shot.offsetHeight * s + 'px';
     };
-    const rafs = new Set<number>();
-    const queueRaf = (fn: FrameRequestCallback) => {
-      const id = requestAnimationFrame((now) => { rafs.delete(id); fn(now); });
-      rafs.add(id);
-    };
-
-    const countTo = (el: HTMLElement, to: number, dur: number) => {
-      const start = performance.now();
-      const step = (now: number) => {
-        const p = Math.min((now - start) / dur, 1);
-        el.textContent = String(Math.round(p * to));
-        if (p < 1) queueRaf(step);
-      };
-      queueRaf(step);
-    };
-
-    // ===== HERO scorecard → WhatsApp =====
-    const card = byId('card');
-    const scoreEl = byId('score');
-    const reset = () => {
-      card?.classList.remove('away');
-      byId('phone')?.classList.remove('show');
-      byId('flyer')?.classList.remove('fly');
-      byId('delta')?.classList.remove('in');
-      ['b-mini', 'b-1', 'b-2', 'b-3'].forEach((i) => byId(i)?.classList.remove('in'));
-      byId('typing')?.classList.remove('show');
-      document.querySelectorAll<HTMLElement>('.track i').forEach((i) => { i.style.width = '0'; });
-      document.querySelectorAll<HTMLElement>('.pv').forEach((p) => { p.textContent = '0'; });
-      if (scoreEl) scoreEl.textContent = '0';
-    };
-    const loop = () => {
-      reset();
-      at(150, () => {
-        document.querySelectorAll<HTMLElement>('.track i').forEach((i) => { i.style.width = (i.dataset.w || '0') + '%'; });
-        document.querySelectorAll<HTMLElement>('.pv').forEach((p) => countTo(p, +(p.dataset.v || 0), 1100));
-        if (scoreEl) countTo(scoreEl, 72, 1300);
-      });
-      at(1500, () => byId('delta')?.classList.add('in'));
-      at(2900, () => byId('phone')?.classList.add('show'));
-      at(2950, () => byId('flyer')?.classList.add('fly'));
-      at(3100, () => card?.classList.add('away'));
-      at(3900, () => byId('b-mini')?.classList.add('in'));
-      at(4700, () => byId('b-1')?.classList.add('in'));
-      at(5300, () => byId('typing')?.classList.add('show'));
-      at(6600, () => { byId('typing')?.classList.remove('show'); byId('b-2')?.classList.add('in'); });
-      at(7600, () => byId('b-3')?.classList.add('in'));
-      at(10600, loop);
-    };
-    const heroFinalState = () => {
-      document.querySelectorAll<HTMLElement>('.track i').forEach((i) => { i.style.width = (i.dataset.w || '0') + '%'; });
-      document.querySelectorAll<HTMLElement>('.pv').forEach((p) => { p.textContent = p.dataset.v || '0'; });
-      if (scoreEl) scoreEl.textContent = '72';
-      byId('delta')?.classList.add('in');
-      byId('phone')?.classList.add('show');
-      card?.classList.add('away');
-      ['b-mini', 'b-1', 'b-2', 'b-3'].forEach((i) => byId(i)?.classList.add('in'));
-    };
-    if (reduceMotion) heroFinalState(); else loop();
-
-    // ===== cstage: gráfico → número → chat =====
-    const cChart = byId('cs-chart');
-    const cNum = byId('cs-num');
-    const cScore = byId('cs-score');
-    const cState = byId('cs-state');
-    const cPlot = byId('cs-plot');
-    const cCard = byId('cs-card');
-    const cFlyer = byId('cs-flyer');
-    const cPhone = byId('cs-phone');
-    const cTyping = byId('cs-typing');
-    const loopC = () => {
-      cChart?.classList.remove('draw');
-      if (cPlot) cPlot.style.opacity = '1';
-      cNum?.classList.remove('show');
-      if (cScore) cScore.textContent = '0';
-      cCard?.classList.remove('away');
-      cFlyer?.classList.remove('fly');
-      cPhone?.classList.remove('show');
-      ['cs-b1', 'cs-b2', 'cs-b3', 'cs-b4'].forEach((i) => byId(i)?.classList.remove('in'));
-      cTyping?.classList.remove('show');
-      if (cState) cState.textContent = 'midiendo';
-      at(250, () => cChart?.classList.add('draw'));
-      at(2050, () => { if (cPlot) cPlot.style.opacity = '0'; cNum?.classList.add('show'); if (cScore) countTo(cScore, 72, 1100); if (cState) cState.textContent = 'listo'; });
-      at(3600, () => { cFlyer?.classList.add('fly'); cPhone?.classList.add('show'); });
-      at(3850, () => cCard?.classList.add('away'));
-      at(4450, () => byId('cs-b1')?.classList.add('in'));
-      at(5050, () => byId('cs-b2')?.classList.add('in'));
-      at(5750, () => byId('cs-b3')?.classList.add('in'));
-      at(6450, () => cTyping?.classList.add('show'));
-      at(7600, () => { cTyping?.classList.remove('show'); byId('cs-b4')?.classList.add('in'); });
-      at(11200, loopC);
-    };
-    const cstageFinalState = () => {
-      if (cPlot) cPlot.style.opacity = '0';
-      cNum?.classList.add('show');
-      if (cScore) cScore.textContent = '72';
-      if (cState) cState.textContent = 'listo';
-      cCard?.classList.add('away');
-      cPhone?.classList.add('show');
-      ['cs-b1', 'cs-b2', 'cs-b3', 'cs-b4'].forEach((i) => byId(i)?.classList.add('in'));
-    };
-    if (reduceMotion) cstageFinalState(); else loopC();
-
-    // ===== Packs (sumar a la suscripción) → WhatsApp deep-link =====
-    const PNAMES: Record<string, string> = { seg: 'Pack Llamados tácticos', mesa: 'Pack Mesa chica' };
-    const psel: Record<string, boolean> = { seg: false, mesa: false };
-    const pbuild = () => {
-      const sel = Object.keys(psel).filter((k) => psel[k]).map((k) => PNAMES[k]);
-      let m = 'Hola, quiero dar de alta mi suscripción NarraGlobal (plan trimestral o anual).';
-      m += sel.length ? ' Sumo: ' + sel.join(' + ') + '.' : '';
-      const href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(m);
-      const top = byId('wa-planes-top') as HTMLAnchorElement | null;
-      if (top) top.href = href;
-      const go = byId('go-activate') as HTMLAnchorElement | null;
-      if (go) { go.href = href; go.style.display = sel.length ? 'inline-flex' : 'none'; }
-    };
-    const ptoggle = (id: string) => {
-      psel[id] = !psel[id];
-      const c = byId('pack-' + id);
-      if (!c) return;
-      c.classList.toggle('on', psel[id]);
-      const b = c.querySelector('.ptoggle');
-      const x = b?.querySelector('.x');
-      const lbl = b?.querySelector('.lbl');
-      b?.setAttribute('aria-pressed', String(psel[id]));
-      if (x) x.textContent = psel[id] ? '✓' : '+';
-      if (lbl) lbl.textContent = psel[id] ? 'Sumado ✓' : 'Sumar a mi suscripción';
-      pbuild();
-    };
-    const packHandlers = Array.from(document.querySelectorAll<HTMLButtonElement>('.packs-strip .ptoggle')).map((b) => {
-      b.setAttribute('aria-pressed', 'false');
-      const id = b.dataset.pack || '';
-      const h = () => ptoggle(id);
-      b.addEventListener('click', h);
-      return { b, h };
-    });
-    pbuild();
-
-    // ===== Workshop in-company — temáticas seleccionables =====
-    const icSel = new Set<string>();
-    const icbuild = () => {
-      const temas = [...icSel];
-      const otraEl = byId('ic-otra') as HTMLInputElement | null;
-      const otra = otraEl?.value.trim();
-      if (otra) temas.push(otra);
-      let m = 'Hola, quiero cotizar un workshop in-company con NarraGlobal.';
-      if (temas.length) m += ' Temáticas: ' + temas.join(', ') + '.';
-      const a = byId('wa-workshop') as HTMLAnchorElement | null;
-      if (a) a.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(m);
-    };
-    const ictoggle = (b: HTMLElement) => {
-      const on = b.classList.toggle('on');
-      b.setAttribute('aria-pressed', String(on));
-      const cx = b.querySelector('.cx');
-      if (cx) cx.textContent = on ? '✓' : '+';
-      const t = b.dataset.t || '';
-      if (on) icSel.add(t); else icSel.delete(t);
-      icbuild();
-    };
-    const icotra = (b: HTMLElement) => {
-      const on = b.classList.toggle('on');
-      b.setAttribute('aria-pressed', String(on));
-      const cx = b.querySelector('.cx');
-      if (cx) cx.textContent = on ? '✓' : '+';
-      const inp = byId('ic-otra') as HTMLInputElement | null;
-      if (inp) {
-        inp.style.display = on ? 'block' : 'none';
-        if (!on) inp.value = ''; else inp.focus();
-      }
-      icbuild();
-    };
-    const chipHandlers = Array.from(document.querySelectorAll<HTMLButtonElement>('.ic-topics .chip')).map((b) => {
-      b.setAttribute('aria-pressed', 'false');
-      const h = () => (b.classList.contains('chip-otra') ? icotra(b) : ictoggle(b));
-      b.addEventListener('click', h);
-      return { b, h };
-    });
-    const otraInput = byId('ic-otra') as HTMLInputElement | null;
-    const otraInputHandler = () => icbuild();
-    otraInput?.addEventListener('input', otraInputHandler);
-    icbuild();
-
+    window.addEventListener('resize', fit);
+    window.addEventListener('load', fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    const t = setTimeout(fit, 350);
+    fit();
     return () => {
-      timers.forEach(clearTimeout);
-      rafs.forEach(cancelAnimationFrame);
-      packHandlers.forEach(({ b, h }) => b.removeEventListener('click', h));
-      chipHandlers.forEach(({ b, h }) => b.removeEventListener('click', h));
-      otraInput?.removeEventListener('input', otraInputHandler);
+      window.removeEventListener('resize', fit);
+      window.removeEventListener('load', fit);
+      clearTimeout(t);
     };
   }, []);
 
+  const toggleTema = (t: string) =>
+    setIcSel((prev) => {
+      const n = new Set(prev);
+      if (n.has(t)) n.delete(t); else n.add(t);
+      return n;
+    });
+
+  const toggleOtra = () => {
+    if (otraOn) setOtra('');
+    setOtraOn((on) => !on);
+  };
+
+  // ===== in-company: armado del mensaje de WhatsApp =====
+  const icHref = useMemo(() => {
+    const temas = [...icSel];
+    if (otra.trim()) temas.push(otra.trim());
+    let m = 'Hola, quiero cotizar un workshop in-company con NarraGlobal.';
+    if (temas.length) m += ' Temáticas: ' + temas.join(', ') + '.';
+    return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(m);
+  }, [icSel, otra]);
+
+  const scrollCarousel = (dx: number) =>
+    carouselRef.current?.scrollBy({ left: dx, behavior: 'smooth' });
+
   return (
     <>
-      {/* ===== HERO ===== */}
+      {/* ===================== HERO ===================== */}
       <div className="hero">
-        <div className="grid-bg" />
-        <div className="pad">
-          <div className="top">
-            <div className="wm"><span className="nbox">narra</span><span className="dotg-h">global</span></div>
-            <a href="#incompany" className="top-cta">Workshops in-company →</a>
-          </div>
-
-          <div className="grid2">
-            {/* TEXT */}
-            <div>
-              <div className="eyebrow">Potenciado por NarraNoise® y NarraChat</div>
-              <h1><span className="u">Dato</span> mejora relato.</h1>
-              <p className="sub">Medimos la calidad de tu narrativa y convertimos esos datos en un <b>asistente de comunicación 100% a medida, por WhatsApp</b>.</p>
-              <div className="ctas">
-                <a href="#planes" className="btn btn-w">Conocé la suscripción</a>
-              </div>
+        <div className="grid-lines" />
+        <div className="hero-in">
+          <nav className="hnav">
+            <img className="wm-img" src="/land/wm-a.svg" alt="narraglobal" />
+            <div className="nav-links">
+              <a href="#tablero">El tablero</a>
+              <a href="#reportes">Reportes</a>
             </div>
+            <a className="nav-cta" href="#incompany">Workshops in-company</a>
+          </nav>
 
-            {/* ANIMATION */}
-            <div>
-              <div className="stage">
-                {/* floating Índice NarraNoise scorecard */}
-                <div className="card" id="card">
-                  <div className="sc-head"><div className="ttl">Índice NarraNoise®</div><div className="sub2">May 2026</div></div>
-                  <div className="sc-body">
-                    <div className="sc-score">
-                      <div className="big" id="score">0</div><div className="den">/ 100</div>
-                      <div className="delta" id="delta">▲ 12 vs. abr</div>
-                    </div>
-                    <div className="sc-bars">
-                      <div className="sc-bar"><div className="lab"><span>Atención</span><span className="v"><span className="pv" data-v="78">0</span></span></div><div className="track"><i data-w="78" /></div></div>
-                      <div className="sc-bar"><div className="lab"><span>Credibilidad</span><span className="v"><span className="pv" data-v="69">0</span></span></div><div className="track"><i data-w="69" /></div></div>
-                      <div className="sc-bar"><div className="lab"><span>Inmersión</span><span className="v"><span className="pv" data-v="70">0</span></span></div><div className="track"><i data-w="70" /></div></div>
-                    </div>
-                  </div>
-                  <div className="sc-foot">Fuente: NarraNoise® · 54 marcadores · n=120 piezas</div>
-                </div>
-
-                {/* flyer: símbolo cuadrante */}
-                <div className="flyer" id="flyer">
-                  <svg viewBox="0 0 48 48"><rect x="7" y="7" width="34" height="34" rx="2.5" fill="none" stroke="#3E1CFF" strokeWidth="2" /><line x1="24" y1="9" x2="24" y2="39" stroke="rgba(62,28,255,.4)" strokeWidth="1.2" /><line x1="9" y1="24" x2="39" y2="24" stroke="rgba(62,28,255,.4)" strokeWidth="1.2" /><circle cx="32" cy="15" r="3.6" fill="#3E1CFF" /></svg>
-                </div>
-
-                {/* phone */}
-                <div className="phone" id="phone">
-                  <div className="notch" />
-                  <div className="wa">
-                    <div className="wa-head">
-                      <div className="wa-ava"><img src="logos/narrachat-avatar.png" alt="NarraChat" onError={imgHide} /></div>
-                      <div className="wa-name">NarraChat <small>en línea</small></div>
-                    </div>
-                    <div className="wa-body">
-                      <div className="mini" id="b-mini">
-                        <div className="mh"><span className="ml">Índice NarraNoise®</span><span className="ms">72</span></div>
-                        <div className="mlab"><span>Atención</span><span className="v">78</span></div><div className="mtrack"><div className="mfill" style={{ width: '78%' }} /></div>
-                        <div className="mlab"><span>Credibilidad</span><span className="v vp">69</span></div><div className="mtrack"><div className="mfill pink" style={{ width: '69%' }} /></div>
-                        <div className="mlab"><span>Inmersión</span><span className="v">70</span></div><div className="mtrack"><div className="mfill" style={{ width: '70%' }} /></div>
-                      </div>
-
-                      <div className="bub right" id="b-1">¿Qué mejoro de mi último comunicado? <span className="tm">9:41 <span className="rr">✓✓</span></span></div>
-
-                      <div className="typing" id="typing"><span /><span /><span /></div>
-
-                      <div className="bub left" id="b-2">Los datos sugieren que tu <span className="pinkw">credibilidad</span> quedó debajo del resto. Es lo primero a tocar. <span className="tm">9:41</span></div>
-                      <div className="bub left" id="b-3">Cambiá el cierre: del dato general a un caso con nombre y fecha. Volvé a medir → <span className="greenw">+9</span> 📈 <span className="tm">9:41</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="caption">Del dato medido a tu WhatsApp</div>
+          <div className="hero-copy">
+            <div className="kick">Suscripción mensual · Datos NarraNoise®</div>
+            <h1 className="hh">El sistema de control de tu narrativa pública</h1>
+            <p className="hsub">Cada lunes, un tablero actualizado con datos NarraNoise®: qué mensajes llegaron, cómo rendís frente a tu competencia y qué hacen tus públicos. Sin jerga, con un plan de acción para la semana.</p>
+            <div className="hctas">
+              {/* CTA: reemplazar por la URL de checkout cuando esté */}
+              <a className="btn-p" href={CHECKOUT} target="_blank" rel="noopener">Quiero comenzar mi suscripción</a>
+              <span className="cta-price">Desde<b>USD 299/mes</b></span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ===== CLIENTES ===== */}
+      {/* ===================== FOTO DEL DASHBOARD ===================== */}
+      <div className="shot-zone">
+        <div className="shot-frame">
+          <div className="shotwrap" ref={shotWrapRef}>
+            <div className="shot" ref={shotRef}>
+              <div className="sh-top">
+                <img className="shwm-img" src="/land/wm-a.svg" alt="narraglobal" />
+                <span className="sh-ann"><i className="dt" /><span className="tx"><b>Suscripción Pro</b> <em>· activa</em></span><span className="chip">Pausa estratégica · incluida</span></span>
+                <span className="sh-who"><b>Hola, tu equipo</b><span className="sh-ava">TM</span></span>
+              </div>
+
+              <div className="sh-tabs">
+                <span className="t on"><em>01</em> Tu semana</span>
+                <span className="t"><em>02</em> Pausa estratégica <span className="prot">Pro</span></span>
+                <span className="t"><em>03</em> Sprints · Llamados <span className="prot">Pro</span></span>
+              </div>
+
+              <div className="sh-hero">
+                <div>
+                  <div className="sh-h1"><span className="dot" />Qué cambió<br />esta semana</div>
+                  <div className="sh-upd">Actualizado · lunes 1 de junio</div>
+                  <div className="sh-mini">
+                    <div className="mrow2"><span className="at">Los mensajes que llegaron <span className="nuevo">Nuevo</span></span><span className="col">▸</span></div>
+                    <div className="mrow2"><span className="at">Calidad de tus mensajes</span><span className="col">▸</span></div>
+                    <div className="mrow2"><span className="at">Conclusiones y acciones para el equipo</span><span className="col">▸</span></div>
+                    <div className="mrow2"><span className="at">Comportamiento de tu competencia <span className="prot">Pro</span></span><span className="col">▸</span></div>
+                    <div className="mrow2"><span className="at">Comportamiento de tus públicos <span className="prot">Pro</span><span className="sched">Mensual · 4 ago</span></span><span className="col">▸</span></div>
+                    <div className="mrow2"><span className="at">Mesa chica de estrategia <span className="prot">Pro</span><span className="sched">Quincenal · 21 jul</span></span><span className="col">▸</span></div>
+                  </div>
+                </div>
+                <div className="cbg">
+                  <div className="cb">
+                    <span className="t">Mensajes que llegaron <span className="nuevo">Nuevo</span></span>
+                    <span className="v">2 <u>de 5</u> <span className="up">▲ +1</span></span>
+                    <span className="s">De los 3 que no llegaron, 2 fallaron por lo mismo: sin término para repetir.</span>
+                  </div>
+                  <div className="cb">
+                    <span className="t">Tu calidad</span>
+                    <span className="v">52 <span className="up">▲ +2</span></span>
+                    <span className="s">Segunda semana en alza. El promedio de tus competidores está en <b>56</b>.</span>
+                  </div>
+                  <div className="cb good">
+                    <span className="t">El techo de la semana</span>
+                    <span className="v">67%</span>
+                    <span className="s">La pieza a cámara: tu cara, un solo tema y un dato que fuiste a buscar.</span>
+                  </div>
+                  <div className="cb bad">
+                    <span className="t">El piso de la semana</span>
+                    <span className="v">41%</span>
+                    <span className="s">La pieza institucional: un informe sin conflicto ni rostro.</span>
+                  </div>
+                  <div className="cb">
+                    <span className="t">Tu puesto entre competidores <span className="nuevo" style={{ background: 'var(--ink)', borderColor: 'var(--ink)', color: '#fff' }}>Pro</span></span>
+                    <span className="vf">Superaste al Actor 1.</span>
+                    <span className="cbviz">
+                      <svg viewBox="0 0 220 52" aria-hidden="true">
+                        <polyline points="8,16 38,18 68,15 98,19 128,18 158,20 188,19 212,20" fill="none" stroke="#b9bdc7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <polyline points="8,42 38,40 68,41 98,36 128,32 158,27 188,23 212,18" fill="none" stroke="#3E1CFF" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                        <circle cx="212" cy="20" r="2.2" fill="#b9bdc7" />
+                        <circle cx="212" cy="18" r="2.6" fill="#3E1CFF" />
+                      </svg>
+                      <span className="lg"><span className="you">— Vos · 53 +2</span><span>— Actor 1 · 53 −1</span></span>
+                      <span className="ax">Calidad narrativa · últimas 8 semanas</span>
+                    </span>
+                    <span className="s">La pasaste por décimas de calidad, y publica el doble de piezas que vos. Quedás <b>3º de 6</b>.</span>
+                  </div>
+                  <div className="cb blue">
+                    <span className="t">La conclusión de la semana</span>
+                    <span className="vf">Volviste a tu tema y volvió a funcionar.</span>
+                    <span className="s">El techo repite la receta de tu mejor mes: un solo tema, tu cara y un dato propio. Falta sostener el término toda la semana.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="sh-floor">
+                <span className="seal"><svg viewBox="0 0 120 120" width="17" height="17" aria-hidden="true"><path d="M24.0,69.6 A36.0,36.0 0 0 1 96.0,69.6 L81.0,69.6 A21.0,21.0 0 0 0 39.0,69.6 Z" fill="#111319" /><rect x="24.0" y="69.1" width="15.0" height="34.1" fill="#111319" /><rect x="81.0" y="69.1" width="15.0" height="34.1" fill="#111319" /></svg></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ===================== CLIENTES ===================== */}
       <div className="clients">
         <div className="cl-eyebrow">Miden su narrativa con nosotros</div>
         <div className="cl-title">Líderes corporativos y políticos confían en nuestras métricas.</div>
-        <div className="logos">
-          {CLIENT_ROWS.map((row, ri) => (
-            <div className="logo-row" key={ri}>
-              {row.map((c) => (
-                <div className={'logo' + (c.size ? ' ' + c.size : '')} key={c.label}>
-                  <img src={`logos/${c.file}.${c.ext || 'png'}`} alt={c.label} loading="lazy" decoding="async" onError={imgError} />
-                  <span className="lf">{c.fallback}</span>
-                </div>
-              ))}
-            </div>
-          ))}
+        <div className="mq">
+          <div className="mq-track">
+            {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
+            {CLIENTS.map((c) => <ClientLogo key={c.file + '-2'} c={c} hidden />)}
+          </div>
         </div>
       </div>
 
-      {/* ===== PLANES ===== */}
-      <div className="planes" id="planes">
-        <div className="build">
-          <div className="step">
-            <div className="step-tag"><span className="n">01</span> Tu base · punto de entrada</div>
+      {/* ===================== EL TABLERO ===================== */}
+      <section className="feat" id="tablero">
+        <div className="ft-head">
+          <div className="ft-kick">Incluido en tu suscripción mensual</div>
+          <h2 className="ft-title">Un tablero hecho para decidir</h2>
+          <p className="ft-lede">Cuatro lecturas que se actualizan cada lunes con el modelo NarraNoise®. Cada una responde con datos una pregunta que hasta ahora se contestaba con intuición.</p>
+        </div>
 
-            {/* PLAN BASE */}
-            <div className="plan-base">
-              <div className="pb-left">
-                <div className="pb-label">Suscripción NarraGlobal · trimestral o anual</div>
-                <div className="pb-benefit">Chateá y mejorá tu narrativa desde WhatsApp.</div>
-                <p className="pb-copy">Nuestra suscripción incluye NarraChat, un asistente de narrativa entrenado con tus datos. <b>No inventa, no aporta ideas random:</b> se basa 100% en las mediciones que nuestro modelo NarraNoise® hizo sobre tu narrativa, y da respuestas originales para llevar tu comunicación al próximo nivel.</p>
-                <a href="#" id="wa-planes-top" className="pb-cta" target="_blank" rel="noopener noreferrer">
-                  <WaIcon />
-                  Activá tu suscripción
-                </a>
+        <div className="ft-grid">
+          {/* 01 · RESUMEN SEMANAL */}
+          <div className="fcell">
+            <div className="fviz">
+              <div className="a-sem">
+                <div className="swp"><div className="swp-tr">
+                  <div className="sw"><span className="k">Mensajes que llegaron</span><span className="n">2 <small>de 5</small></span><span className="dl">▲ +1</span></div>
+                  <div className="sw"><span className="k">Tu calidad</span><span className="n">52 <small>/100</small></span><span className="dl">▲ +2</span></div>
+                  <div className="sw mint"><span className="k">El techo de la semana</span><span className="n">67%</span><span className="dl">Para replicar</span></div>
+                  <div className="sw rosa"><span className="k">El piso de la semana</span><span className="n">41%</span><span className="dl" style={{ background: '#fbdde7', color: 'var(--pink-ink)' }}>Para evitar</span></div>
+                  <div className="sw"><span className="k">Tu puesto</span><span className="n">3º <small>de 6</small></span><span className="dl" style={{ background: 'var(--ink)', color: '#fff' }}>Pro</span></div>
+                  <div className="sw azul"><span className="k">La conclusión</span><span className="nf">Volviste a tu tema y volvió a funcionar.</span></div>
+                  <div className="sw"><span className="k">Mensajes que llegaron</span><span className="n">2 <small>de 5</small></span><span className="dl">▲ +1</span></div>
+                </div></div>
+                <div className="swp-cap">Tu lunes, en 10 segundos</div>
               </div>
-              <div className="pb-right">
-                <div className="cstage">
-                  <div className="cs-card" id="cs-card">
-                    <div className="cs-chead"><span className="t">Índice NarraNoise®</span><span className="s" id="cs-state">midiendo</span></div>
-                    <div className="cs-cbody">
-                      <div className="cs-plot" id="cs-plot">
-                        <svg className="cs-chart" id="cs-chart" viewBox="0 0 220 92" preserveAspectRatio="none">
-                          <polyline className="l3" points="0,80 18,77 38,79 58,73 78,75 98,67 118,70 138,62 158,65 178,57 198,59 220,52" />
-                          <polyline className="l2" points="0,69 18,72 38,63 58,66 78,56 98,60 118,49 138,53 158,43 178,46 198,38 220,35" />
-                          <polyline className="l1" points="0,73 18,65 38,69 58,55 78,61 98,46 118,51 138,38 158,44 178,30 198,33 220,24" />
-                        </svg>
-                        <div className="cs-live"><span className="ld" />en vivo</div>
-                      </div>
-                      <div className="cs-num" id="cs-num"><span className="big" id="cs-score">0</span><span className="den">/ 100</span></div>
-                    </div>
-                    <div className="cs-cfoot">54 marcadores · n=120 piezas</div>
-                  </div>
-
-                  <div className="cs-flyer" id="cs-flyer">72</div>
-
-                  <div className="cs-phone" id="cs-phone">
-                    <div className="cs-notch" />
-                    <div className="cs-wa">
-                      <div className="cs-wahead">
-                        <div className="cs-waava"><img src="logos/narrachat-avatar.png" alt="NarraChat" onError={imgHide} /></div>
-                        <div className="cs-waname">NarraChat<small>en línea</small></div>
-                      </div>
-                      <div className="cs-wabody">
-                        <div className="cs-bub right" id="cs-b1">Hola<span className="tm">9:55 <span className="rr">✓✓</span></span></div>
-                        <div className="cs-bub left" id="cs-b2">¡Hola, Martín!<span className="tm">9:55</span></div>
-                        <div className="cs-bub right" id="cs-b3"><div className="cs-file"><span className="fi">PDF</span><span className="fn">discurso.pdf<small>2 págs · 84 KB</small></span></div>¿Cómo ves este discurso?<span className="tm">9:55 <span className="rr">✓✓</span></span></div>
-                        <div className="cs-typing" id="cs-typing"><span /><span /><span /></div>
-                        <div className="cs-bub left" id="cs-b4">El segundo párrafo es el eje central, así que te recomiendo que…<span className="tm">9:55</span></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="cs-caption">Tu narrativa mejora cada día.</div>
-              </div>
+            </div>
+            <div className="ftxt">
+              <div className="f-kick">01 · Cada lunes</div>
+              <div className="f-t">Resumen semanal</div>
+              <p className="f-d">Cada lunes, un panel actualizado con lo que cambió: tu calidad narrativa, el techo y el piso de la semana, y la conclusión para accionar.</p>
             </div>
           </div>
 
-          <div className="connector"><span className="ln" /><span className="lbl">+ sumás packs exclusivos</span><span className="ln" /></div>
-
-          <div className="step">
-            <div className="step-tag"><span className="n">02</span> Packs exclusivos · solo para suscriptores <span className="opt">Acceso reservado</span></div>
-
-            {/* PACKS — zócalo mitad azul / mitad negro */}
-            <div className="packs-strip">
-              <div className="ps-half" id="pack-seg">
-                <div className="ps-cat">Pack exclusivo · virtual</div>
-                <h4 className="ps-name">Llamados tácticos</h4>
-                <p className="ps-desc">Pack de videollamadas de problema-solución. Ideal para asesores y decisores de comunicación.</p>
-                <button className="ptoggle" data-pack="seg" type="button"><span className="x">+</span><span className="lbl">Sumar a mi suscripción</span></button>
+          {/* 02 · LLEGADA Y CALIDAD DE MENSAJES */}
+          <div className="fcell">
+            <div className="fviz">
+              <div className="a-msg">
+                <svg viewBox="0 0 240 132" aria-hidden="true">
+                  <g className="gA">
+                    <text className="pop hA" x="12" y="14" fontFamily="IBM Plex Mono,monospace" fontSize="7" letterSpacing="1" fill="#969aa4">IMPACTOS 2 · DISUELTOS 3</text>
+                    <g fill="none" stroke="#d9dbe0" strokeWidth="1.1" strokeDasharray="3 4" opacity=".55">
+                      <path d="M48 106 Q120 8 196 26" />
+                      <path d="M48 106 Q130 30 208 62" />
+                      <path d="M48 106 Q100 40 128 58" />
+                      <path d="M48 106 Q110 60 148 84" />
+                      <path d="M48 106 Q90 70 116 92" />
+                    </g>
+                    <rect x="34" y="96" width="28" height="26" rx="4" fill="#111319" />
+                    <text x="48" y="114" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="12" fontWeight="800" fill="#FF3D7A">5</text>
+                    <text x="48" y="130" textAnchor="middle" fontFamily="IBM Plex Mono,monospace" fontSize="6" letterSpacing="1.2" fill="#969aa4">EMISOR</text>
+                    <circle className="msl m1" r="2.8" fill="#3E1CFF" />
+                    <circle className="msl m2" r="2.8" fill="#3E1CFF" />
+                    <circle className="msl m3" r="2.8" fill="#3E1CFF" />
+                    <circle className="msl m4" r="2.8" fill="#3E1CFF" />
+                    <circle className="msl m5" r="2.8" fill="#3E1CFF" />
+                    <g className="pop i1"><circle cx="196" cy="26" r="3.4" fill="#3E1CFF" /><circle cx="196" cy="26" r="7.5" fill="none" stroke="#3E1CFF" strokeWidth="1.4" opacity=".35" /></g>
+                    <g className="pop i2"><circle cx="208" cy="62" r="3.4" fill="#3E1CFF" /><circle cx="208" cy="62" r="7.5" fill="none" stroke="#3E1CFF" strokeWidth="1.4" opacity=".35" /></g>
+                    <text className="pop x3" x="128" y="61" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="9" fontWeight="800" fill="#e11d5c">✕</text>
+                    <text className="pop x4" x="148" y="87" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="9" fontWeight="800" fill="#e11d5c">✕</text>
+                    <text className="pop x5" x="116" y="95" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="9" fontWeight="800" fill="#e11d5c">✕</text>
+                  </g>
+                  <g className="gB">
+                    <line x1="24" y1="44" x2="216" y2="44" stroke="#c9ccd4" strokeWidth="1.5" strokeDasharray="5 5" />
+                    <text x="216" y="35" textAnchor="end" fontFamily="IBM Plex Mono,monospace" fontSize="6.5" letterSpacing="1" fill="#969aa4">PROMEDIO COMPETIDORES · 56</text>
+                    <polyline className="qdraw" pathLength="1" points="24,88 51,84 78,86 105,78 132,72 159,64 186,58 216,50" fill="none" stroke="#3E1CFF" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                    <g className="qpop"><circle cx="216" cy="50" r="3.4" fill="#3E1CFF" /><text x="24" y="76" textAnchor="start" fontFamily="IBM Plex Mono,monospace" fontSize="7" letterSpacing="1" fill="#3E1CFF">TU CALIDAD · 52</text></g>
+                    <text x="120" y="126" textAnchor="middle" fontFamily="IBM Plex Mono,monospace" fontSize="6.5" letterSpacing="1.2" fill="#b3b7c0">CALIDAD NARRATIVA · ÚLTIMAS 8 SEMANAS</text>
+                  </g>
+                </svg>
               </div>
-              <div className="ps-half" id="pack-mesa">
-                <div className="ps-cat">Pack exclusivo · presencial</div>
-                <h4 className="ps-name">Mesa chica</h4>
-                <p className="ps-desc">Pack de visitas a territorio. Incluye análisis de competidores, escenarios para decisores, y entrenamiento al equipo de comunicación. Ideal para proyectos de alta incidencia pública.</p>
-                <button className="ptoggle" data-pack="mesa" type="button"><span className="x">+</span><span className="lbl">Sumar a mi suscripción</span></button>
+            </div>
+            <div className="ftxt">
+              <div className="f-kick">02 · Tus mensajes</div>
+              <div className="f-t">Llegada y calidad de mensajes</div>
+              <p className="f-d">El dato de si tus mensajes llegaron o no. Y cómo retrabajarlos para corregir la llegada a tus públicos.</p>
+            </div>
+          </div>
+
+          {/* 03 · ANÁLISIS DE COMPETENCIA */}
+          <div className="fcell">
+            <div className="fviz">
+              <div className="a-comp">
+                <div className="leg"><span className="you"><i />Vos · 53</span><span><i />Actor 1 · 53</span></div>
+                <svg viewBox="0 0 240 120" aria-hidden="true">
+                  <path className="dline" pathLength="1" d="M12 38 L48 40 L84 37 L120 41 L156 40 L192 42 L228 41" stroke="#b9bdc7" strokeWidth="2.5" />
+                  <path className="dline vos" pathLength="1" d="M12 86 L48 82 L84 84 L120 74 L156 64 L192 52 L228 36" stroke="#3E1CFF" strokeWidth="3" />
+                  <circle className="dend" cx="228" cy="41" r="3" fill="#b9bdc7" />
+                  <circle className="dend" cx="228" cy="36" r="3.5" fill="#3E1CFF" />
+                  <text className="gapl" x="222" y="20" fontFamily="IBM Plex Mono,monospace" fontSize="8" letterSpacing="1" fill="#969aa4" textAnchor="end">3º DE 6</text>
+                </svg>
               </div>
+            </div>
+            <div className="ftxt">
+              <div className="f-kick"><span>03 · Tu competencia</span><span className="pro-chip">PRO</span></div>
+              <div className="f-t">Análisis de competencia</div>
+              <p className="f-d">Tu performance semanal versus la de los actores que elijas, y tu puesto entre competidores. Para aprender de la narrativa que otros están instalando con éxito.</p>
+            </div>
+          </div>
+
+          {/* 04 · COMPORTAMIENTO DE TUS PÚBLICOS */}
+          <div className="fcell">
+            <div className="fviz">
+              <div className="a-pub">
+                <svg viewBox="0 0 300 130" aria-hidden="true">
+                  <text x="24" y="10" fontFamily="IBM Plex Mono,monospace" fontSize="8" letterSpacing="1.2" fill="#969aa4">HACE UN MES</text>
+                  <text x="276" y="10" fontFamily="IBM Plex Mono,monospace" fontSize="8" letterSpacing="1.2" fill="#969aa4" textAnchor="end">HOY</text>
+                  <path d="M30 41 C120 41 180 32 270 32" fill="none" stroke="rgba(62,28,255,.13)" strokeWidth="21" />
+                  <path d="M30 75 C150 75 150 73 270 73" fill="none" stroke="#e9eaee" strokeWidth="24" />
+                  <path d="M30 107 C150 107 180 109 270 109" fill="none" stroke="rgba(255,61,122,.10)" strokeWidth="12" />
+                  <path className="flow-dots" d="M30 41 C120 41 180 32 270 32" stroke="#3E1CFF" strokeWidth="3.2" />
+                  <path className="flow-dots" d="M30 75 C150 75 150 73 270 73" stroke="#b9bdc7" strokeWidth="3" />
+                  <path className="flow-dots" d="M30 107 C150 107 180 109 270 109" stroke="#FF3D7A" strokeWidth="2.6" />
+                  <rect x="24" y="30" width="6" height="22" rx="3" fill="#3E1CFF" />
+                  <rect x="24" y="60" width="6" height="30" rx="3" fill="#c9ccd4" />
+                  <rect x="24" y="96" width="6" height="22" rx="3" fill="#FF3D7A" />
+                  <rect x="270" y="14" width="6" height="36" rx="3" fill="#3E1CFF" />
+                  <rect x="270" y="60" width="6" height="26" rx="3" fill="#c9ccd4" />
+                  <rect x="270" y="104" width="6" height="10" rx="3" fill="#FF3D7A" />
+                </svg>
+                <div className="pub-leg"><span className="a">Suben de intensidad</span><span className="b">Se quedan</span><span className="c">Se apagan</span></div>
+              </div>
+            </div>
+            <div className="ftxt">
+              <div className="f-kick"><span>04 · Tus públicos</span><span className="pro-chip">PRO</span></div>
+              <div className="f-t">Comportamiento de tus públicos</div>
+              <p className="f-d">Conocé qué tipos de públicos interactúan con vos y qué comportamientos se pueden predecir a partir del patrón de conducta que medimos.</p>
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="plan-cta">
-          <a href="#" id="go-activate" className="cta-wa" target="_blank" rel="noopener noreferrer" style={{ display: 'none' }}>Ir a activar mi suscripción →</a>
-        </div>
-      </div>
-
-      {/* ===== IN-COMPANY ===== */}
-      <div className="ic-head"><div className="t">Conocé nuestras cápsulas <b>In-company</b></div></div>
-
-      <div className="incompany" id="incompany">
-        <div className="ic-photo">
-          <div className="ph">Workshop in-company · NarraGlobal</div>
-          <img className="ic-img" src="fotos/workshop.jpg" alt="Workshop in-company NarraGlobal" loading="lazy" decoding="async" onError={imgHide} />
-        </div>
-        <div className="ic-body">
-          <div className="ic-eyebrow">Workshops in-company</div>
-          <div className="ic-title">Mejoramos el storytelling de tus <span className="hl">colaboradores</span>.</div>
-          <p className="ic-lede">Llevamos el modelo NarraNoise® a tu organización. Medimos la calidad en decks, presentaciones y pitcheos de tu equipo. Y con esa evidencia entrenamos en las zonas concretas de mejora. Seleccioná la temática que te interesa abordar y conversamos.</p>
-          <div className="ic-topics">
-            <button className="chip" data-t="Oratoria" type="button"><span className="cx">+</span>Oratoria</button>
-            <button className="chip" data-t="Storytelling" type="button"><span className="cx">+</span>Storytelling</button>
-            <button className="chip" data-t="Data storytelling" type="button"><span className="cx">+</span>Data storytelling</button>
-            <button className="chip" data-t="Presentaciones de alto impacto" type="button"><span className="cx">+</span>Presentaciones de alto impacto</button>
-            <button className="chip" data-t="Pitch de ventas" type="button"><span className="cx">+</span>Pitch de ventas</button>
-            <button className="chip" data-t="Coaching ejecutivo" type="button"><span className="cx">+</span>Coaching ejecutivo</button>
-            <button className="chip" data-t="Comunicación interna" type="button"><span className="cx">+</span>Comunicación interna</button>
-            <button className="chip" data-t="Contar el cambio" type="button"><span className="cx">+</span>Contar el cambio</button>
-            <button className="chip" data-t="Comunicación de crisis" type="button"><span className="cx">+</span>Comunicación de crisis</button>
-            <button className="chip" data-t="Charla de Q" type="button"><span className="cx">+</span>Charla de Q</button>
-            <button className="chip chip-otra" type="button"><span className="cx">+</span>Otra…</button>
+      {/* ===================== CTA · COMENZAR ===================== */}
+      <section className="midcta">
+        <div className="mc-in">
+          <div>
+            <div className="mc-t">Tu primer tablero llega el próximo lunes.</div>
+            <div className="mc-s">Suscripción mensual · desde USD 299/mes</div>
           </div>
-          <input className="ic-otra-input" id="ic-otra" placeholder="Escribí tu temática" style={{ display: 'none' }} />
-          <a href="#" id="wa-workshop" className="ic-cta" target="_blank" rel="noopener noreferrer">
-            <WaIcon />
-            Quiero cotizar un workshop
-          </a>
+          {/* CTA: reemplazar por la URL de checkout cuando esté */}
+          <a className="mc-btn" href={CHECKOUT} target="_blank" rel="noopener">Comenzar mi suscripción</a>
         </div>
-      </div>
+      </section>
 
-      {/* ===== REPORTES (carrusel → Substack) ===== */}
-      <div className="reportes" id="reportes">
+      {/* ===================== REPORTES ===================== */}
+      <section className="reportes" id="reportes">
         <div className="rp-head">
           <div className="rp-eyebrow">Reportes publicados</div>
           <div className="rp-title">Lo último, medido y publicado.</div>
           <p className="rp-lede">Cada mes publicamos un nuevo reporte NarraNoise®. Mirá las portadas y leé el análisis completo en Substack.</p>
         </div>
 
-        <div className="rp-carousel">
-          <a className="rp-cover" href="https://narraglobal.substack.com/p/relato-desorganizado-y-50-de-ruido" target="_blank" rel="noopener noreferrer">
-            <div className="cover-card">
-              <img className="cc-bg" src="https://substackcdn.com/image/fetch/$s_!hkcH!,w_1200,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F5747a69a-3bb5-4c0c-acb1-519364316fcc_1100x480.png" alt="" loading="lazy" decoding="async" onError={imgHide} />
-              <div className="cc-shade" />
-              <div className="cc-top"><span className="cc-wm">narra<span className="dotg">global</span></span><span className="cc-tag">Reporte · Política</span></div>
-              <div className="cc-bottom">
-                <span className="cc-dato">50% ruido</span>
-                <div className="cc-title">Relato desorganizado en el relanzamiento del PRO.</div>
-                <div className="cc-foot"><span>Abr 2026 · NarraNoise®</span><span className="cc-read">Leer →</span></div>
+        <div className="cintawrap">
+          <div className="cfade l" /><div className="cfade r" />
+          <button className="cbtn l" aria-label="Anterior" onClick={() => scrollCarousel(-360)}>‹</button>
+          <button className="cbtn r" aria-label="Siguiente" onClick={() => scrollCarousel(360)}>›</button>
+          <div className="rp-carousel" ref={carouselRef}>
+            <a className="rp-cover" href="https://narraglobal.substack.com/p/relato-desorganizado-y-50-de-ruido" target="_blank" rel="noopener">
+              <div className="cover-card">
+                <img className="cc-bg" src="/land/rep-relato.jpg" alt="" onError={imgHide} />
+                <div className="gb" />
+                <div className="cc-shade" />
+                <div className="cc-top"><img className="ccwm-img" src="/land/wm-b.svg" alt="narraglobal" /><span className="cc-tag">Reporte · Política</span></div>
+                <div className="cc-bottom">
+                  <span className="cc-dato">50% ruido</span>
+                  <div className="cc-title">Relato desorganizado en el relanzamiento del PRO.</div>
+                  <div className="cc-foot"><span>Abr 2026 · NarraNoise®</span><span className="cc-read">Leer →</span></div>
+                </div>
               </div>
-            </div>
-          </a>
-          <a className="rp-cover" href="https://narraglobal.substack.com/p/gebel-bajo-un-73-su-cuota-dios-en" target="_blank" rel="noopener noreferrer">
-            <div className="cover-card">
-              <img className="cc-bg" src="https://substackcdn.com/image/fetch/$s_!qwNw!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F758310d6-c074-4698-a49c-f8f46c047b20_2200x1041.png" alt="" loading="lazy" decoding="async" onError={imgHide} />
-              <div className="cc-shade" />
-              <div className="cc-top"><span className="cc-wm">narra<span className="dotg">global</span></span><span className="cc-tag">Reporte · Política</span></div>
-              <div className="cc-bottom">
-                <span className="cc-dato">−73%</span>
-                <div className="cc-title">Gebel bajó su 'cuota Dios' al entrar en política.</div>
-                <div className="cc-foot"><span>May 2026 · NarraNoise®</span><span className="cc-read">Leer →</span></div>
+            </a>
+            <a className="rp-cover" href="https://narraglobal.substack.com/p/gebel-bajo-un-73-su-cuota-dios-en" target="_blank" rel="noopener">
+              <div className="cover-card">
+                <img className="cc-bg" src="/land/rep-gebel.jpg" alt="" onError={imgHide} />
+                <div className="gb" />
+                <div className="cc-shade" />
+                <div className="cc-top"><img className="ccwm-img" src="/land/wm-b.svg" alt="narraglobal" /><span className="cc-tag">Reporte · Política</span></div>
+                <div className="cc-bottom">
+                  <span className="cc-dato">−73%</span>
+                  <div className="cc-title">Gebel bajó su 'cuota Dios' al entrar en política.</div>
+                  <div className="cc-foot"><span>May 2026 · NarraNoise®</span><span className="cc-read">Leer →</span></div>
+                </div>
               </div>
-            </div>
-          </a>
-          <a className="rp-cover" href="https://x.com/lisandrobregant/status/1733928007423717588" target="_blank" rel="noopener noreferrer">
-            <div className="cover-card cover-x">
-              <img className="cc-bg" src="reportes/milei-asuncion.jpg" alt="" loading="lazy" decoding="async" onError={imgHide} />
-              <div className="cc-shade" />
-              <svg className="cc-xmark" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-              <div className="cc-top"><span className="cc-wm">narra<span className="dotg">global</span></span><span className="cc-tag">Análisis · X</span></div>
-              <div className="cc-bottom">
-                <span className="cc-dato2">Hilo en X</span>
-                <div className="cc-title">La narrativa de cirujano en el discurso de asunción de Milei.</div>
-                <div className="cc-foot"><span>Dic 2023 · Política</span><span className="cc-read">Ver hilo →</span></div>
+            </a>
+            <a className="rp-cover" href="https://x.com/lisandrobregant/status/1733928007423717588" target="_blank" rel="noopener">
+              <div className="cover-card cover-x">
+                <img className="cc-bg" src="/land/rep-milei.jpg" alt="" onError={imgHide} />
+                <div className="cc-shade" />
+                <svg className="cc-xmark" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                <div className="cc-top"><img className="ccwm-img" src="/land/wm-b.svg" alt="narraglobal" /><span className="cc-tag">Análisis · X</span></div>
+                <div className="cc-bottom">
+                  <span className="cc-dato2">Hilo en X</span>
+                  <div className="cc-title">La narrativa de cirujano en el discurso de asunción de Milei.</div>
+                  <div className="cc-foot"><span>Dic 2023 · Política</span><span className="cc-read">Ver hilo →</span></div>
+                </div>
               </div>
-            </div>
-          </a>
-          <a className="rp-cover" href="https://narraglobal.substack.com/subscribe" target="_blank" rel="noopener noreferrer">
-            <div className="cover-card cover-next"><div className="gb" />
-              <div className="cc-top"><span className="cc-wm">narra<span className="dotg">global</span></span><span className="cc-tag">Próximo</span></div>
-              <div className="cc-bottom">
-                <span className="cc-dato2">Próximo análisis</span>
-                <div className="cc-title">Suscribite y recibilo en tu correo.</div>
-                <div className="cc-foot"><span>NarraNoise®</span><span className="cc-read">Suscribirme →</span></div>
+            </a>
+            <a className="rp-cover" href="https://narraglobal.substack.com/subscribe" target="_blank" rel="noopener">
+              <div className="cover-card cover-next"><div className="gb" />
+                <div className="cc-top"><img className="ccwm-img" src="/land/wm-b.svg" alt="narraglobal" /><span className="cc-tag">Próximo</span></div>
+                <div className="cc-bottom">
+                  <span className="cc-dato2">Próximo análisis</span>
+                  <div className="cc-title">Suscribite y recibilo en tu correo.</div>
+                  <div className="cc-foot"><span>NarraNoise®</span><span className="cc-read">Suscribirme →</span></div>
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+            <a className="rp-cover" href="https://narraglobal.substack.com" target="_blank" rel="noopener">
+              <div className="cover-card" style={{ background: '#fff', border: '1px solid var(--line)', boxShadow: 'none' }}>
+                <div className="cc-top"><img className="ccwm-img" src="/land/wm-b.svg" alt="narraglobal" /><span className="cc-tag" style={{ color: 'var(--mute)' }}>Archivo</span></div>
+                <div className="cc-bottom">
+                  <span className="cc-dato" style={{ background: '#fff', color: 'var(--blue)', border: '1px solid #d6d2ff', fontSize: '22px' }}>Todos</span>
+                  <div className="cc-title" style={{ color: 'var(--ink)' }}>Ver todos los reportes en Substack.</div>
+                  <div className="cc-foot" style={{ color: 'var(--mute)' }}><span>2023–2026</span><span className="cc-read" style={{ color: 'var(--blue)' }}>Abrir →</span></div>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
 
         <div className="rp-media">
           <div className="rp-media-lab">Nuestros datos son publicados por</div>
           <div className="rp-media-logos">
             {MEDIA.map((m) => (
-              <span key={m.alt} style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <img src={`medios/${m.file}.${m.ext || 'png'}`} alt={m.alt} loading="lazy" decoding="async" onError={imgError} />
-                <span className="mf">{m.fallback}</span>
-              </span>
+              <img key={m.file} src={`/land/${m.file}.${m.ext}`} alt={m.alt} onError={imgHide} />
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ===== FOOTER ===== */}
+      {/* ===================== IN-COMPANY ===================== */}
+      <div className="ic-head"><div className="k">Además de tu suscripción</div><div className="t">Conocé nuestras cápsulas <b>In-company</b></div></div>
+
+      <section className="incompany" id="incompany">
+        <div className="ic-photo">
+          <div className="ph">Workshop in-company · NarraGlobal</div>
+          <img className="ic-img" src="/land/workshop.jpg" alt="Workshop in-company NarraGlobal" onError={imgHide} />
+        </div>
+        <div className="ic-body">
+          <div className="ic-eyebrow">Workshops in-company</div>
+          <div className="ic-title">Mejoramos el storytelling de tus <span className="hl">colaboradores</span>.</div>
+          <p className="ic-lede">Llevamos el modelo NarraNoise® a tu organización. Medimos la calidad en decks, presentaciones y pitcheos de tu equipo. Y con esa evidencia entrenamos en las zonas concretas de mejora. Seleccioná la temática que te interesa abordar y conversamos.</p>
+          <div className="ic-topics">
+            {TEMAS.map((t) => {
+              const on = icSel.has(t);
+              return (
+                <button key={t} className={'chip' + (on ? ' on' : '')} aria-pressed={on} type="button" onClick={() => toggleTema(t)}>
+                  <span className="cx">{on ? '✓' : '+'}</span>{t}
+                </button>
+              );
+            })}
+            <button className={'chip chip-otra' + (otraOn ? ' on' : '')} aria-pressed={otraOn} type="button" onClick={toggleOtra}>
+              <span className="cx">{otraOn ? '✓' : '+'}</span>Otra…
+            </button>
+          </div>
+          <input
+            className="ic-otra-input"
+            id="ic-otra"
+            aria-label="Otra temática"
+            placeholder="Escribí tu temática"
+            value={otra}
+            onChange={(e) => setOtra(e.target.value)}
+            style={{ display: otraOn ? 'block' : 'none' }}
+          />
+          <a href={icHref} id="wa-workshop" className="ic-cta" target="_blank" rel="noopener noreferrer">
+            <WaIcon />
+            Quiero cotizar un workshop
+          </a>
+        </div>
+      </section>
+
+      {/* ===================== FOOTER ===================== */}
       <div className="site-foot">
-        <span className="foot-wm">narra<span className="g dotg-d">global</span></span>
+        <img className="foot-img" src="/land/wm-a.svg" alt="narraglobal" />
         <span className="r">Entrenado con el modelo NarraNoise® · narraglobal.com</span>
       </div>
     </>
