@@ -131,6 +131,7 @@ const Index = () => {
             <div className="nav-links">
               <a href="#tablero">El tablero</a>
               <a href="#reportes">Reportes</a>
+              <a href="/entrar">Entrar</a>
             </div>
             <a className="nav-cta" href="#incompany">Workshops in-company</a>
           </nav>
@@ -513,7 +514,7 @@ const Index = () => {
       {/* ===================== FOOTER ===================== */}
       <div className="site-foot">
         <img className="foot-img" src="/land/wm-a.svg" alt="narraglobal" />
-        <span className="r">Entrenado con el modelo NarraNoise® · narraglobal.com</span>
+        <span className="r">Entrenado con el modelo NarraNoise® · narraglobal.com · <a href="/entrar" style={{ color: 'inherit' }}>Acceso clientes</a></span>
       </div>
     </>
   );
