@@ -103,11 +103,10 @@ const Index = () => {
       return n;
     });
 
-  const toggleOtra = () =>
-    setOtraOn((on) => {
-      if (on) setOtra('');
-      return !on;
-    });
+  const toggleOtra = () => {
+    if (otraOn) setOtra('');
+    setOtraOn((on) => !on);
+  };
 
   // ===== in-company: armado del mensaje de WhatsApp =====
   const icHref = useMemo(() => {
@@ -498,6 +497,7 @@ const Index = () => {
           <input
             className="ic-otra-input"
             id="ic-otra"
+            aria-label="Otra temática"
             placeholder="Escribí tu temática"
             value={otra}
             onChange={(e) => setOtra(e.target.value)}
