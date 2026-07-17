@@ -139,9 +139,10 @@ to authenticated
 using (public.has_role(auth.uid(), 'admin'))
 with check (public.has_role(auth.uid(), 'admin'));
 
--- Para sumar otro admin (p. ej. Lisandro): insertar su email acá y listo.
+-- Para sumar otro admin: insertar su email acá y listo (el rol llega solo al login).
 insert into public.admin_emails (email) values
-  ('nicolassespindola@gmail.com')
+  ('nicolassespindola@gmail.com'),
+  ('lisandrobregant@gmail.com')
 on conflict (email) do nothing;
 
 create or replace function public.grant_admin_if_listed()
