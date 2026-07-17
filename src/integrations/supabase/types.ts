@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_emails: {
+        Row: {
+          created_at: string
+          email: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+        }
+        Relationships: []
+      }
       industry_subscriptions: {
         Row: {
           created_at: string
@@ -64,6 +79,101 @@ export type Database = {
           source?: string
         }
         Relationships: []
+      }
+      suscripciones: {
+        Row: {
+          codigo: string
+          created_at: string
+          demo_expira: string | null
+          email: string
+          estado: string
+          id: string
+          nombre: string
+          plan: string
+          pulso_dia: string
+          pulso_hora: string
+          telefono: string | null
+          token: string
+          tz: string
+          updated_at: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          demo_expira?: string | null
+          email: string
+          estado?: string
+          id?: string
+          nombre: string
+          plan?: string
+          pulso_dia?: string
+          pulso_hora?: string
+          telefono?: string | null
+          token?: string
+          tz?: string
+          updated_at?: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          demo_expira?: string | null
+          email?: string
+          estado?: string
+          id?: string
+          nombre?: string
+          plan?: string
+          pulso_dia?: string
+          pulso_hora?: string
+          telefono?: string | null
+          token?: string
+          tz?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tableros: {
+        Row: {
+          avisado_en: string | null
+          created_at: string
+          datos: Json
+          estado: string
+          id: string
+          programado_para: string | null
+          semana: string
+          suscripcion_id: string
+          updated_at: string
+        }
+        Insert: {
+          avisado_en?: string | null
+          created_at?: string
+          datos: Json
+          estado?: string
+          id?: string
+          programado_para?: string | null
+          semana?: string
+          suscripcion_id: string
+          updated_at?: string
+        }
+        Update: {
+          avisado_en?: string | null
+          created_at?: string
+          datos?: Json
+          estado?: string
+          id?: string
+          programado_para?: string | null
+          semana?: string
+          suscripcion_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tableros_suscripcion_id_fkey"
+            columns: ["suscripcion_id"]
+            isOneToOne: false
+            referencedRelation: "suscripciones"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

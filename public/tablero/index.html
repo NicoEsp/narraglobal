@@ -1,0 +1,3030 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- tablero privado: fuera de los buscadores, y sin regalar la URL al navegar afuera -->
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/png" href="marca/favicon-azul.png">
+<title>narraglobal · Tablero de suscripción</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#3E1CFF; --blue-soft:#ece9ff;
+  --pink:#FF3D7A; --pink-soft:#fff0f5; --pink-ink:#c9265b;
+  --green:#00C281; --green-ink:#00875a; --green-soft:#eafaf4;
+  --ink:#111319; --ink-soft:#565a64; --mute:#969aa4;
+  --line:#e8e9ed; --line-2:#d9dbe0; --grid:#f0f1f4;
+  --paper:#fff; --paper-2:#f7f8fa; --gray:#b7bac2; --graf:#2f333d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+/* el scroll lo maneja el JS (más lento y con easing que el nativo) */
+html{scroll-behavior:auto}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.5}
+.num{font-feature-settings:"tnum";font-variant-numeric:tabular-nums}
+.inner{max-width:1180px;margin:0 auto;padding:0 28px}
+.mono{font-family:'IBM Plex Mono',monospace;letter-spacing:1.5px;text-transform:uppercase}
+h1{font-family:Fraunces,serif;font-weight:500;font-size:38px;letter-spacing:-.9px;line-height:1.08}
+h2{font-family:Fraunces,serif;font-weight:500;font-size:25px;letter-spacing:-.6px;line-height:1.22}
+h3{font-family:Fraunces,serif;font-weight:500;font-size:19px;letter-spacing:-.4px}
+.hl{color:var(--blue)}
+section{padding:52px 0}
+.sec-tick{width:132px;height:8px;margin-bottom:16px;background-image:repeating-linear-gradient(90deg,var(--ink) 0 5px,transparent 5px 11px)}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--blue);display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.eyebrow .tag{color:var(--mute)}
+.pill{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;background:var(--blue-soft);color:var(--blue);padding:6px 11px;border-radius:999px;margin-bottom:13px}
+.dotp{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:bl 1.8s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ============ HEADER · TRAYECTORIA ============ */
+.hdr{padding-top:40px}
+.hdrow{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:18px}
+.hdrow .rt{text-align:right}
+.hdrow .rt .mono{font-size:10px;color:var(--mute);display:block}
+.stage{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.hud{display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:var(--paper-2);flex-wrap:wrap}
+.hud .cell{padding:11px 18px;border-right:1px solid var(--line);min-width:130px}
+.hud .cell:last-child{border-right:0;margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hud .k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:6px}
+.hud .k i{width:7px;height:7px;border-radius:50%}
+.hud .v{display:flex;align-items:baseline;gap:5px;margin-top:2px}
+.hud .v b{font-weight:700;font-size:21px;letter-spacing:-.8px;font-feature-settings:"tnum"}
+.hud .v s{text-decoration:none;font-size:11px;color:var(--mute)}
+.hud .imp b{color:var(--green-ink)} .hud .dis b{color:var(--pink)}
+.btn{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;border:1px solid var(--line-2);background:var(--paper);color:var(--ink-soft);padding:6px 11px;border-radius:6px;cursor:pointer}
+.btn:hover{border-color:var(--ink);color:var(--ink)}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.viewport{position:relative;background:linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(180deg,var(--grid) 1px,transparent 1px) 0 0/40px 40px,var(--paper)}
+svg{display:block;width:100%;height:auto}
+.hitzone{cursor:pointer}
+
+/* card sobreimpresa */
+.pcard{position:absolute;width:290px;background:#fff;border:1px solid var(--ink);border-radius:12px;padding:15px;box-shadow:0 12px 32px rgba(17,19,25,.13);opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:5}
+.pcard.show{opacity:1;pointer-events:auto}
+.pcard .x{position:absolute;top:9px;right:11px;font-size:15px;color:var(--mute);cursor:pointer;line-height:1}
+.pcard .st{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.pcard .st.ok{background:var(--green-soft);color:var(--green-ink)}
+.pcard .st.no{background:var(--paper-2);color:var(--ink-soft);border:1px solid var(--line)}
+.pcard .st.ho{background:var(--pink-soft);color:var(--pink-ink)}
+.pcard h4{font-family:Fraunces,serif;font-weight:500;font-size:16.5px;letter-spacing:-.35px;margin:9px 0 3px;padding-right:14px}
+.pcard .meta{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mute)}
+.pcard .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:11px 0;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.pcard .nums div{display:flex;flex-direction:column}
+.pcard .nums b{font-weight:700;font-size:17px;letter-spacing:-.6px;font-feature-settings:"tnum"}
+.pcard .nums s{text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--mute)}
+.pcard .lb{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute)}
+.pcard p{font-size:12.5px;color:var(--ink-soft);margin-top:4px;line-height:1.5}
+.pcard p b{color:var(--ink)}
+.pcard a{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;color:var(--blue);text-decoration:none}
+
+.cap{position:absolute;left:24px;bottom:20px;pointer-events:none;max-width:520px}
+.capbox{display:inline-block;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:12px;padding:15px 17px;opacity:0;transform:translateY(8px);transition:.5s}
+.capbox.show{opacity:1;transform:none}
+.capbox .k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:7px}
+.capbox .k i{width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.capbox.warn .k{color:var(--pink-ink)} .capbox.warn .k i{background:var(--pink)}
+.capbox.good .k{color:var(--green-ink)} .capbox.good .k i{background:var(--green)}
+.capbox h2{font-size:21px;margin:8px 0 5px}
+.capbox p{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.capbox p b{color:var(--ink)}
+.foot{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--line);background:var(--paper-2)}
+.foot span{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:6px}
+.foot i{width:7px;height:7px;border-radius:50%}
+.foot .rt{margin-left:auto}
+
+/* ============ MONITOR ============ */
+.status{display:flex;align-items:center;gap:13px;border:1px solid var(--line);border-radius:10px;padding:11px 16px;margin-bottom:13px;background:var(--paper-2);flex-wrap:wrap}
+.led{width:8px;height:8px;border-radius:50%;flex:none}
+.led.ok{background:var(--green)} .led.al{background:var(--pink);animation:pu 1.7s infinite} .led.wt{background:var(--gray)}
+@keyframes pu{0%{box-shadow:0 0 0 0 rgba(255,61,122,.45)}70%{box-shadow:0 0 0 6px rgba(255,61,122,0)}100%{box-shadow:0 0 0 0 rgba(255,61,122,0)}}
+.status .st{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500}
+.status .sep{width:1px;height:14px;background:var(--line-2)}
+.status .meta{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.grid::after{content:'';background:var(--paper)} /* rellena la celda libre: 7 cards en grilla de 4 */
+.c{background:var(--paper);padding:16px;min-height:116px;display:flex;flex-direction:column}
+.c .k{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.35px;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:6px}
+.c .val{display:flex;align-items:baseline;gap:6px;margin-top:auto;padding-top:14px}
+.c .n{font-weight:700;font-size:33px;letter-spacing:-1.5px;line-height:1}
+.c .u{font-size:13px;font-weight:600;color:var(--mute)}
+.c .d{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600}
+.c .ref{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mute);margin-top:7px}
+.c .sp{margin-top:9px;height:24px}
+.up{color:var(--green-ink)} .dn{color:var(--pink)} .fl{color:var(--mute)}
+/* dato todavía no disponible */
+/* el reloj de cada bloque: qué período mide y cada cuánto se actualiza */
+.reloj{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;
+  letter-spacing:1.3px;text-transform:uppercase;color:var(--mute);border:1px solid var(--line-2);
+  border-radius:999px;padding:4px 9px;white-space:nowrap;flex:none}
+.reloj i{width:4px;height:4px;border-radius:50%;background:var(--gray);flex:none}
+.reloj.sem i{background:var(--blue)}
+.reloj.mes i{background:var(--green)}
+.hrow .reloj{margin-left:12px}
+.pro .reloj,.hrow.dark .reloj{border-color:#4a4f5b;color:#8b90a0}
+
+.pend{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--mute);border:1px dashed var(--line-2);border-radius:6px;padding:7px 9px;display:inline-block;line-height:1.2}
+.pp .pend{margin:9px 0}
+.c.wait .sp,.pp.wait .sp{display:none}
+/* .dn es SÓLO color: la caja oscura de la diana se llama .dianabox */
+.c.key .n{color:var(--blue)}
+/* la alerta: la única card con color de fondo */
+.c.bad{background:var(--pink-soft)}
+.c.bad .n{color:var(--pink)}
+/* cards que llevan al premium: mismo blanco, marca discreta */
+a.c{text-decoration:none;color:inherit;cursor:pointer;transition:background .18s ease}
+a.c:hover{background:var(--paper-2)}
+a.c.bad:hover{background:#ffe6ee}
+.c .k{justify-content:space-between}
+.prochip{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1.1px;text-transform:uppercase;color:#fff;background:var(--ink);border:1px solid var(--ink);padding:2px 6px;border-radius:999px;font-weight:600;flex:none}
+a.c:hover .prochip{background:var(--blue);border-color:var(--blue)}
+.c .ref.lock{display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-family:Inter,sans-serif;font-size:11.5px;color:var(--ink-soft);font-weight:400}
+.c .ref.lock b{color:var(--ink);font-weight:600}
+.c .arw{margin-left:auto;color:var(--blue);font-weight:700;transition:transform .18s ease}
+a.c:hover .arw{transform:translateX(3px)}
+.c.bad .ref.lock b{color:var(--pink-ink)}
+.c.bad .arw{color:var(--pink-ink)}
+
+/* ============ TO-DO ============ */
+.todo{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.td{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column}
+.td .n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue)}
+.td .t{font-weight:600;font-size:15px;letter-spacing:-.25px;margin-top:8px}
+.td p{font-size:13px;color:var(--ink-soft);margin-top:6px;flex:1}
+.td .src{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mute);margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.chatband{margin-top:12px;display:flex;align-items:center;gap:16px;background:var(--graf);border-radius:12px;padding:16px 20px;color:#fff;text-decoration:none}
+.chatband .t{font-weight:600;font-size:15px}
+.chatband .s{font-size:12.5px;color:#b9bec9;margin-top:2px}
+.chatband .go{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;background:#fff;color:var(--ink);padding:8px 12px;border-radius:6px;flex:none;font-weight:600}
+.wm{font-weight:800;letter-spacing:-.055em;font-size:16px;color:#fff;flex:none}
+.wm .s{-webkit-text-fill-color:transparent;background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.92) 0 1.3px,transparent 1.3px 2px);-webkit-background-clip:text;background-clip:text;font-size:16px;color:transparent;margin:0}
+
+/* ============ PREMIUM ============ */
+.prem{background:var(--ink);color:#fff;border-radius:16px;overflow:hidden}
+.prem-h{padding:26px 28px;border-bottom:1px solid #262a34;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.prem-h .k{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#8b90a0}
+.prem-h h2{color:#fff;margin-top:7px}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;background:var(--blue-soft);color:var(--blue);padding:6px 10px;border-radius:5px;font-weight:600}
+.prem-b{padding:24px 28px;background:var(--graf)}
+table{width:100%;border-collapse:collapse}
+th{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#8b90a0;text-align:left;padding:0 10px 10px;font-weight:400}
+th.r,td.r{text-align:right}
+td{padding:12px 10px;border-top:1px solid #3d424d;font-size:13.5px;color:#e7e9ee;vertical-align:middle}
+tr.you td{background:#262a33}
+tr.you td:first-child{border-radius:8px 0 0 8px} tr.you td:last-child{border-radius:0 8px 8px 0}
+td b{font-weight:700;font-feature-settings:"tnum"}
+.rng{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b90a0}
+.gap{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.75)}
+.gap.g{color:#5ce0b0}
+.bond{display:flex;gap:2px;height:8px;border-radius:2px;overflow:hidden;min-width:110px}
+.bond i{display:block;height:100%}
+.free{margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:#8b90a0}
+
+.poolwrap{display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start}
+@media(max-width:1150px){.poolwrap{grid-template-columns:1fr}}
+/* el ranking semanal va en card blanca dentro del grafito */
+.dianabox{background:var(--paper);border:1px solid var(--line-2);border-radius:12px;padding:15px 16px 12px}
+.bump-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.bump-tx{max-width:52ch}
+.bump-k{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute)}
+.bump-s{font-size:11.5px;color:var(--mute);margin-top:4px;max-width:60ch;line-height:1.4}
+.bump-s b{color:var(--ink);font-weight:600}
+.dianabox h3{font-family:Fraunces,serif;font-weight:500;font-size:18px;letter-spacing:-.45px;color:var(--ink);margin-top:4px}
+.bump-lg{display:flex;gap:12px;flex-wrap:wrap;flex:none;margin-top:2px}
+.bump-lg span{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;
+  letter-spacing:1.2px;text-transform:uppercase;color:var(--mute)}
+.bump-lg i{width:14px;height:3px;border-radius:2px;background:var(--gray)}
+.bump-lg i.you{background:var(--blue);height:3.5px}
+.bump-lg i.vara{background:transparent;border-top:2px dashed var(--green);height:0}
+.bump-lg i.last{background:linear-gradient(90deg,var(--green),var(--pink));opacity:.35;height:12px;width:10px;border-radius:2px}
+/* small multiples · una ficha por actor */
+.smgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+@media(max-width:1400px){.smgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.smgrid{grid-template-columns:1fr}}
+.smc{border:1px solid var(--line);border-radius:10px;padding:11px 12px 10px;background:var(--paper)}
+.smc.you{border-color:var(--blue);background:#fbfaff}
+.smc .t{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.smc .n{font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:5px}
+.fg{font-style:normal;font-size:13px;line-height:1;filter:saturate(.9)}
+.smc.you .n{color:var(--blue)}
+.smc .dd{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600}
+.smc .dd.up{color:var(--green-ink)} .smc .dd.dn{color:var(--pink)} .smc .dd.fl{color:var(--mute)}
+.smc svg{margin-top:7px}
+.smc .meta{display:flex;justify-content:space-between;gap:5px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute)}
+.smc .meta b{display:block;font-size:12px;letter-spacing:-.2px;color:var(--ink);font-weight:700;margin-top:1px;font-feature-settings:"tnum"}
+.smc.you .meta b{color:var(--blue)}
+/* el pie de la ficha lleva a las piezas: el porqué se cuenta en el close the gap */
+.smlink{display:block;margin-top:7px;padding-top:6px;border-top:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--mute);text-decoration:none;transition:.15s}
+.smlink:hover{color:var(--ink)}
+.smc.you .smlink{color:var(--blue)}
+.bump-f{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft);line-height:1.45}
+.bump-f b{color:var(--ink);font-weight:600}
+
+/* el CTA de públicos: narrachat 24/7 sobre todo el dato */
+.chat24{display:flex;align-items:center;gap:20px;margin-top:20px;padding:20px 24px;text-decoration:none;
+  background:var(--graf);border:1px solid #3a3e49;border-radius:14px;transition:.15s;flex-wrap:wrap}
+.chat24:hover{border-color:rgba(255,255,255,.45)}
+.c24-wm{font-weight:800;letter-spacing:-.055em;font-size:17px;color:#fff;flex:none}
+.c24-wm .s{-webkit-text-fill-color:transparent;background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.92) 0 1.3px,transparent 1.3px 2px);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.c24-tx{flex:1;min-width:260px}
+.c24-k{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;
+  letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.c24-k .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.6);animation:bl 1.9s infinite}
+.c24-t{display:block;font-family:Fraunces,serif;font-weight:500;font-size:19px;letter-spacing:-.45px;color:#fff;margin-top:6px;line-height:1.3}
+.c24-t b{font-weight:500;border-bottom:2px solid rgba(255,255,255,.45)}
+.c24-s{display:block;font-size:12.5px;color:#b9bec9;margin-top:6px;line-height:1.5;max-width:78ch}
+.c24-go{flex:none;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;
+  background:#fff;color:var(--ink);padding:11px 15px;border-radius:8px;font-weight:600}
+.chat24:hover .c24-go{background:rgba(255,255,255,.88)}
+
+/* el gap de la semana · el bucle que trae al cliente cada lunes */
+/* el bloque del gap queda OCULTO: en la Pausa el gap se dice en texto, dentro del párrafo.
+   Se conserva el markup por si hace falta volver: quitar el display:none. */
+.gapweek{display:none;background:var(--blue);border-radius:14px;padding:20px 22px;margin-top:20px;color:#fff;max-width:62ch}
+.gw-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.gw-k{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;font-weight:600;color:#fff}
+.gw-k .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:bl 1.9s infinite}
+.gw-d{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.gapweek h3{font-family:Fraunces,serif;font-weight:500;font-size:19px;letter-spacing:-.45px;line-height:1.3;margin:9px 0 6px;color:#fff}
+.gapweek h3 b{font-weight:500;border-bottom:2px solid rgba(255,255,255,.5)}
+.gapweek p{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.8)}
+.gapweek p b{color:#fff;font-weight:600}
+.gw-check{margin-top:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2)}
+.gw-ck{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.gw-row{display:flex;gap:8px;align-items:flex-start;margin-top:7px;font-size:12px;line-height:1.4;color:rgba(255,255,255,.85)}
+.gw-row b{color:#fff;font-weight:600}
+.gw-i{flex:none;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.gw-row.ok .gw-i{background:#00C281;color:#0b2c21}
+.gw-row.no .gw-i{background:rgba(255,255,255,.25);color:#fff}
+.gw-go{display:inline-block;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.2px;
+  text-transform:uppercase;background:#fff;color:var(--blue);padding:9px 13px;border-radius:8px;text-decoration:none;font-weight:600}
+
+/* cerrar el gap · aprendé de los que te sacan ventaja */
+.gapbox{align-self:start}
+.gapbox .gh{font-family:Fraunces,serif;font-weight:500;font-size:18px;color:#fff;letter-spacing:-.45px;margin-bottom:12px}
+.gapbox .gk{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px}
+/* cada competidor, su propia card: se ve dónde empieza uno y termina el otro */
+.gapc{background:var(--graf);border:1px solid #3a3e49;border-radius:12px;padding:15px 16px;margin-bottom:10px}
+.gapc:last-child{margin-bottom:0}
+.gc-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.gc-name{font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px}
+.gc-name small{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#8b90a0;font-weight:400;margin-left:4px}
+.gc-gap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:rgba(255,255,255,.75);white-space:nowrap}
+.gc-k{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:#8b90a0;display:block}
+.gc-k b{color:#fff;font-weight:700}
+.gc-pieza{margin-top:9px;padding:11px 12px;background:rgba(255,255,255,.04);border:1px solid #3a3e49;border-radius:9px}
+.gc-t{font-size:13px;color:#fff;font-weight:600;line-height:1.35;margin-top:4px}
+.gc-f{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:#8b90a0;margin-top:3px}
+.gapc.hueco .gc-pieza{border-color:rgba(255,61,122,.35);background:rgba(255,61,122,.06)}
+.gapc.hueco .gc-t{color:#ff9ebc}
+.gc-best{font-size:12px;color:#b9bec9;line-height:1.45;margin-top:6px}
+.gc-do{font-size:12.5px;color:#fff;line-height:1.45;margin-top:7px;padding-top:7px;border-top:1px dashed #3a3e49}
+.gc-links{display:flex;gap:12px;margin-top:8px}
+.gc-links a{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:rgba(255,255,255,.72);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.22);padding-bottom:2px}
+.gc-links a:hover{color:#fff}
+/* lo que cambia lento declara cuándo cambia: la quietud con fecha es criterio */
+.prox{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;
+  color:#8b90a0;border:1px solid #4a4f5b;border-radius:999px;padding:4px 9px;flex:none;white-space:nowrap}
+.gapc.hueco{border-color:rgba(255,61,122,.4);background:rgba(255,61,122,.05)}
+.gapc.hueco .gc-gap{color:#ff9ebc}
+.dianabox svg{width:100%;height:auto}
+.dnleg{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.dnleg span{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:6px}
+.dnleg i{width:9px;height:9px;border-radius:50%;display:block}
+.dnleg .d-in{background:#565a64}
+.dnleg .d-out{background:transparent;border:1px solid var(--line-2)}
+.dnleg .d-you{background:var(--blue)}
+.gp .row s{text-decoration:none;display:block;font-size:11px;color:#8b90a0;margin-top:2px}
+.gp2 .row{grid-template-columns:1fr 118px}
+.gp2 .row.hd span.r{line-height:1.35}
+.gp2 .big{font-weight:700;font-size:21px;letter-spacing:-.7px;font-feature-settings:"tnum";display:flex;align-items:baseline;justify-content:flex-end;gap:4px}
+.gp2 .big em{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:#8b90a0;font-weight:400}
+/* narrativa de contacto por cuenta */
+.contacto{margin-top:20px;background:#262a33;border:1px solid #3d424d;border-radius:12px;padding:20px 22px}
+.contacto .ch{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.contacto .k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#8b90a0}
+.contacto h3{color:#fff;margin-top:7px}
+/* panel de control de públicos — mismo lenguaje que el monitor, en oscuro */
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#3d424d;border:1px solid #3d424d;border-radius:12px;overflow:hidden}
+.pc{background:#262a33;padding:15px;min-height:112px;display:flex;flex-direction:column}
+.pc .k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#8b90a0;display:flex;align-items:center;gap:6px}
+.pc .k i{width:6px;height:6px;border-radius:50%;flex:none}
+.pc .q{font-size:10.5px;color:#6b7280;margin-top:3px;line-height:1.4;min-height:28px}
+.pc .val{display:flex;align-items:baseline;gap:6px;margin-top:auto;padding-top:10px}
+.pc .n{font-weight:700;font-size:30px;letter-spacing:-1.3px;line-height:1;color:#fff;font-feature-settings:"tnum"}
+.pc .u{font-size:11px;color:#8b90a0;font-weight:600}
+.pc .d{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#5ce0b0}
+.pc .d.dn{color:#ff7aa5}
+.pc .ref{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;padding-top:8px;border-top:1px solid #3d424d}
+.pc .ref .pr{font-size:11.5px;color:#c3c8d2}
+.pc .ref .ix{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:rgba(255,255,255,.75)}
+.pc.core{background:linear-gradient(180deg,rgba(111,87,255,.16),#262a33 70%)}
+.pc.core .k{color:rgba(255,255,255,.75)}
+.pc.gone{background:linear-gradient(180deg,rgba(255,61,122,.12),#262a33 70%)}
+.pc.gone .k{color:#ff7aa5}
+.pc.gone .n{color:#ff7aa5}
+.pc.gone .ref .ix{color:#ff7aa5}
+.idxleg{text-align:right;flex:none}
+.idxleg .il{display:block;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;color:#8b90a0}
+.idxleg .iv{display:block;font-family:Inter,sans-serif;font-size:17px;font-weight:700;color:#8b90a0;margin-top:5px;letter-spacing:-.3px;font-feature-settings:"tnum"}
+.idxleg .iv b{color:#c3c8d2;font-weight:700}
+.idxleg .iv b.hi{color:rgba(255,255,255,.75)}
+.idxleg .is{display:block;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#6b7280;margin-top:3px}
+#ejeMap{width:100%;height:auto;margin-top:4px}
+/* el clima */
+.cgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#3d424d;border:1px solid #3d424d;border-radius:11px;overflow:hidden;margin-top:4px}
+.cc{background:#1f232b;padding:15px}
+.cc .g{font-size:12.5px;font-weight:600;color:#e7e9ee}
+.cc .st{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;margin-top:3px;display:flex;align-items:center;gap:5px}
+.cc .st i{width:6px;height:6px;border-radius:50%;flex:none}
+.cc svg{margin-top:10px;height:40px;width:100%}
+.cc .tr{margin-top:10px;padding-top:9px;border-top:1px solid #3d424d}
+.cc .tr .l{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1.1px;text-transform:uppercase;color:#6b7280}
+.cc .tr .v{font-size:12.5px;color:#e7e9ee;margin-top:3px}
+.cc .tr .v b{font-weight:700}
+.cc.alert{background:linear-gradient(180deg,rgba(255,61,122,.10),#1f232b 65%)}
+.cpunch{font-size:12.5px;color:#b9bec9;margin-top:14px;padding-top:14px;border-top:1px solid #3d424d;line-height:1.65}
+.cpunch b{color:#fff}
+.cpunch i{color:#e7e9ee;font-style:italic}
+/* traducción + acción, después de cada gráfico */
+.ta{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:16px;padding-top:16px;border-top:1px solid #3d424d}
+.tr-l .k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#8b90a0;margin-bottom:10px}
+.tr-l ul{list-style:none}
+.tr-l li{position:relative;padding-left:20px;font-size:13px;color:#b9bec9;line-height:1.55;margin-bottom:9px}
+.tr-l li:before{content:'';position:absolute;left:0;top:8px;width:8px;height:2px;background:#6b7280;border-radius:1px}
+.tr-l li b{color:#fff}
+.tr-l li.bad{color:#ffb0c8}
+.tr-l li.bad:before{background:#ff7aa5}
+.tr-l li.bad b{color:#ff7aa5}
+.tr-l .tip{font-size:11.5px;color:#6b7280;line-height:1.55;margin-top:12px;padding-top:10px;border-top:1px solid #3d424d}
+.ac{background:var(--blue-soft);border-radius:12px;padding:18px;align-self:start}
+.ac .ak{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--blue);font-weight:600}
+.ac h4{font-family:Fraunces,serif;font-weight:500;font-size:18px;letter-spacing:-.4px;color:var(--ink);margin:8px 0 9px;line-height:1.25}
+.ac p{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-top:7px}
+.ac p b{color:var(--ink)}
+.ac.alert{background:var(--pink-soft)}
+.ac.alert .ak{color:var(--pink-ink)}
+.gapgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+.gp{background:#262a33;border:1px solid #3d424d;border-radius:12px;padding:20px}
+/* ranking de control de calidad: volumen · promedio · sobre la vara · gap */
+.qrank{margin:14px 0 4px}
+.qr{display:grid;grid-template-columns:78px 1fr 46px 52px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #3d424d}
+.qr.hd{border-top:0;padding-top:0;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:#6b7280}
+.qr .who{font-size:13px;font-weight:600;color:#e7e9ee;white-space:nowrap}
+.qr .who s{display:block;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#8b90a0;margin-top:2px}
+.qr.you .who{color:#fff}
+.qr .vol{display:flex;align-items:center;gap:3px}
+.qr .vol i{width:5px;height:16px;border-radius:1.5px;background:#4b5160;flex:none}
+.qr.you .vol i{background:#5c4fff}
+.qr .prom{font-size:15px;font-weight:700;color:#e7e9ee;text-align:right;font-feature-settings:"tnum"}
+.qr.you .prom{color:rgba(255,255,255,.75)}
+.qr .gap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-align:right}
+.qr .gap.pos{color:rgba(255,255,255,.75)} .qr .gap.neg{color:#5ce0b0} .qr .gap.you{color:#8b90a0}
+.gp .k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#8b90a0}
+.gp h3{color:#fff;margin:8px 0 10px}
+.gp .row{display:grid;grid-template-columns:1fr 54px 54px;gap:8px;padding:9px 0;border-top:1px solid #3d424d;font-size:12.5px;color:#c3c8d2}
+.gp .row.hd{border-top:0;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:#8b90a0;padding-bottom:5px}
+.gp .r{text-align:right;font-feature-settings:"tnum";font-weight:600}
+.gp .g{color:#5ce0b0} .gp .p{color:#ff7aa5}
+.gp p{font-size:12.5px;color:#b9bec9;margin-top:12px;padding-top:12px;border-top:1px solid #3d424d;line-height:1.55}
+.gp p b{color:#fff}
+.verd{margin-top:14px;background:var(--blue-soft);color:var(--blue);border-radius:10px;padding:14px 16px;font-size:13.5px;line-height:1.55}
+.verd b{color:var(--blue)}
+.disc{padding:16px 28px;background:#0a0c10;font-size:11.5px;color:#8b90a0;line-height:1.6}
+.disc b{color:#e7e9ee}
+
+/* ============ 04 · TUS PÚBLICOS (oscuro) ============ */
+.pub-verd{flex:none;text-align:center;border:1px solid #3d424d;border-radius:10px;padding:13px 18px;background:#262a33;min-width:150px}
+.pub-verd .l{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:#8b90a0}
+.pub-verd .v{font-family:Fraunces,serif;font-size:25px;font-weight:600;letter-spacing:-.6px;color:#ff7aa5;margin-top:7px;line-height:1}
+.pub-verd .d{font-size:11.5px;color:#b9bec9;margin-top:7px;line-height:1.45}
+.pub-lead{font-size:13.5px;color:#b9bec9;margin-top:10px;max-width:66ch;line-height:1.6}
+.pub-lead b{color:#fff}
+.pblock{background:#262a33;border:1px solid #3d424d;border-radius:12px;padding:20px 22px;margin-top:14px}
+.pblock .k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.pblock h3{color:#fff;margin:8px 0 5px}
+.pblock .q{font-size:12.5px;color:#b9bec9;line-height:1.6;max-width:70ch;margin-bottom:16px}
+.pblock .q b{color:#fff}
+.pgrid2{display:grid;grid-template-columns:1fr 230px;gap:24px;align-items:center}
+.pgrid2 svg{width:100%;height:auto;overflow:visible}
+.pleg{display:flex;flex-direction:column;gap:9px}
+.pleg div{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#b9bec9}
+.pleg i{width:11px;height:11px;border-radius:2px;flex:none}
+.pleg b{color:#fff;font-weight:600}
+.pread{margin-top:16px;padding-top:14px;border-top:1px solid #3d424d;font-size:12.8px;color:#b9bec9;line-height:1.65}
+.pread b{color:#fff}
+.pread.bad b{color:#ff7aa5}
+.pdrill{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.pstep{display:grid;grid-template-columns:1fr 60px;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #3d424d;font-size:13px;color:#e7e9ee}
+.pstep:last-child{border-bottom:0}
+.pstep span{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;color:#8b90a0;margin-left:8px}
+.pstep .v{text-align:right;font-weight:700;font-size:15px;font-feature-settings:"tnum"}
+.pstep.core .v{color:rgba(255,255,255,.75)} .pstep.out .v{color:#ff7aa5}
+.pagenda{list-style:none}
+.pagenda li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #3d424d;font-size:13px;color:#e7e9ee}
+.pagenda li:last-child{border-bottom:0}
+.pagenda .p{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8b90a0;flex:none}
+.pagenda .new{color:rgba(255,255,255,.75);font-weight:600}
+.pagenda em{font-style:normal;color:#6b7280}
+.psub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#8b90a0;margin-bottom:10px}
+.poff{margin-top:14px;border-left:2px solid rgba(255,255,255,.75);padding:4px 0 4px 20px}
+.poff .l{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:9px}
+.poff p{font-family:Fraunces,serif;font-size:16.5px;line-height:1.55;letter-spacing:-.3px;color:#e7e9ee}
+.poff p strong{color:#fff}
+.poff .sig{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#6b7280;margin-top:9px}
+.phon{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.phon div{background:#1f232b;border:1px solid #3d424d;border-radius:10px;padding:15px 17px}
+.phon b.t{display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#8b90a0;margin-bottom:7px;font-weight:500}
+.phon p{font-size:12.3px;color:#b9bec9;line-height:1.6}
+.phon p b{color:#fff}
+.ptick{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:#6b7280;letter-spacing:1px}
+@media(max-width:1000px){.pgrid2,.pdrill,.phon{grid-template-columns:1fr}}
+
+/* ============ 02 · TUS PÚBLICOS ============ */
+.pub-claim{font-size:13.5px;color:var(--ink-soft);line-height:1.6;max-width:74ch}
+.pub-claim b{color:var(--ink);font-weight:600}
+.pub-ds{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.45;flex:1}
+.pub-ds b{color:var(--ink);font-weight:600}
+.pub-dur{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;
+  font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute)}
+.pub-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.pc-a{background:var(--blue);color:#fff;border-radius:14px;padding:19px 20px;display:flex;flex-direction:column;min-height:312px}
+.pc-k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:#c9bfff;font-weight:500}
+.pc-a h3{font-family:Fraunces,serif;font-weight:500;font-size:20px;letter-spacing:-.5px;line-height:1.22;margin:8px 0 0;color:#fff}
+.pc-viz{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:16px}
+.pc-fx{margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.22);font-size:11.8px;color:#c9bfff;line-height:1.5}
+.pc-fx b{color:#fff;font-weight:600}
+.pc-a a{display:block;margin-top:9px;font-size:11.5px;font-weight:600;color:#fff;text-decoration:none}
+.pc-tema{display:grid;grid-template-columns:74px 1fr 22px;align-items:center;gap:9px;padding:4px 0;font-size:12px;color:#ddd8ff}
+.pc-tema i{height:7px;border-radius:4px;background:rgba(255,255,255,.32);display:block}
+.pc-tema b{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;color:#c9bfff}
+.pc-tema.new span,.pc-tema.new b{color:#fff;font-weight:600}
+.pc-tema.new i{background:#fff}
+.pc-tema.mine span,.pc-tema.mine b{color:#9a8cff}
+.pc-tema.mine i{background:rgba(255,255,255,.16)}
+.pc-row{display:grid;grid-template-columns:1fr 34px;align-items:center;gap:10px;padding:7px 0}
+.pc-row .lb{font-size:12px;color:#ddd8ff;line-height:1.35}
+.pc-row .lb b{color:#fff;font-weight:600}
+.pc-row .vv{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#c9bfff}
+.pc-row .tr{grid-column:1/-1;height:10px;border-radius:5px;background:rgba(255,255,255,.14);margin-top:5px;overflow:hidden}
+.pc-row .tr i{display:block;height:100%;border-radius:5px;background:rgba(255,255,255,.42)}
+.pc-row.hi .vv{color:#fff;font-weight:600}
+.pc-row.hi .tr i{background:#fff}
+.pc-delta{display:flex;align-items:baseline;gap:8px;margin-top:14px;padding-top:11px;border-top:1px solid rgba(255,255,255,.22)}
+.pc-delta .x{font-weight:700;font-size:27px;letter-spacing:-1px;color:#fff;line-height:1}
+.pc-delta .tx{font-size:11.8px;color:#c9bfff;line-height:1.45}
+.pc-delta .tx b{color:#fff;font-weight:600}
+.pub-mes{display:grid;grid-template-columns:1fr 268px;border:1px solid var(--line-2);border-radius:14px;overflow:hidden;background:var(--paper)}
+.pub-mes .lft{padding:16px 20px}
+.pub-mes .mk{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:7px}
+.pub-mes .mk .dot{width:5px;height:5px;border-radius:50%;background:var(--blue);animation:bl 1.9s infinite}
+.pub-mes h3{font-family:Fraunces,serif;font-weight:500;font-size:17px;letter-spacing:-.4px;line-height:1.3;margin:7px 0 4px;max-width:46ch}
+.pub-mes h3 b{color:var(--pink-ink);font-weight:500}
+.pub-mes p{font-size:12.5px;color:var(--ink-soft);line-height:1.5;max-width:60ch}
+.pub-mes p b{color:var(--ink);font-weight:600}
+.pub-mes .rgt{background:#f0fbf7;padding:16px 20px;border-left:1px solid var(--line)}
+.pub-mes .rgt .mk{color:var(--green-ink)} .pub-mes .rgt .mk .dot{background:var(--green)}
+.pub-mes .rgt .big{font-weight:700;font-size:26px;letter-spacing:-1px;color:var(--green-ink);margin:6px 0 3px}
+.pub-mes .rgt .big s{text-decoration:none;font-size:12.5px;font-weight:600;color:var(--green-ink);opacity:.7;margin-left:3px}
+.pub-mes .ftr{grid-column:1/-1;border-top:1px solid var(--line);padding:9px 20px;font-size:11px;color:var(--mute);line-height:1.45;background:var(--paper-2)}
+.pub-mes .ftr b{color:var(--ink-soft);font-weight:600}
+@media(max-width:820px){.pub-mes{grid-template-columns:1fr}.pub-mes .rgt{border-left:0;border-top:1px solid var(--line)}}
+@media(max-width:1000px){.pub-cards,.pub-mes{grid-template-columns:1fr}}
+
+/* panel de públicos · un número, una frase */
+.pub-panel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.pp.back{border-color:#a8e6cd;background:var(--green-soft)}
+.pp.back .n{color:var(--green-ink)}
+.pp .n u{text-decoration:none;font-size:13px;font-weight:600;color:var(--mute);letter-spacing:0}
+.pm{font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--mute);border:1px solid var(--line-2);border-radius:999px;padding:2px 6px;margin-left:6px;
+  font-weight:500;vertical-align:middle;white-space:nowrap}
+.pp{border:1px solid var(--line-2);border-radius:12px;padding:15px 16px;background:var(--paper)}
+.pp .t{font-size:14.5px;color:var(--ink);font-weight:500;letter-spacing:-.1px}
+.pp .n{font-weight:700;font-size:33px;letter-spacing:-1.5px;line-height:1;margin:9px 0 9px;display:flex;align-items:baseline;gap:8px}
+.pp .n s{text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.5px}
+.pp .s{font-size:12.5px;line-height:1.45;color:var(--ink-soft);letter-spacing:-.05px}
+.pp .s b{color:var(--ink);font-weight:600}
+/* de qué está hecha esa conducta: fans, seguidores, visitantes, nuevos */
+.mix{margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+.mix-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;gap:1.5px}
+.mix-bar i{display:block;height:100%}
+.mix-lb{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px}
+.mix-lb span{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-soft);white-space:nowrap}
+.mix-lb span i{width:7px;height:7px;border-radius:2px;flex:none}
+.mix-lb span b{font-weight:700;color:var(--ink);font-feature-settings:"tnum"}
+.pro .mix{border-top-color:#3d424d}
+.pro .mix-lb span{color:#8b90a0} .pro .mix-lb span b{color:#e7e9ee}
+.pp.key{border-color:var(--blue);background:#fbfaff}
+.pp.key .n{color:var(--blue)}
+.pp.key .s{color:var(--blue)}
+.pp.gone{border-color:#f5b9cd;background:var(--pink-soft)}
+.pp.gone .n{color:var(--pink)}
+.pp.gone .s{color:var(--pink-ink)}
+.pub-sub{margin-top:12px;font-size:13px;color:var(--ink-soft);line-height:1.65;max-width:92ch}
+.pub-sub b{color:var(--ink);font-weight:600}
+@media(max-width:1000px){.pub-panel{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.pub-panel{grid-template-columns:1fr}}
+
+/* CUATRO MISIONES · una card por segmento de permanencia.
+   El % vive pegado al nombre del segmento: es la porción DE ESE SEGMENTO, no del total. */
+.mis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:4px}
+@media(max-width:1100px){.mis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.mis{grid-template-columns:1fr}}
+.ms{border:1px solid var(--line-2);border-radius:14px;background:var(--paper);padding:17px 17px 0;display:flex;flex-direction:column}
+.ms-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.ms .seg{font-size:17px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+.ms .share{display:flex;align-items:baseline;gap:6px;flex:none}
+.ms .share b{font-size:26px;font-weight:700;letter-spacing:-1.2px;color:var(--blue);font-feature-settings:"tnum"}
+.ms .share s{text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600}
+.ms .def{font-size:11.5px;color:var(--mute);margin-top:9px;line-height:1.4}
+.ms .def b{color:var(--ink-soft);font-weight:600}
+.ms .claim{font-size:13.5px;color:var(--ink);line-height:1.45;margin-top:9px}
+.ms .claim b{font-weight:600;color:var(--blue)}
+.ms .kn{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--mute);margin-top:10px}
+/* la barra no repite el número: pinta lo logrado y deja ver el margen */
+.ms .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin:7px 0 5px}
+.ms .bar i{display:block;height:100%;background:var(--blue);border-radius:4px}
+.ms .brest{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.9px;text-transform:uppercase;color:var(--mute);text-align:right}
+.ms .marg{font-size:12.5px;color:var(--ink-soft);line-height:1.45;margin-top:8px}
+.ms .marg b{color:var(--ink);font-weight:600}
+.ms .fail{font-size:12px;color:var(--pink-ink);line-height:1.45;margin:6px 0 14px}
+.ms .fail b{font-weight:600}
+.ms .play{margin:auto -17px 0;padding:13px 17px 15px;border-top:1px solid var(--line);background:var(--paper-2);
+  border-radius:0 0 13px 13px;text-decoration:none;display:block;transition:.15s}
+.ms .play:hover{background:var(--blue-soft)}
+.ms .play .k{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--blue);display:flex;align-items:center;gap:6px}
+.ms .play .k i{width:5px;height:5px;border-radius:50%;background:var(--blue);flex:none}
+.ms .play p{font-size:13px;color:var(--ink);font-weight:500;margin-top:5px;line-height:1.4}
+.ms .play .go{display:block;margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;
+  letter-spacing:1.2px;text-transform:uppercase;color:var(--blue)}
+/* en grafito */
+.pro .ms{background:var(--graf);border-color:#3a3e49}
+.pro .ms-h{border-bottom-color:#3a3e49}
+.pro .ms .seg,.pro .ms .marg b,.pro .ms .play p{color:#fff}
+.pro .ms .share b{color:#fff}
+.pro .ms .claim{color:#e7e9ee} .pro .ms .claim b{color:#fff}
+.pro .ms .def b{color:#b9bec9}
+.pro .ms .marg{color:#b9bec9}
+.pro .ms .fail{color:#ff9ebc}
+.pro .ms .bar{background:#3d424d}
+.pro .ms .bar i{background:rgba(255,255,255,.85)}
+.pro .ms .play{background:rgba(255,255,255,.04);border-top-color:#3a3e49}
+.pro .ms .play:hover{background:rgba(255,255,255,.08)}
+.pro .ms .play .k,.pro .ms .play .go{color:rgba(255,255,255,.72)}
+.pro .ms .play .k i{background:rgba(255,255,255,.72)}
+
+/* VISTA EXTRA · colapsable, debajo del panel */
+.extra{margin-top:26px;border:1px solid var(--line-2);border-radius:14px;background:var(--paper);overflow:hidden}
+.extra-h{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;user-select:none}
+.extra-h h3{flex:1;font-family:Fraunces,serif;font-weight:500;font-size:19px;letter-spacing:-.45px;color:var(--ink)}
+.extra-h .xk{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--mute);border:1px solid var(--line-2);border-radius:999px;padding:4px 9px;flex:none}
+.xbody{padding:0 20px 20px}
+.xbody.closed{display:none}
+.pro .extra{background:transparent;border-color:#3a3e49}
+.pro .extra-h h3{color:#fff}
+.pro .extra-h .xk{border-color:#4a4f5b;color:#8b90a0}
+.pro .extra .migra{border:0;padding:0;background:transparent}
+
+/* izquierda táctica + derecha grande, como en calidad */
+.migwrap{margin-top:22px}
+@media(max-width:1000px){.migwrap{grid-template-columns:1fr}}
+.ejecard{border:1px solid var(--line-2);border-radius:14px;background:var(--paper);padding:20px 18px 16px}
+.eje-h{font-family:Fraunces,serif;font-weight:500;font-size:17px;letter-spacing:-.4px;line-height:1.25}
+.eje-s{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+.ejecard svg{width:100%;height:auto;display:block;margin-top:10px}
+.eje-f{font-size:12.5px;color:var(--ink-soft);line-height:1.45;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.eje-f b{color:var(--ink);font-weight:600}
+.eje-s b{color:var(--ink);font-weight:600}
+.eje-lg{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:12px}
+.eje-lg span{display:flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:8px;
+  letter-spacing:.9px;text-transform:uppercase;color:var(--mute)}
+.eje-lg i{width:8px;height:8px;border-radius:2px;flex:none}
+.ejecard .seg{opacity:0;animation:seg-in .55s ease forwards}
+@keyframes seg-in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+
+/* la migración de personas · alluvial */
+.migra{border:1px solid var(--line-2);border-radius:14px;background:var(--paper);padding:20px 22px 16px}
+.migra-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.mig-tg{display:flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;flex:none}
+.mig-tg button{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;
+  padding:8px 13px;border:0;background:var(--paper);color:var(--ink-soft);cursor:pointer}
+.mig-tg button.on{background:var(--ink);color:#fff}
+.pro .mig-tg{border-color:#4a4f5b}
+.pro .mig-tg button{background:transparent;color:#8b90a0}
+.pro .mig-tg button.on{background:#fff;color:#111319}
+.migra-h h3{font-family:Fraunces,serif;font-weight:500;font-size:21px;letter-spacing:-.5px;color:var(--ink)}
+.migra-k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute)}
+.migra svg{width:100%;height:auto;display:block;margin-top:10px}
+.migra .rib{transition:opacity .15s}
+.migra .flow{stroke-dasharray:14 26;animation:flow 2.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-40}}
+.migra svg:hover .rib{opacity:.18!important}
+.migra svg .rib:hover{opacity:.85!important}
+.migra .rib:hover{opacity:1!important;filter:saturate(1.3)}
+.migra-lg{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:8px;padding-top:12px;border-top:1px solid var(--line)}
+.migra-lg span{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:9px;
+  letter-spacing:1.2px;text-transform:uppercase;color:var(--mute)}
+.migra-lg i{width:14px;height:3px;border-radius:2px;flex:none}
+.migra-lg i.up{background:var(--blue)} .migra-lg i.fl{background:var(--line-2)} .migra-lg i.dn{background:var(--pink)}
+.migra-met{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--mute);line-height:1.5}
+.migra-met b{color:var(--ink-soft);font-weight:600}
+.migra-note{margin-left:auto;text-transform:none;letter-spacing:0;font-family:Inter,sans-serif;font-size:12.5px;color:var(--ink-soft)}
+@media (prefers-reduced-motion:reduce){.migra .flow,.ejecard .pt{animation:none}}
+
+/* los que no llegaron · agrupados por causa · AZUL (es una corrección) */
+.causas{margin-top:14px;border-radius:14px;padding:20px 22px;background:var(--blue);color:#fff}
+.cz-h{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:15px}
+.cz-k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:#c9bfff;font-weight:500}
+.causas h3{font-family:Fraunces,serif;font-weight:500;font-size:21px;letter-spacing:-.5px;margin-top:8px;color:#fff}
+.causas h3 .hl{color:#fff;opacity:.72}
+.causas p{font-size:12.5px;color:#ddd8ff;line-height:1.6;margin-top:7px;max-width:66ch}
+.causas p b{color:#fff;font-weight:600}
+.cz-go{flex:none;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;
+  color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:9px 13px;background:rgba(255,255,255,.1)}
+.cz-go:hover{background:rgba(255,255,255,.18)}
+.cz-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cz{display:grid;grid-template-columns:40px 1fr;gap:13px;border:1px solid rgba(255,255,255,.22);border-radius:11px;
+  padding:14px 16px;background:rgba(255,255,255,.08)}
+.cz-n{font-weight:700;font-size:26px;letter-spacing:-1.1px;color:#fff;line-height:1;font-feature-settings:"tnum"}
+.cz-t{font-weight:600;font-size:14px;letter-spacing:-.2px;color:#fff}
+.cz-p{font-size:12.3px;color:#ddd8ff;line-height:1.55;margin-top:5px}
+.cz-p b{color:#fff;font-weight:600}
+.cz-f{margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,.2);font-family:'IBM Plex Mono',monospace;
+  font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.cz-f em{font-style:normal;color:#ddd8ff}
+@media(max-width:1000px){.cz-list{grid-template-columns:1fr}}
+
+/* ============ TITULARES COLAPSABLES (identidad de la plantilla) ============ */
+.hrow{display:flex;align-items:center;gap:14px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.hrow h2,.hrow h3{flex:1}
+.collap{order:-1;flex:0 0 auto;background:var(--paper);border:1px solid var(--line-2);border-radius:999px;
+  width:30px;height:30px;cursor:pointer;color:var(--ink-soft);font-size:12px;line-height:1;
+  display:grid;place-items:center;transition:.15s;margin-top:3px}
+.hrow:hover .collap{color:var(--blue);border-color:var(--blue)}
+.cv{display:inline-block;transition:transform .2s}
+.collap.closed .cv{transform:rotate(-90deg)}
+.hrow.dark .collap{background:transparent;border-color:#4b5160;color:#b9bec9}
+.hrow.dark:hover .collap{color:#fff;border-color:#fff}
+.cbody.closed{display:none}
+
+/* ============ 05 · LA ESTRATEGIA ============ */
+.estr{background:var(--ink);color:#fff;border-radius:16px;overflow:hidden}
+.estr-h{padding:26px 28px;border-bottom:1px solid #262a34;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.estr-h .k{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#8b90a0}
+.estr-h h2{color:#fff;margin-top:7px}
+.estr-h p{font-size:13px;color:#b9bec9;margin-top:9px;max-width:70ch;line-height:1.6}
+.estr-h p b{color:#fff}
+.estr-b{padding:24px 28px;background:var(--graf)}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.cp{background:#262a33;border:1px solid #3d424d;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#b9bec9;display:flex;flex-direction:column;gap:2px;min-width:150px}
+.cp b{font-size:19px;font-weight:700;color:#fff;letter-spacing:-.6px;font-feature-settings:"tnum"}
+.cp s{text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:#6b7280}
+.cp.core{border-color:#5c4fff}.cp.core b{color:rgba(255,255,255,.75)}
+.cp.gone{border-color:#7a3350}.cp.gone b{color:#ff7aa5}.cp.gone s{color:#ff7aa5}
+.callband{margin-top:16px;display:flex;align-items:center;gap:24px;background:var(--blue-soft);border-radius:12px;padding:20px 22px;text-decoration:none;flex-wrap:wrap}
+.callband .ck{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--blue);font-weight:600}
+.callband .ct{font-family:Fraunces,serif;font-size:20px;letter-spacing:-.45px;color:var(--ink);margin-top:7px}
+.callband .cs{font-size:12.5px;color:var(--ink-soft);margin-top:6px;max-width:70ch;line-height:1.55}
+.callband .cgo{margin-left:auto;flex:none;background:var(--blue);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.3px;text-transform:uppercase;padding:12px 16px;border-radius:8px;font-weight:600}
+.callband:hover .arw2{margin-left:3px}
+
+.ctas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.callband.alt{background:#262a33;border:1px solid #3d424d}
+.callband.alt .ck{color:rgba(255,255,255,.75)}
+.callband.alt .ct{color:#fff}
+.callband.alt .cs{color:#b9bec9}
+.callband.alt .cs b{color:#fff}
+.callband.alt .cgo{background:transparent;border:1px solid #5c4fff;color:rgba(255,255,255,.75)}
+.callband{align-items:flex-start;flex-direction:column;gap:14px}
+.callband .cgo{margin-left:0}
+
+/* ---------- zócalo + footer ---------- */
+.wmz{font-weight:800;letter-spacing:-.055em}
+.wmz .s{-webkit-text-fill-color:transparent;background-image:repeating-linear-gradient(180deg,#111319 0 1.3px,transparent 1.3px 2px);-webkit-background-clip:text;background-clip:text}
+.zocalo{padding:64px 24px 60px;border-top:1px solid var(--line);margin-top:20px}
+.zocalo .ztop{text-align:center;margin-bottom:34px}
+.zocalo .ztop h3{font-family:Fraunces,serif;font-weight:500;font-size:clamp(30px,4vw,46px);letter-spacing:-1.2px;max-width:24ch;margin:0 auto;line-height:1.1}
+.zocalo .zsub{font-size:15.5px;color:var(--ink-soft);line-height:1.7;max-width:62ch;margin:18px auto 0;text-align:center}
+.zocalo .zsub b{color:var(--ink);font-weight:600}
+.zrow{text-align:center;max-width:1180px;margin:0 auto 34px}
+.zrow:last-of-type{margin-bottom:0}
+.zlab{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mute);margin-bottom:20px}
+/* logos de clientes y de medios · los originales, con su color */
+.zlogos{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(20px,3.4vw,48px)}
+.zlogos img{max-height:34px;max-width:116px;object-fit:contain;opacity:.92;transition:.22s;width:auto;height:auto;display:inline-block}
+.zlogos img:hover{opacity:1}
+.zlogos.medios img{max-height:22px;max-width:80px}
+.zline{font-size:13px;color:var(--mute);text-align:center;max-width:64ch;margin:30px auto 0;line-height:1.6}
+.zline b{color:var(--ink-soft)}
+footer{padding:34px 0 54px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;color:var(--mute);border-top:1px solid var(--line)}
+footer .wmz{font-size:15px;color:var(--ink)}
+
+@media(max-width:1000px){.grid,.pgrid{grid-template-columns:repeat(2,1fr)}.todo,.gapgrid,.poolwrap,.ctas{grid-template-columns:1fr}h1{font-size:29px}}
+
+/* ══════════════════════════════════════════════════════════════
+   PASADA DE RITMO · respiración, pausas y jerarquía
+   ══════════════════════════════════════════════════════════════ */
+section{padding:74px 0}
+.hdr{padding-top:44px;padding-bottom:64px}
+.sec-tick{width:104px;height:7px;margin-bottom:20px;opacity:.55}
+.eyebrow{margin-bottom:24px}
+h2{font-size:26px;line-height:1.24}
+.prem-h{padding:30px 30px 28px}
+.prem-b{padding:28px 30px 30px}
+.estr-h{padding:30px}
+.estr-b{padding:28px 30px 30px}
+.disc{padding:18px 30px;line-height:1.65}
+.status{margin-bottom:16px;padding:12px 16px}
+.grid{margin-top:0}
+.causas{margin-top:18px}
+.pub-panel{margin-top:0}
+.pub-sub{margin-top:16px;line-height:1.7}
+.pub-cards{margin-top:22px;gap:14px}
+.pub-mes{margin-top:22px}
+.pc-a{padding:22px 22px}
+.pc-a h3{margin-top:10px}
+.pc-viz{margin-top:20px}
+.pc-fx{margin-top:18px;padding-top:12px}
+.cz-list{gap:14px}
+.cz{padding:16px 18px}
+.zocalo{padding-top:78px}
+
+/* ══════════════════════════════════════════════════════════════
+   02 · TU COMUNIDAD · en grafito (mismo sistema que competencia)
+   ══════════════════════════════════════════════════════════════ */
+.pub-claim{font-size:13px;color:#b9bec9;line-height:1.65;margin-top:10px;max-width:66ch}
+.pub-claim b{color:#fff;font-weight:600}
+.pub-panel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pp{border:1px solid #3d424d;border-radius:12px;padding:16px 17px;background:#262a33}
+.pp .t{font-size:14.5px;color:#e7e9ee;font-weight:500;letter-spacing:-.1px}
+.pp .n{font-weight:700;font-size:33px;letter-spacing:-1.5px;line-height:1;margin:10px 0 10px;
+  display:flex;align-items:baseline;gap:8px;color:#fff}
+.pp .n s{text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.5px}
+.pp .n s.dn{color:#ff7aa5} .pp .n s.fl{color:#8b90a0} .pp .n s.up{color:#5ce0b0}
+.pro .pp.back{border-color:rgba(0,194,129,.45);background:rgba(0,194,129,.09)}
+.pro .pp.back .n{color:#5ce0b0}
+.pro .pp .n u{color:#8b90a0}
+.pro .pm{border-color:#4a4f5b;color:#8b90a0}
+.pp .s{font-size:12.5px;line-height:1.45;letter-spacing:-.05px;color:#b9bec9;text-transform:none;font-family:Inter,sans-serif}
+.pp .s b{color:#fff;font-weight:600}
+.pp.key{border-color:#5c4fff;background:linear-gradient(180deg,rgba(111,87,255,.16),#262a33 72%)}
+.pp.key .n{color:rgba(255,255,255,.75)} .pp.key .s{color:rgba(255,255,255,.75)}
+.pp.gone{border-color:#7a3350;background:linear-gradient(180deg,rgba(255,61,122,.12),#262a33 72%)}
+.pp.gone .n{color:#ff7aa5} .pp.gone .s{color:#ff7aa5}
+.pub-sub{font-size:13px;color:#b9bec9;line-height:1.7;max-width:96ch}
+.pub-sub b{color:#fff;font-weight:600}
+.pub-mes{display:grid;grid-template-columns:1fr 320px;border:1px solid #3d424d;border-radius:14px;overflow:hidden}
+.pub-mes .lft{padding:22px 24px;background:#262a33}
+.pub-mes .mk{color:rgba(255,255,255,.75)}
+.pub-mes .mk .dot{background:rgba(255,255,255,.75)}
+.pub-mes h3{color:#fff}
+.pub-mes h3 b{color:#ff7aa5;font-weight:500}
+.pub-mes p{color:#b9bec9}
+.pub-mes p b{color:#fff}
+.pub-mes{background:transparent;border-color:#3d424d}
+.pub-mes .ftr{background:rgba(255,255,255,.03);border-top-color:#3d424d;color:#6b7280}
+.pub-mes .ftr b{color:#b9bec9}
+.migra-met{border-top-color:#3d424d;color:#6b7280}
+.migra-met b{color:#b9bec9}
+.pub-mes .rgt{background:rgba(0,194,129,.09);border-left:1px solid #3d424d;padding:22px 24px}
+.pub-mes .rgt .mk{color:#5ce0b0} .pub-mes .rgt .mk .dot{background:#5ce0b0}
+.pub-mes .rgt .big{color:#5ce0b0}
+.pub-mes .rgt .why{border-top-color:rgba(92,224,176,.25)}
+@media(max-width:1000px){.pub-panel{grid-template-columns:repeat(2,1fr)}.pub-mes{grid-template-columns:1fr}}
+
+/* titulares colapsados: sólo el título. Nada arriba, nada abajo. */
+.eyebrow .pro{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;
+  text-transform:uppercase;border:1px solid var(--line-2);color:var(--mute);padding:2px 6px;border-radius:999px;margin-left:8px}
+.prem-h,.estr-h{padding:30px 30px 26px;border-bottom:1px solid #262a34}
+.prem-h .hrow h2,.estr-h .hrow h2{font-size:29px;letter-spacing:-.75px;line-height:1.16;max-width:24ch}
+.hrow.dark .collap{width:34px;height:34px;margin-top:0;font-size:11px}
+.collap.closed .cv{transform:none}
+.collap:not(.closed) .cv{transform:rotate(90deg)}
+
+/* titulares colapsables en secciones claras */
+.hdr .hrow h1{max-width:14ch}
+.hrow h2 .hl{color:var(--blue)}
+/* feature nueva en el titular: chip gris, minimal */
+/* el titular y su chip, en la misma línea y centrados */
+.hrow h2:has(.hnew){display:flex;align-items:center;gap:12px;max-width:none}
+.hrow h2 .hnew{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--mute);border:1px solid var(--line-2);border-radius:999px;padding:3px 8px;font-weight:500;
+  flex:none;white-space:nowrap;align-self:center}
+.hrow.dark h2 .hnew{color:#8b90a0;border-color:#4a4f5b}
+.hdr .collap{margin-top:8px}
+
+/* ══════════════════════════════════════════════════════════════
+   TOPBAR · TIMELINE · NAV · HERO
+   ══════════════════════════════════════════════════════════════ */
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line)}
+.tb{display:flex;align-items:center;gap:34px;padding-top:16px;padding-bottom:12px}
+.tb-wm{height:30px;width:auto;flex:none;display:block}
+/* cartel de anuncios · donde estaban los hitos. Sutil: un punto, una línea. */
+.ann{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;
+  border:1px solid var(--line);background:var(--paper-2);border-radius:999px;padding:7px 8px 7px 18px;min-width:0}
+.ann .dt{width:6px;height:6px;border-radius:50%;flex:none;background:var(--blue);opacity:.45}
+.ann.warn .dt{background:#e0a33a;opacity:.9}
+.ann.pro .dt{background:var(--blue);opacity:1}
+.ann .tx{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ann .tx b{color:var(--ink);font-weight:600}
+.ann .cd{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500;color:var(--ink);font-feature-settings:"tnum"}
+.ann .tx em{font-style:normal;color:var(--mute)}
+.ann-cta{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;
+  text-decoration:none;padding:6px 10px;border-radius:999px;flex:none;font-weight:600;white-space:nowrap;transition:.15s}
+.ann-cta.keep{background:var(--paper);color:var(--ink);border:1px solid var(--line-2)}
+.ann-cta.keep:hover{border-color:var(--ink)}
+.ann-cta.pro{background:var(--ink);color:#fff;border:1px solid var(--ink)}
+.ann-cta.pro:hover{background:transparent;color:var(--ink)}
+/* chip suave · el acento azul de la landing: azul sobre azul-soft, nunca desaturado */
+.ann-chip{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;
+  background:var(--blue-soft);color:var(--blue);border:1px solid transparent;border-radius:999px;padding:6px 10px;
+  flex:none;font-weight:600;white-space:nowrap;text-decoration:none;transition:.15s}
+a.ann-chip:hover{border-color:var(--blue)}
+
+/* ═══ velo de cierre · la cortesía terminó ═══ */
+#velo-fin{position:fixed;inset:0;z-index:90;background:#0f1116;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:28px}
+#velo-fin .vf-in{max-width:600px}
+#velo-fin .vf-k{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;
+  color:#8b90a0;margin-bottom:20px}
+#velo-fin h2{font-family:Fraunces,serif;font-weight:500;font-size:clamp(30px,4.2vw,46px);letter-spacing:-1px;color:#fff;margin:0 0 16px}
+#velo-fin p{color:#b9bec9;font-size:15.5px;line-height:1.65;margin:0 auto 28px;max-width:480px}
+#velo-fin p b{color:#fff;font-weight:600}
+#velo-fin .vf-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+#velo-fin .vf-cta{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;
+  text-decoration:none;border-radius:999px;padding:13px 22px;font-weight:600;transition:.15s}
+#velo-fin .vf-cta.b{background:var(--blue);color:#fff}
+#velo-fin .vf-cta.b:hover{background:#2f12d6}
+#velo-fin .vf-cta.g{border:1px solid #3a3e49;color:#e7e9ee}
+#velo-fin .vf-cta.g:hover{border-color:#8b90a0}
+#velo-fin .vf-wm{margin-top:38px;font-size:17px;color:#fff;font-weight:800;letter-spacing:-.04em}
+#velo-fin .vf-wm .s{color:#6f7480}
+.tl-track{height:2px;background:var(--line-2);border-radius:2px;position:relative;margin:0 6% 12px}
+.tl-track i{position:absolute;left:0;top:0;bottom:0;background:var(--blue);border-radius:2px;display:block}
+.tl-pts{display:grid;grid-template-columns:repeat(5,1fr);margin-top:-19px}
+.tl{display:flex;flex-direction:column;align-items:center;gap:5px}
+.tl .dot{width:11px;height:11px;border-radius:50%;background:var(--line-2);border:2px solid var(--paper)}
+.tl .dot.on{background:var(--blue)}
+.tl b{font-size:13px;font-weight:600;letter-spacing:-.2px;color:var(--ink)}
+.tl s{text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.3px;
+  text-transform:uppercase;color:var(--mute)}
+.tl.off b{color:var(--mute)}
+.who{display:flex;align-items:center;gap:12px;flex:none}
+.who .wt{text-align:right;line-height:1.3}
+.who .wt b{display:block;font-size:15px;font-weight:600;letter-spacing:-.2px}
+.who .wt s{display:block;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--mute)}
+/* estado de la suscripción · punto azul tenue */
+.who .wt s.plan{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:3px;color:var(--gray)}
+.who .wt s.plan i{width:5px;height:5px;border-radius:50%;background:var(--blue);opacity:.45;flex:none}
+.who .av{width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--pink);
+  display:grid;place-items:center;font-weight:700;font-size:19px;flex:none}
+.navbar{border-top:1px solid var(--line)}
+.nb{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:11px;padding-bottom:11px}
+.nb nav{display:flex;align-items:center;gap:30px;flex-wrap:wrap}
+.nb nav a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--mute);font-size:15px;letter-spacing:-.15px}
+.nb nav a em{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.2px;color:var(--line-2)}
+.nb nav a:hover{color:var(--ink)}
+.nb nav a.on{color:var(--ink);font-weight:600}
+.nb nav a.on em{color:var(--blue)}
+.nb .pro{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;
+  text-transform:uppercase;background:var(--ink);color:#fff;padding:3px 7px;border-radius:999px}
+/* zona blanca: el Pro es chip negro, letra blanca */
+.try{flex:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;
+  background:var(--ink);color:#fff;border:1px solid var(--ink);padding:11px 18px;border-radius:999px;text-decoration:none;font-weight:600}
+.try:hover{background:transparent;color:var(--ink)}
+/* hero de síntesis */
+.hero{padding:70px 0 56px;border-bottom:1px solid var(--line)}
+.hgrid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.hero h1{font-family:Fraunces,serif;font-weight:500;font-size:clamp(38px,4.4vw,58px);letter-spacing:-1.6px;line-height:1.04;max-width:none}
+.synth{font-size:17px;line-height:1.62;color:var(--ink-soft);max-width:56ch}
+.synth b{color:var(--ink);font-weight:600}
+.synth b.up{color:var(--green-ink)} .synth b.dn{color:var(--pink)}
+@media(max-width:900px){.tb{flex-wrap:wrap;gap:16px}.tline{order:3;width:100%;flex:1 0 100%}.hgrid{grid-template-columns:1fr;gap:26px}}
+
+/* ══════════════════════════════════════════════════════════════
+   LA ZONA PRO · grafito de punta a punta
+   ══════════════════════════════════════════════════════════════ */
+section.pro{background:#0f1116;color:#e7e9ee;padding-top:58px;padding-bottom:58px}
+section.pro.prohero{padding-top:88px;padding-bottom:24px;border-top:2px solid var(--blue)}
+.prohero h1{font-family:Fraunces,serif;font-weight:500;font-size:clamp(38px,4.4vw,58px);letter-spacing:-1.6px;
+  line-height:1.04;color:#fff;max-width:none}
+.prohero .synth{color:#b9bec9;font-size:17px;line-height:1.62}
+.prohero .synth b{color:#fff;font-weight:600}
+.pro .sec-tick{background-image:repeating-linear-gradient(90deg,#fff 0 5px,transparent 5px 11px);opacity:.5}
+.pro .eyebrow{color:rgba(255,255,255,.75)}
+.pro .eyebrow .tag{color:#6b7280}
+.pro .eyebrow .pro{border-color:#3d424d;color:#8b90a0}
+.pro .prem{background:#191c22;border:1px solid #262a34}
+.pro .prem-h{border-bottom:1px solid #262a34}
+.pro .disc{background:#0a0c10}
+.pro .pub-mes{border-color:#3d424d}
+
+/* la curva de calidad narrativa · techos y pisos */
+.qchart{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:20px 22px;margin-bottom:18px}
+.qc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:8px}
+.qc-k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute)}
+.qchart h3{font-family:Fraunces,serif;font-weight:500;font-size:20px;letter-spacing:-.45px;margin-top:7px}
+.qc-tg{display:flex;gap:0;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;flex:none}
+.qc-tg button{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;
+  padding:8px 14px;border:0;background:var(--paper);color:var(--ink-soft);cursor:pointer}
+.qc-tg button.on{background:var(--ink);color:#fff}
+.qchart svg{width:100%;height:auto;display:block;margin-top:6px}
+.qc-lg{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+.qc-lg span{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:9px;
+  letter-spacing:1.2px;text-transform:uppercase;color:var(--mute)}
+.qc-lg i{width:16px;height:2px;border-radius:2px;flex:none}
+.qc-lg i.l-vos{background:var(--blue);height:2.5px}
+.qc-lg i.l-vara{background:var(--gray);height:0;border-top:2px dashed var(--gray)}
+.qc-lg b.up{color:var(--green-ink)} .qc-lg b.dn{color:var(--pink)}
+.qc-note{margin-left:auto;text-transform:none;letter-spacing:0;font-family:Inter,sans-serif;font-size:12.5px;color:var(--ink-soft)}
+.qchart h3 .up{color:var(--green-ink)} .qchart h3 .dn{color:var(--pink)}
+
+/* botón ampliar + modal de gráfica */
+.expand{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink-soft);background:var(--paper);border:1px solid var(--line-2);border-radius:999px;padding:6px 12px;
+  cursor:pointer;transition:.15s}
+.expand:hover{color:var(--blue);border-color:var(--blue)}
+.chart-modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+  padding:5vh 4vw;background:rgba(17,19,25,.55);backdrop-filter:blur(4px)}
+.chart-modal.on{display:flex}
+.chart-modal-card{background:var(--paper);border:1px solid var(--line-2);border-radius:16px;padding:22px 26px;
+  width:100%;max-width:1160px;max-height:90vh;overflow:auto;box-shadow:0 30px 80px rgba(17,19,25,.3)}
+.chart-modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+.chart-modal-head span{font-size:15.5px;font-weight:600}
+.chart-modal-x{background:none;border:1px solid var(--line-2);border-radius:999px;width:34px;height:34px;cursor:pointer;
+  font-size:15px;line-height:1;color:var(--ink-soft);transition:.15s;flex:0 0 auto}
+.chart-modal-x:hover{color:var(--ink);border-color:var(--ink)}
+.chart-modal svg{display:block;margin:0 auto;width:100%;height:auto}
+
+/* bajada de sección: aparece al abrir el bloque */
+.subh{font-size:14.5px;color:var(--ink-soft);max-width:62ch;margin:-4px 0 16px;line-height:1.45}
+
+/* ---- la Pausa estratégica es PRO: el bloque no se libera sin plan ---- */
+.h1-pro{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.badge-pro{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.6px;text-transform:uppercase;
+  font-weight:600;background:var(--blue-soft);color:var(--blue);padding:6px 11px;border-radius:999px;flex:none}
+/* sobre el grafito el Pro es apenas un contorno: sin relleno, borde y letra blancos.
+   Van en la misma línea que "estratégica", no debajo. */
+.prohero h1 .badge-pro{display:inline-block;vertical-align:middle;margin:0 0 0 6px;
+  background:transparent;color:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.28);
+  font-weight:500;font-size:10px;padding:5px 10px;position:relative;top:-4px}
+.hrow.dark .collap.lock{border-color:#4b5160;color:#b9bec9}
+.hrow.dark:hover .collap.lock{border-color:#fff;color:#fff}
+.lockrow{display:flex;align-items:center;gap:22px;padding:22px 28px;border-top:1px solid #262a34;flex-wrap:wrap}
+.lockrow p{flex:1;min-width:280px;color:#b9bec9;font-size:14.5px;line-height:1.55;margin:0}
+.lockrow p b{color:#fff;font-weight:600}
+/* zona grafito: el Pro es contorno blanco, letra blanca, sin relleno */
+.lockrow .go{flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;
+  background:transparent;color:rgba(255,255,255,.86);padding:11px 16px;border-radius:999px;text-decoration:none;
+  border:1px solid rgba(255,255,255,.28);font-weight:500;transition:.15s}
+.lockrow .go:hover{background:#fff;color:var(--ink);border-color:#fff}
+.lockrow.flash{animation:lf .5s}
+@keyframes lf{0%,100%{background:transparent}35%{background:rgba(62,28,255,.14)}}
+
+/* VISTA PREVIA ANIMADA · el loop que muestra CÓMO es la sección (sin dar el dato) */
+.peek{padding:0 32px 34px}
+.peek-in{border:1px solid #3a3e49;border-radius:14px;background:var(--graf);padding:18px 20px 14px;position:relative;overflow:hidden}
+.peek-k{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;
+  color:#8b90a0;display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.peek-k i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.6);animation:pk-blink 1.8s infinite}
+@keyframes pk-blink{0%,100%{opacity:.25}50%{opacity:1}}
+.peek svg{width:100%;height:auto;display:block}
+.peek-fr{width:100%;height:430px;border:0;display:block;pointer-events:none;background:transparent;
+  transition:height .25s ease}
+@media (prefers-reduced-motion:reduce){.peek-k i{animation:none}}
+
+/* MODO VIDRIO · el bloqueado se ve, pero no se lee: silueta, no pared */
+.cbody.glass{position:relative;max-height:380px;overflow:hidden;pointer-events:none;user-select:none;
+  filter:blur(7px) saturate(.7);opacity:.45;
+  -webkit-mask-image:linear-gradient(180deg,#000 0 42%,transparent 96%);
+  mask-image:linear-gradient(180deg,#000 0 42%,transparent 96%)}
+.cbody.glass *{cursor:default!important}
+
+/* el recuadro que sintetiza lo que muestran las cintas */
+.migflex{display:grid;grid-template-columns:1fr 264px;gap:18px;align-items:start;margin-top:10px}
+@media(max-width:1000px){.migflex{grid-template-columns:1fr}}
+.migbox{border:1px solid var(--line-2);border-radius:12px;background:var(--paper);padding:16px 17px}
+.migbox .mb-k{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mute)}
+.migbox .mb-t{font-size:15px;font-weight:700;color:var(--ink);margin-top:5px;letter-spacing:-.2px}
+.migbox .mb-r{display:flex;align-items:baseline;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.migbox .mb-r:last-of-type{border-bottom:0}
+.migbox .mb-r i{width:7px;height:7px;border-radius:2px;flex:none;position:relative;top:-1px}
+.migbox .mb-r b{font-size:16px;font-weight:700;color:var(--ink);font-feature-settings:"tnum";min-width:34px}
+.migbox .mb-r span{font-size:12px;color:var(--ink-soft);line-height:1.35}
+.migbox .mb-rows{margin-top:10px}
+.migbox .mb-net{font-size:13px;color:var(--ink);line-height:1.5}
+.migbox .mb-net b{color:var(--blue);font-weight:700}
+.pro .migbox{background:var(--paper);border-color:var(--line-2)}
+.pro .migbox .mb-net{color:var(--ink)}
+
+
+/* el hero ES la lectura del lunes: titular editorial + las cards donde iba el copy */
+.hdot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--blue);
+  margin-right:12px;vertical-align:middle;position:relative;top:-8px;animation:bl 1.9s infinite}
+.hupd{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--mute);margin-top:18px}
+/* los otros relojes, dichos una sola vez: la quietud con fecha es criterio */
+.hclocks{font-size:12.5px;color:var(--ink-soft);line-height:1.55;margin-top:14px;padding-top:14px;
+  border-top:1px solid var(--line);max-width:34ch}
+.hclocks b{color:var(--ink);font-weight:600}
+.cb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cb.wide{grid-column:1/-1}
+@media(max-width:900px){.cb-grid{grid-template-columns:1fr}}
+.cb{border:1px solid var(--line-2);border-radius:12px;padding:14px 15px;text-decoration:none;display:flex;flex-direction:column;
+  background:var(--paper);transition:.15s}
+.cb:hover{border-color:var(--ink)}
+.cb-t{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute);
+  display:flex;align-items:center;gap:7px}
+.cb-t .pro{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:1.1px;
+  background:var(--ink);color:#fff;padding:2px 6px;border-radius:999px;font-weight:600;flex:none}
+/* feature nueva: chip gris, sin peso */
+.cb-t .new{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:1.1px;
+  color:var(--mute);border:1px solid var(--line-2);padding:2px 6px;border-radius:999px;font-weight:500;flex:none}
+.cb-v u{text-decoration:none;font-size:13px;font-weight:600;color:var(--mute);letter-spacing:0}
+.cb-v{font-size:23px;font-weight:700;letter-spacing:-1px;color:var(--ink);margin:7px 0 5px;display:flex;align-items:baseline;gap:7px;font-feature-settings:"tnum"}
+.cb-v s{text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0}
+.cb-s{font-size:12px;color:var(--ink-soft);line-height:1.4}
+/* el cruce, mostrado: las dos curvas de las últimas 8 semanas */
+.cb-viz{display:block;margin:2px 0 9px;padding:9px 10px 7px;background:var(--paper-2);
+  border:1px solid var(--line);border-radius:8px}
+.cb-viz svg{width:100%;height:auto;display:block}
+.cb-viz .lg{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
+.cb-viz .lg span{display:flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.6px;color:var(--mute)}
+.cb-viz .lg i{width:10px;height:2.5px;border-radius:2px;flex:none}
+.cb-viz .lg b{color:var(--ink);font-weight:700;font-size:9.5px}
+.cb-viz .un{display:block;text-align:center;margin-top:5px;font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:1px;text-transform:uppercase;color:var(--mute)}
+/* IDENTIDAD DEL PANEL · el color califica, no decora:
+   sólo se pintan las dos cards que emiten juicio (el techo y el piso).
+   El resto son estados, y van en blanco. Las alertas son una señal, no un cartel. */
+.cb.good{background:var(--green-soft);border-color:#cbeee0}
+.cb.good .cb-t{color:var(--green-ink)}
+.cb.good .cb-v{color:var(--green-ink)}
+.cb.bad{background:var(--pink-soft);border-color:#f7cfdd}
+.cb.bad .cb-t{color:var(--pink-ink)}
+.cb.bad .cb-v{color:var(--pink-ink)}
+.cb.alert .cb-v{color:var(--pink-ink)}
+.cb.alert .led{width:6px;height:6px;border-radius:50%;background:var(--pink);flex:none;animation:bl 1.9s infinite}
+/* el cruce: el titular es el hecho, no el número. Los puntos son calidad; el puesto se dice en texto. */
+.cb.cross .cb-v{font-family:Fraunces,serif;font-weight:500;font-size:17px;letter-spacing:-.4px;line-height:1.28;
+  color:var(--ink);display:block;margin-bottom:7px}
+.cb-s b{color:var(--ink);font-weight:600}
+
+/* la conclusión: el único azul del panel. Es lectura, no dato. */
+.cb.blue{border-color:var(--blue);background:#fbfaff}
+.cb.blue .cb-t{color:var(--blue)}
+.cb.blue .cb-v{color:var(--blue);font-size:17px;font-family:Fraunces,serif;font-weight:500;letter-spacing:-.4px;
+  line-height:1.28;margin-bottom:7px;display:block}
+.cb.blue:hover{border-color:var(--blue)}
+
+/* EL UMBRAL · donde termina lo que pagás y empieza lo que falta.
+   No es un separador: es un cambio de zona, y se anuncia como tal. */
+.cut{background:var(--paper);padding:52px 0 0;position:relative}
+.cut-row{display:flex;align-items:center;justify-content:center;gap:14px}
+.cut-line{flex:1;max-width:220px;height:1px;background:linear-gradient(90deg,transparent,var(--line-2))}
+.cut-line:last-child{background:linear-gradient(90deg,var(--line-2),transparent)}
+.cut-chip{flex:none;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+  padding:9px 14px;border-radius:999px;white-space:nowrap;color:var(--mute);border:1px solid var(--line-2);background:var(--paper)}
+.cut-chip b{font-weight:600}
+.cut-chip.base{color:var(--ink-soft)}
+.cut-chip.base b{color:var(--blue)}
+.cut-chip.pro{background:var(--ink);border-color:var(--ink);color:rgba(255,255,255,.7);text-decoration:none;transition:.15s}
+a.cut-chip.pro:hover{background:var(--blue);border-color:var(--blue);color:rgba(255,255,255,.85)}
+.cut-chip.pro b{color:#fff}
+.cut-arrow{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:var(--mute);border:1px solid var(--line-2);animation:cutdrop 2.6s ease-in-out infinite}
+@keyframes cutdrop{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(3px);opacity:1}}
+/* la rampa: el papel se convierte en grafito antes de que llegue la sección */
+/* el umbral: corte seco, sin degradé. Una línea azul marca el cruce y el sello lo pisa. */
+.cut-floor{height:54px;margin-top:36px;position:relative;background:var(--paper)}
+.cut-seal{position:absolute;left:50%;bottom:-25px;transform:translateX(-50%);width:50px;height:50px;border-radius:50%;
+  background:var(--paper);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;z-index:3;
+  box-shadow:0 0 0 5px var(--paper)}
+.cut-seal img{display:block;width:100%;height:100%;border-radius:50%}
+@media (prefers-reduced-motion:reduce){.cut-arrow{animation:none}}
+@media(max-width:700px){.cut-line{display:none}.cut-row{flex-wrap:wrap}}
+
+/* narrachat · DOS USOS DISTINTOS
+   1) consulta (decisor): chip discreto al pie de un dato — "doble click" para entender.
+   2) aplicación (equipo): banda grafito — narrachat como herramienta de trabajo. */
+.nchip{display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  background:var(--blue-soft);color:var(--blue);border-radius:999px;padding:7px 13px;
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;
+  border:1px solid transparent;transition:.15s}
+.nchip:hover{border-color:var(--blue)}
+.nchip b{font-weight:800;letter-spacing:-.04em;font-size:11px;text-transform:none}
+.nchip .q{font-family:Inter,sans-serif;font-size:12.5px;letter-spacing:0;text-transform:none;color:var(--ink)}
+.chatband .cb-k{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;
+  color:rgba(255,255,255,.5);display:block;margin-bottom:4px}
+
+/* conclusiones y acciones sugeridas */
+.ccgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.ccgrid{grid-template-columns:1fr}}
+.cc{border:1px solid var(--line-2);border-radius:14px;background:var(--paper);padding:20px 20px 0;display:flex;flex-direction:column}
+.cc .cc-k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute)}
+.cc .cc-c{font-family:Fraunces,serif;font-weight:500;font-size:19px;letter-spacing:-.5px;line-height:1.3;margin:8px 0 6px}
+.cc .cc-w{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin-bottom:18px}
+.cc .cc-a{margin:auto -20px 0;padding:15px 20px 18px;border-top:1px solid var(--line);background:var(--paper-2);border-radius:0 0 13px 13px}
+.cc .cc-a .k{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:6px}
+.cc .cc-a .k i{width:5px;height:5px;border-radius:50%;background:var(--blue);flex:none}
+.cc .cc-a p{font-size:14px;font-weight:500;line-height:1.45;margin-top:6px}
+/* las mismas cards, en grafito (mesa chica) */
+.ccgrid.dk{padding:22px 28px 28px}
+.ccgrid.dk .cc{background:var(--graf);border-color:#3a3e49;color:#eef0f4}
+.ccgrid.dk .cc .cc-c{color:#fff}
+.ccgrid.dk .cc .cc-w{color:#b9bec9}
+.ccgrid.dk .cc .cc-a{background:rgba(255,255,255,.04);border-top-color:#3a3e49}
+.ccgrid.dk .cc .cc-a .k{color:rgba(255,255,255,.55)}
+.ccgrid.dk .cc .cc-a .k i{background:rgba(255,255,255,.55)}
+.ccgrid.dk .cc .cc-a p{color:#fff}
+
+/* la curva + la distribución de posteos de la semana, lado a lado */
+.qwrap{display:grid;grid-template-columns:330px 1fr;gap:14px;align-items:start;margin-bottom:18px}
+.qwrap .qchart{margin-bottom:0}
+@media(max-width:1000px){.qwrap{grid-template-columns:1fr}}
+.dcard{position:relative;border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:20px 18px 16px}
+.dcard .d-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.dcard .d-h{font-family:Fraunces,serif;font-weight:500;font-size:16px;letter-spacing:-.4px;line-height:1.25}
+.qc-act{display:flex;align-items:center;gap:8px;flex:none}
+.dcard .d-h .hl{color:var(--blue)}
+.dcard .d-sub{font-size:12.5px;color:var(--ink-soft);margin-top:4px}
+.dcard svg{width:100%;height:auto;display:block;margin-top:12px}
+.dcard .d-foot{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--mute);margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.dtip{position:absolute;width:200px;pointer-events:none;opacity:0;transform:translateY(4px);transition:.12s;
+  background:var(--ink);color:#fff;border-radius:10px;padding:10px 12px;z-index:5}
+.dtip.on{opacity:1;transform:translateY(0)}
+.dtip .tt-h{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:#969aa4}
+.dtip .tt-v{font-weight:700;font-size:21px;line-height:1.2;margin-top:2px}
+.dtip .tt-v span{font-size:12px;font-weight:600}
+.dtip .tt-d{font-size:12px;color:#d9dbe0;margin-top:2px}
+.dtip .tt-go{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:6px}
+
+/* la tinta de la zona grafito es BLANCA (el azul queda sólo para la acción) */
+.pro h2 .wk,.pro h3 .wk{color:#fff;position:relative}
+.pro h2 .wk:after,.pro h3 .wk:after{content:'';position:absolute;left:0;right:0;bottom:-3px;height:2px;background:rgba(255,255,255,.35)}
+.pro .pp.key{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.06)}
+.pro .pp.key .n{color:#fff} .pro .pp.key .s{color:#fff}
+.pro .pub-mes .mk{color:#fff} .pro .pub-mes .mk .dot{background:#fff}
+.pro .hrow.dark .collap{border-color:rgba(255,255,255,.35);color:#fff}
+.pro .hrow.dark:hover .collap{border-color:#fff;color:#fff}
+.pro .disc{background:#0a0c10;border-top:1px solid #262a34}
+
+.pro .gap{color:#fff}
+.pro .dnleg .d-you{background:var(--blue)}
+.pro .dnleg span{color:var(--mute)}
+.pro .gp2 .big{color:#fff}
+
+.qc-sub{font-size:13px;color:var(--ink-soft);line-height:1.5;max-width:56ch}
+.qc-sub .up{color:var(--green-ink);font-weight:600} .qc-sub .dn{color:var(--pink);font-weight:600}
+.qchart{margin-bottom:0}
+
+/* los dos CTA, dentro de Tu comunidad */
+/* LA CARTA · la mesa chica no es un output del modelo: es un texto del fundador, firmado. */
+.carta{display:grid;grid-template-columns:1fr 260px;gap:34px;align-items:start;padding:6px 0 4px}
+@media(max-width:900px){.carta{grid-template-columns:1fr;gap:24px}}
+.carta-tx p{font-size:15px;line-height:1.7;color:#d5d9e0;margin-bottom:14px;max-width:70ch}
+.carta-tx p:last-child{margin-bottom:0}
+.carta-tx b{color:#fff;font-weight:600}
+.carta-fm{border-left:1px solid #3a3e49;padding-left:24px}
+@media(max-width:900px){.carta-fm{border-left:0;border-top:1px solid #3a3e49;padding:20px 0 0}}
+.fm-firma{width:112px;height:auto;display:block;margin-bottom:14px;opacity:.9;filter:invert(1) brightness(1.6)}
+.fm-n{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.fm-r{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;
+  color:rgba(255,255,255,.5);margin-top:4px}
+.fm-d{font-size:12px;color:#8b90a0;line-height:1.5;margin-top:14px;padding-top:12px;border-top:1px solid #3a3e49}
+
+/* el paso siguiente · vive en Mesa chica, con la sobriedad del grafito */
+.ctas2{display:grid;grid-template-columns:1fr;gap:12px;margin-top:26px;padding-top:26px;border-top:1px solid #3a3e49}
+@media(max-width:900px){.ctas2{grid-template-columns:1fr}}
+.cta2{border-radius:14px;padding:22px 24px;text-decoration:none;display:flex;flex-direction:column;
+  background:var(--graf);border:1px solid #3a3e49;transition:.15s}
+.cta2:hover{border-color:rgba(255,255,255,.45)}
+.cta2 .ck{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;
+  font-weight:500;color:rgba(255,255,255,.5)}
+.cta2 .ct{font-family:Fraunces,serif;font-weight:500;font-size:21px;letter-spacing:-.5px;margin-top:10px;line-height:1.25;color:#fff}
+.cta2 .cs{font-size:13px;line-height:1.6;margin-top:10px;max-width:52ch;color:#b9bec9}
+.cta2 .cs b{color:#fff;font-weight:600}
+.cta2 .cgo{align-self:flex-start;margin-top:18px;font-family:'IBM Plex Mono',monospace;font-size:10px;
+  letter-spacing:1.3px;text-transform:uppercase;padding:11px 16px;border-radius:999px;
+  background:transparent;color:rgba(255,255,255,.86);border:1px solid rgba(255,255,255,.28)}
+.cta2:hover .cgo{background:#fff;color:var(--ink);border-color:#fff}
+.cta2.dark .cgo:hover{background:#5c4fff}
+@media(max-width:1000px){.ctas2{grid-template-columns:1fr}}
+
+/* footer con los wordmarks de la familia */
+.family{display:flex;align-items:center;justify-content:center;gap:clamp(28px,5vw,64px);
+  padding:34px 0 4px;margin:34px auto 0;border-top:1px solid var(--line);max-width:900px}
+/* regla de marca: el logo SIEMPRE va en su placa, el rectángulo de color sólido que lo contiene */
+.family img{height:44px;width:auto;opacity:1}
+footer{display:flex;align-items:center;justify-content:center;gap:14px}
+footer .fwm{height:30px;width:auto}
+
+/* ══════════════════════════════════════════════════════════════
+   PASADA FINAL · espacios y titulares
+   ══════════════════════════════════════════════════════════════ */
+
+/* 1 · TODOS los titulares colapsables miden lo mismo, en claro y en grafito */
+.hrow h2,
+.prem-h .hrow h2{
+  font-family:Fraunces,serif;font-weight:500;font-size:30px;letter-spacing:-.85px;
+  line-height:1.16;max-width:26ch;color:inherit}
+.hrow.dark h2{color:#fff}
+.hrow .collap{width:34px;height:34px;font-size:11px;margin-top:0;flex:none}
+
+/* 2 · la lista de titulares del blanco: cada uno es una fila con su filete */
+#monitor .hrow{margin:0;padding:34px 0 26px;border-top:1px solid var(--line-2);align-items:center}
+#monitor .hrow:first-of-type{border-top:0;padding-top:8px}
+#monitor .cbody{padding-bottom:40px}
+#monitor .cbody.closed{padding-bottom:0}
+
+/* 3 · el grafito respira igual */
+.pro .prem-h{padding:34px 32px 30px}
+.pro .prem-b{padding:30px 32px 34px}
+.pro .disc{padding:20px 32px}
+section.pro{padding-top:34px;padding-bottom:44px}
+section.pro.prohero{padding-top:56px;padding-bottom:64px}
+.pro + .pro{padding-top:22px}
+
+/* 4 · aire interno de la sección comunidad */
+.pub-panel{margin-top:4px}
+.pub-cards{margin-top:26px}
+.ctas2{margin-top:26px}
+.pub-mes{margin:4px 0 18px}
+
+/* 5 · la parte blanca */
+.hero{padding:78px 0 62px}
+#monitor{padding-top:52px;padding-bottom:64px}
+.qchart{padding:24px 26px}
+.chatband{margin-top:18px;padding:18px 22px}
+
+/* 6 · cierre */
+.zocalo{padding-top:72px}
+footer{padding:30px 0 56px}
+</style>
+</head>
+<body>
+
+<!-- ==================== TOPBAR · TIMELINE · NAV · HERO ==================== -->
+<div class="topbar">
+  <div class="inner tb">
+    <img class="tb-wm" src="marca/narraglobal-placa-azul.png" alt="narraglobal">
+
+    <!-- cartel de anuncios · estado de la suscripción o del acceso -->
+    <div class="ann" id="ann"></div>
+
+    <div class="who">
+      <div class="wt" data-d="hero.hola"><b>Hola [NOMBRE] y equipo</b></div>
+      <span class="av" data-d="hero.avatar">·</span>
+    </div>
+  </div>
+
+  <div class="navbar">
+    <div class="inner nb">
+      <nav>
+        <a href="#monitor" class="on"><em>01</em> Tu semana</a>
+        <a href="#pausa"><em>02</em> Pausa estratégica <i class="pro">Pro</i></a>
+        <a href="#mesa"><em>03</em> Sprints · Llamados <i class="pro">Pro</i></a>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== HERO · LA LECTURA DEL LUNES ==================== -->
+<section class="hero">
+  <div class="inner hgrid">
+    <div>
+      <h1><span class="hdot"></span>Qué cambió<br>esta semana</h1>
+      <div class="hupd" data-d="hero.actualizado">Actualizado · [fecha]</div>
+    </div>
+
+    <div class="cb-grid">
+      <a class="cb" href="#monitor">
+        <span class="cb-t">Mensajes que llegaron <i class="new">Nuevo</i></span>
+        <span class="cb-v" data-d="hero.c1.v">— <u>de —</u> <s class="fl">=</s></span>
+        <span class="cb-s" data-d="hero.c1.s">[Una línea: qué explica ese número — la causa, no el número otra vez.]</span>
+      </a>
+      <a class="cb" href="#monitor">
+        <span class="cb-t">Tu calidad</span>
+        <span class="cb-v" data-d="hero.c2.v">— <s class="fl">=</s></span>
+        <span class="cb-s" data-d="hero.c2.s">[Una línea. El promedio de tus competidores está en <b id="varaHero">—</b>.]</span>
+      </a>
+      <a class="cb good" href="#monitor">
+        <span class="cb-t">El techo de la semana</span>
+        <span class="cb-v" data-d="hero.c3.v">—%</span>
+        <span class="cb-s" data-d="hero.c3.s">[La pieza que funcionó y por qué, en una línea.]</span>
+      </a>
+      <a class="cb bad" href="#monitor">
+        <span class="cb-t">El piso de la semana</span>
+        <span class="cb-v" data-d="hero.c4.v">—%</span>
+        <span class="cb-s" data-d="hero.c4.s">[La pieza que no funcionó y por qué, en una línea.]</span>
+      </a>
+      <a class="cb cross" href="#competencia">
+        <span class="cb-t">Tu puesto entre competidores <i class="pro">Pro</i></span>
+        <span class="cb-v" data-d="hero.c5.v">[El hecho de la semana, en una frase.]</span>
+        <span class="cb-viz" id="crossViz"></span>
+        <span class="cb-s" data-d="hero.c5.s">[La lectura del cruce. Quedás <b>—º de —</b>.]</span>
+      </a>
+      <a class="cb blue" href="#monitor">
+        <span class="cb-t">La conclusión de la semana</span>
+        <span class="cb-v" data-d="hero.c6.v">[La conclusión, en una frase corta.]</span>
+        <span class="cb-s" data-d="hero.c6.s">[Dos líneas: qué la sostiene y qué falta. Es la única lectura editorial del panel.]</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 01 · TU SEMANA (la parte blanca) ==================== -->
+<section id="monitor" style="background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="inner">
+
+    <!-- ① el panel semanal fue PODADO (Fase 2, 17 jul 2026): lo reemplazó «Qué cambió esta semana» (hero).
+         El markup vive en _archivo-versiones/2026-07-17-pre-fabrica/. -->
+
+    <!-- ② llegan / no llegan -->
+    <div class="hrow" data-coll="c-escena">
+      <h2>Los mensajes que llegaron <span class="hnew">Nuevo</span></h2>
+      <button class="collap closed" type="button" aria-expanded="false"><span class="cv">▸</span></button>
+    </div>
+    <div class="cbody closed" id="c-escena">
+<div class="stage">
+      <div class="hud">
+        <div class="cell"><div class="k">Lanzados</div><div class="v"><b class="num" id="hL">0</b><s>piezas</s></div></div>
+        <div class="cell imp"><div class="k"><i style="background:var(--green)"></i>Impactos</div><div class="v"><b class="num" id="hI">0</b><s id="hIp">—</s></div></div>
+        <div class="cell dis"><div class="k"><i style="background:var(--pink)"></i>Disueltos</div><div class="v"><b class="num" id="hD">0</b><s id="hDp">—</s></div></div>
+        <div class="cell">
+          <button class="btn on" id="b0" onclick="go(0)">01 · Lanzamiento</button>
+          <button class="btn" id="b1" onclick="go(1)">02 · Se disolvieron</button>
+          <button class="btn" id="b2" onclick="go(2)">03 · Impactaron</button>
+          <button class="btn" onclick="go(0)">Reiniciar</button>
+        </div>
+      </div>
+
+      <div class="viewport" id="vp">
+        <svg id="sc" viewBox="0 0 1160 600" role="img" aria-label="Perfil de misión de 20 mensajes">
+          <defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#e8e9ed" stroke-width="1.4"/></pattern></defs>
+          <g id="world">
+            <rect id="zdis" x="0" y="0" width="0" height="0" opacity="0"/>
+            <g id="zones"></g>
+            <g id="drops"></g>
+            <line x1="60" y1="548" x2="1120" y2="548" stroke="#d9dbe0"/>
+            <g id="qaxis"></g>
+            <rect x="52" y="500" width="50" height="48" rx="4" fill="#111319"/>
+            <text x="77" y="532" text-anchor="middle" font-family="Inter,sans-serif" font-size="21" font-weight="800" fill="#FF3D7A" data-d="escena.avatar">·</text>
+            <text x="77" y="568" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" letter-spacing="1.4" fill="#969aa4">EMISOR</text>
+            <g id="trails"></g>
+            <g id="flags"></g>
+            <g id="shots"></g>
+            <g id="clusters"></g>
+          </g>
+        </svg>
+
+        <div class="cap"><div class="capbox" id="cap">
+          <div class="k"><i></i><span id="capK"></span></div>
+          <h2 id="capT"></h2><p id="capP"></p>
+        </div></div>
+
+        <div class="pcard" id="pc">
+          <span class="x" onclick="hideCard()">×</span>
+          <span class="st" id="pcSt"></span>
+          <h4 id="pcT"></h4>
+          <div class="meta" id="pcM"></div>
+          <div class="nums" id="pcN"></div>
+          <div class="lb" id="pcL"></div>
+          <p id="pcP"></p>
+          <a href="#" id="pcA" target="_blank" rel="noopener">Ver post →</a>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span><i style="background:var(--green)"></i>Llegó · volvió con tus palabras</span>
+        <span><i style="background:var(--pink);opacity:.45"></i>Murió acá · su X es su calidad</span>
+        <span><i style="background:var(--pink);display:grid;place-items:center;width:14px;height:14px;color:#fff;font-size:9px;font-weight:800;font-style:normal">!</i>Llegó sin construcción · ruido</span>
+        <span class="rt">La calidad te trae hasta la frontera. Sólo la devolución la cruza.</span>
+      </div>
+    </div>
+
+    <!-- el remate de la escena: la causa -->
+    <div class="causas">
+      <div class="cz-h">
+        <div>
+          <div class="cz-k">Los que no llegaron</div>
+          <h3 data-d="cz.h3">[—] no llegaron. <span class="hl">[La lectura.]</span></h3>
+          <p>No son tres problemas: es uno. <b>Se agrupan por causa</b> — y la causa sale de los marcadores que se cayeron, no de una intuición.</p>
+        </div>
+        <a href="#" class="cz-go">Ver las piezas · narrachat →</a>
+      </div>
+      <div class="cz-list">
+        <div class="cz">
+          <div class="cz-n" data-d="cz.c1.n">—</div>
+          <div class="cz-b">
+            <div class="cz-t" data-d="cz.c1.t">[Causa dominante]</div>
+            <div class="cz-p" data-d="cz.c1.p">[La lectura de la causa, en una línea.]</div>
+            <div class="cz-f" data-d="cz.c1.f">[Corrección · piezas de referencia]</div>
+          </div>
+        </div>
+        <div class="cz">
+          <div class="cz-n" data-d="cz.c2.n">—</div>
+          <div class="cz-b">
+            <div class="cz-t" data-d="cz.c2.t">[Segunda causa]</div>
+            <div class="cz-p" data-d="cz.c2.p">[La lectura de la causa, en una línea.]</div>
+            <div class="cz-f" data-d="cz.c2.f">[Corrección · pieza de referencia]</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- y el resto, en narrachat -->
+
+    </div>
+    </div>
+
+    <!-- ④ el cierre: la curva -->
+    <!-- la curva de calidad narrativa · techos y pisos -->
+    <div class="hrow" data-coll="c-curva">
+      <h2>Calidad de tus mensajes</h2>
+      <button class="collap closed" type="button" aria-expanded="false"><span class="cv">▸</span></button>
+    </div>
+    <div class="cbody closed" id="c-curva">
+    <div class="qwrap">
+
+    <!-- todos los posteos de la semana · uno por barra -->
+    <div class="dcard" id="distCard">
+      <div class="d-top">
+        <div>
+          <div class="d-h">Tus posteos de la semana · <span class="hl">uno por barra</span></div>
+          <div class="d-sub" id="distSub"></div>
+        </div>
+        <button class="expand" type="button" onclick="openChart('distSvg','Tus posteos de la semana · uno por barra','560px')">Ampliar <span aria-hidden="true">⤢</span></button>
+      </div>
+      <svg id="distSvg" viewBox="0 0 330 400" role="img" aria-label="Los posteos de la semana por calidad narrativa"></svg>
+      <div class="d-foot">Tocá una barra para ver el post</div>
+      <div class="dtip" id="distTip"></div>
+    </div>
+
+    <div class="qchart">
+      <div class="qc-h">
+        <div>
+          <div class="qc-sub">El promedio de cada semana, con el <span class="up">techo</span> y el <span class="dn">piso</span> del período</div>
+        </div>
+        <div class="qc-act">
+          <div class="qc-tg">
+            <button class="on" id="qgW" onclick="qcSet('week')">Semanal</button>
+            <button id="qgM" onclick="qcSet('month')">Mensual</button>
+          </div>
+          <button class="expand" type="button" onclick="openChart('qcSvg','Calidad de tus mensajes · '+(qcMode==='week'?'semanal':'mensual'),'100%')">Ampliar <span aria-hidden="true">⤢</span></button>
+        </div>
+      </div>
+      <svg id="qcSvg" viewBox="0 0 1080 380" role="img" aria-label="Calidad narrativa con techos y pisos"></svg>
+      <div class="qc-lg">
+        <span><i class="l-vos"></i>Calidad narrativa · promedio de la semana</span>
+        <span><i class="l-vara"></i>Promedio de tus competidores · <b id="varaLeg">—</b></span>
+        <span><b class="up">▲</b> el techo · tu mejor pieza</span>
+        <span><b class="dn">▼</b> el piso · la peor</span>
+        <span class="qc-note" id="qcNote"></span>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <a href="#" class="nchip"><span class="q">¿Por qué se movió la curva esta semana?</span> Preguntale a <b>narrachat</b> →</a>
+      </div>
+    </div>
+
+    </div>
+
+    </div>
+
+    <!-- ⑤ conclusiones y acciones sugeridas -->
+    <div class="hrow" data-coll="c-conc">
+      <h2>Conclusiones y acciones sugeridas para el equipo</h2>
+      <button class="collap closed" type="button" aria-expanded="false"><span class="cv">▸</span></button>
+    </div>
+    <div class="cbody closed" id="c-conc">
+
+    <div class="ccgrid">
+      <div class="cc">
+        <div class="cc-k">Conclusión 01</div>
+        <div class="cc-c" data-d="con.c1.t">[Conclusión de la semana, en una frase.]</div>
+        <div class="cc-w" data-d="con.c1.w">[Por qué, en dos líneas. Sale de los datos de la semana.]</div>
+        <div class="cc-a">
+          <div class="k"><i></i>Acción</div>
+          <p data-d="con.c1.a">[Qué hace el equipo esta semana.]</p>
+        </div>
+      </div>
+
+      <div class="cc">
+        <div class="cc-k">Conclusión 02</div>
+        <div class="cc-c" data-d="con.c2.t">[Conclusión de la semana, en una frase.]</div>
+        <div class="cc-w" data-d="con.c2.w">[Por qué, en dos líneas.]</div>
+        <div class="cc-a">
+          <div class="k"><i></i>Acción</div>
+          <p data-d="con.c2.a">[Qué hace el equipo esta semana.]</p>
+        </div>
+      </div>
+
+      <div class="cc">
+        <div class="cc-k">Conclusión 03</div>
+        <div class="cc-c" data-d="con.c3.t">[Conclusión de la semana, en una frase.]</div>
+        <div class="cc-w" data-d="con.c3.w">[Por qué, en dos líneas.]</div>
+        <div class="cc-a">
+          <div class="k"><i></i>Acción</div>
+          <p data-d="con.c3.a">[Qué hace el equipo esta semana.]</p>
+        </div>
+      </div>
+    </div>
+
+    <a href="#" class="chatband">
+      <span class="wm">narra<span class="s">chat</span></span>
+      <span>
+        <span class="cb-k">Para tu equipo · herramienta de trabajo</span>
+        <span class="t">Pasale estas tres acciones a tu equipo para que las bajen a piezas con narrachat</span>
+        <span class="s" style="display:block;color:#b9bec9;font-size:12.5px;margin-top:2px">Ellos iteran ideas, prueban ángulos y arman el guion de cada pieza. Vos decidís cuáles van.</span>
+      </span>
+      <span class="go">Enviar al equipo →</span>
+    </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== EL CORTE · hasta acá, tu suscripción ==================== -->
+<section class="cut">
+  <div class="inner">
+    <div class="cut-row">
+      <span class="cut-line"></span>
+      <span class="cut-chip base" id="cutBase">Hasta acá · <b>tu suscripción</b></span>
+      <span class="cut-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <a class="cut-chip pro" id="cutPro" href="#pausa">Ahora, lo que sigue es <b>Pro</b></a>
+      <span class="cut-line"></span>
+    </div>
+  </div>
+  <div class="cut-floor">
+    <span class="cut-seal" aria-hidden="true">
+      <img src="marca/favicon-azul.png" alt="" width="50" height="50">
+    </span>
+  </div>
+</section>
+
+<!-- ==================== LA ZONA PRO · HERO GRAFITO ==================== -->
+<section id="pausa" class="pro prohero">
+  <div class="inner hgrid">
+    <div>
+      <h1>La pausa<br>estratégica <span class="badge-pro">Pro</span></h1>
+    </div>
+    <div>
+      <p class="synth" id="synth"></p>
+
+      <div class="gapweek">
+        <div class="gw-h"><span class="gw-k"><span class="dot"></span>El gap de esta semana</span></div>
+        <h3 data-d="gap.h">[La corrección de la semana.]</h3>
+        <p data-d="gap.p">[De quién la aprendés y por qué.]</p>
+        <a class="gw-go" href="#" data-gap="semana">Trabajarlo con narrachat →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 03 · PREMIUM · COMPETENCIA ==================== -->
+<section id="competencia" class="pro">
+  <div class="inner">
+
+    <div class="prem">
+      <div class="prem-h">
+        <div class="hrow dark" data-coll="c-comp" data-lock="1" style="flex:1">
+          <h2>Comportamiento de tu competencia</h2>
+          <button class="collap closed lock" type="button" aria-expanded="false"><span class="cv">▸</span></button>
+        </div>
+      </div>
+
+      <!-- llamador: el párrafo se ve, el detalle no -->
+      <div class="lockrow" data-for="c-comp">
+        <p data-d="peek.comp">[El gancho de competencia: un hecho medido del vertical y qué se ve adentro.]</p>
+        <a href="#" class="go">Mejorar a Pro · 899/mes →</a>
+      </div>
+
+      <!-- vista previa animada: cómo es la sección -->
+      <div class="peek" data-for="c-comp">
+        <div class="peek-in">
+          <div class="peek-k"><i></i>Vista previa · así se ve con Pro</div>
+          <iframe class="peek-fr" src="preview-tour.html?p=comp" title="Vista previa del análisis de competencia" loading="lazy" scrolling="no"></iframe>
+        </div>
+      </div>
+
+      <div class="prem-b cbody closed" id="c-comp">
+        <div class="poolwrap">
+          <div class="dianabox">
+            <div class="bump-h">
+              <div class="bump-tx">
+                <h3>La calidad narrativa de tus competidores</h3>
+                <div class="bump-s">Calidad semana a semana, sobre las piezas de cada semana. Se actualiza los lunes; la curva muestra las últimas 8.</div>
+              </div>
+              <div class="bump-lg"><span><i class="you"></i>Vos</span><span><i class="vara"></i>Promedio</span><span><i class="last"></i>Última semana</span></div>
+            </div>
+            <div class="smgrid" id="smGrid"></div>
+            <div class="bump-f" id="bumpNote"></div>
+          </div>
+
+          <div class="gapbox" id="gapBox"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MESA CHICA DE ESTRATEGIA (PRO) ==================== -->
+<!-- ==================== 02 · TU COMUNIDAD ==================== -->
+<section id="publicos" class="pro">
+  <div class="inner">
+
+    <div class="prem">
+      <div class="prem-h">
+        <div class="hrow dark" data-coll="c-pub" data-lock="1" style="flex:1">
+          <h2>Comportamiento de tus públicos</h2>
+          <span class="prox" data-d="peek.pub.prox">Mensual · próxima el [fecha]</span>
+          <button class="collap closed lock" type="button" aria-expanded="false"><span class="cv">▸</span></button>
+        </div>
+      </div>
+
+      <!-- llamador: el párrafo se ve, el detalle no -->
+      <div class="lockrow" data-for="c-pub">
+        <p data-d="peek.pub">[El gancho de públicos: el número que duele y qué se ve adentro.]</p>
+        <a href="#" class="go">Mejorar a Pro · 899/mes →</a>
+      </div>
+
+      <!-- vista previa animada: cómo es la sección -->
+      <div class="peek" data-for="c-pub">
+        <div class="peek-in">
+          <div class="peek-k"><i></i>Vista previa · así se ve con Pro</div>
+          <iframe class="peek-fr" src="preview-tour.html?p=pub" title="Vista previa de la sección de públicos" loading="lazy" scrolling="no"></iframe>
+        </div>
+      </div>
+
+      <div class="prem-b cbody closed" id="c-pub">
+
+      <!-- CUATRO MISIONES · segmento · conducta medida · falla · jugada -->
+      <div class="mis">
+
+        <div class="ms">
+          <div class="ms-h">
+            <span class="seg">Fan</span>
+            <span class="share" data-d="pub.fan.share"><b>—%</b><s class="fl">=</s></span>
+          </div>
+          <div class="def" data-d="pub.fan.def">Te escribe todas las semanas, hace meses · <b>— personas</b></div>
+          <div class="claim" data-d="pub.fan.claim">[La proporción, dicha en una frase.]</div>
+          <div class="kn" data-d="pub.fan.kn">Conducta dominante · [—]</div>
+          <div class="bar" data-d="pub.fan.bar"><i style="width:0%"></i></div>
+          <div class="brest" data-d="pub.fan.brest">— sin convertir</div>
+          <div class="marg" data-d="pub.fan.marg"><b>— de margen:</b> [qué reserva hay ahí adentro].</div>
+          <div class="fail" data-d="pub.fan.fail">[La falla típica del segmento, en una línea.]</div>
+          <a class="play" href="#" data-chat="fan">
+            <div class="k"><i></i>La jugada</div>
+            <p data-d="pub.fan.play">[La jugada de la semana para este segmento.]</p>
+            <span class="go">Trabajarla con narrachat →</span>
+          </a>
+        </div>
+
+        <div class="ms">
+          <div class="ms-h">
+            <span class="seg">Seguidor</span>
+            <span class="share" data-d="pub.seg.share"><b>—%</b><s class="fl">=</s></span>
+          </div>
+          <div class="def" data-d="pub.seg.def">Aparece casi todas las semanas · <b>— personas</b></div>
+          <div class="claim" data-d="pub.seg.claim">[La proporción, dicha en una frase.]</div>
+          <div class="kn" data-d="pub.seg.kn">Conducta dominante · [—]</div>
+          <div class="bar" data-d="pub.seg.bar"><i style="width:0%"></i></div>
+          <div class="brest" data-d="pub.seg.brest">— sin convertir</div>
+          <div class="marg" data-d="pub.seg.marg"><b>— de margen:</b> [qué reserva hay ahí adentro].</div>
+          <div class="fail" data-d="pub.seg.fail">[La falla típica del segmento, en una línea.]</div>
+          <a class="play" href="#" data-chat="seguidor">
+            <div class="k"><i></i>La jugada</div>
+            <p data-d="pub.seg.play">[La jugada de la semana para este segmento.]</p>
+            <span class="go">Trabajarla con narrachat →</span>
+          </a>
+        </div>
+
+        <div class="ms">
+          <div class="ms-h">
+            <span class="seg">Visitante</span>
+            <span class="share" data-d="pub.vis.share"><b>—%</b><s class="fl">=</s></span>
+          </div>
+          <div class="def" data-d="pub.vis.def">Aparece de vez en cuando · <b>— personas</b></div>
+          <div class="claim" data-d="pub.vis.claim">[La proporción, dicha en una frase.]</div>
+          <div class="kn" data-d="pub.vis.kn">Conducta dominante · [—]</div>
+          <div class="bar" data-d="pub.vis.bar"><i style="width:0%"></i></div>
+          <div class="brest" data-d="pub.vis.brest">— sin convertir</div>
+          <div class="marg" data-d="pub.vis.marg"><b>— de margen:</b> [qué reserva hay ahí adentro].</div>
+          <div class="fail" data-d="pub.vis.fail">[La falla típica del segmento, en una línea.]</div>
+          <a class="play" href="#" data-chat="visitante">
+            <div class="k"><i></i>La jugada</div>
+            <p data-d="pub.vis.play">[La jugada de la semana para este segmento.]</p>
+            <span class="go">Trabajarla con narrachat →</span>
+          </a>
+        </div>
+
+        <div class="ms">
+          <div class="ms-h">
+            <span class="seg">Nuevo</span>
+            <span class="share" data-d="pub.nue.share"><b>—%</b><s class="fl">=</s></span>
+          </div>
+          <div class="def" data-d="pub.nue.def">Primera vez este mes · <b>— personas</b></div>
+          <div class="claim" data-d="pub.nue.claim">[La proporción, dicha en una frase.]</div>
+          <div class="kn" data-d="pub.nue.kn">Conducta dominante · [—]</div>
+          <div class="bar" data-d="pub.nue.bar"><i style="width:0%"></i></div>
+          <div class="brest" data-d="pub.nue.brest">— sin convertir</div>
+          <div class="marg" data-d="pub.nue.marg"><b>— de margen:</b> [qué reserva hay ahí adentro].</div>
+          <div class="fail" data-d="pub.nue.fail">[La falla típica del segmento, en una línea.]</div>
+          <a class="play" href="#" data-chat="nuevo">
+            <div class="k"><i></i>La jugada</div>
+            <p data-d="pub.nue.play">[La jugada de la semana para este segmento.]</p>
+            <span class="go">Trabajarla con narrachat →</span>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- LAS CINTAS · cómo se movió tu gente, mes a mes -->
+      <div class="migwrap">
+
+        <div class="migra">
+          <div class="migra-h">
+            <div>
+              <h3>Cambios de comportamiento en el mes</h3>
+              <span class="reloj"><i></i>Ventana de 4 semanas · se actualiza cada lunes</span>
+            </div>
+            <div class="mig-tg" id="migTg">
+              <button class="on" data-seg="todos">Todos</button>
+              <button data-seg="fan">Fan</button>
+              <button data-seg="seg">Seguidor</button>
+              <button data-seg="vis">Visitante</button>
+              <button data-seg="nue">Nuevo</button>
+            </div>
+          </div>
+          <div class="migflex">
+            <svg id="migSvg" viewBox="0 0 900 400" role="img" aria-label="Migración de personas entre comportamientos"></svg>
+            <div class="migbox" id="migBox"></div>
+          </div>
+          <div class="migra-lg">
+            <span><i class="up"></i>Subieron de intensidad</span>
+            <span><i class="fl"></i>Se quedaron donde estaban</span>
+            <span><i class="dn"></i>Bajaron o se apagaron</span>
+          </div>
+          <div class="migra-met">El comportamiento de una persona no se estabiliza en siete días. Por eso el estado de cada persona se mide sobre una <b>ventana móvil de 4 semanas</b> y se compara contra la ventana anterior. <b>La lectura se actualiza todos los lunes; el período medido es de un mes.</b></div>
+        </div>
+
+      </div>
+
+      <!-- el CTA de públicos · narrachat como forma de exprimir el dato -->
+      <a class="chat24" href="#" data-chat="publicos">
+        <span class="c24-wm">narra<span class="s">chat</span></span>
+        <span class="c24-tx">
+          <span class="c24-k"><span class="dot"></span>Disponible 24/7</span>
+          <span class="c24-t">Conversá con narrachat sobre <b>todos los datos de tu público</b>.</span>
+          <span class="c24-s">Fan por fan, semana por semana, pieza por pieza. Es la mejor forma de exprimir esta sección y encontrar las mejoras estratégicas que el tablero no te puede mostrar en una pantalla.</span>
+        </span>
+        <span class="c24-go">Abrir narrachat →</span>
+      </a>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mesa" class="pro">
+  <div class="inner">
+
+    <div class="prem">
+      <div class="prem-h">
+        <div class="hrow dark" data-coll="c-mesa" data-lock="1" style="flex:1">
+          <h2>Mesa chica de estrategia</h2>
+          <span class="prox" data-d="peek.mesa.prox">Quincenal · próxima el [fecha]</span>
+          <button class="collap closed lock" type="button" aria-expanded="false"><span class="cv">▸</span></button>
+        </div>
+      </div>
+
+      <!-- llamador: el párrafo se ve, la mesa no -->
+      <div class="lockrow" data-for="c-mesa">
+        <p data-d="mesa.card">Una <b>carta del fundador</b>, escrita después de leer tu semana: lo que el modelo no ve. Con opción a <b>videollamada de una hora</b>.</p>
+        <a href="#" class="go">Mejorar a Pro · 899/mes →</a>
+      </div>
+
+      <div class="prem-b cbody closed" id="c-mesa">
+
+        <!-- la carta · texto propio del fundador, no salida del modelo -->
+        <div class="carta">
+          <div class="carta-tx">
+            <p data-d="mesa.p1">[Párrafo 1 · lo que el dato no dice. Empezar nombrando al cliente.]</p>
+            <p data-d="mesa.p2">[Párrafo 2 · el problema de fondo, dicho sin rodeos.]</p>
+            <p data-d="mesa.p3">[Párrafo 3 · la oportunidad que nadie está tomando.]</p>
+            <p data-d="mesa.p4">[Párrafo 4 · la salida: sprint o llamada.]</p>
+          </div>
+          <div class="carta-fm">
+            <img src="marca/narra-firma.svg" alt="" class="fm-firma">
+            <div class="fm-n" data-d="mesa.firma">[Nombre del fundador]</div>
+            <div class="fm-r">Fundador · narraglobal</div>
+            <div class="fm-d" data-d="mesa.fecha">Escrito el [fecha], después de leer tu semana.</div>
+          </div>
+        </div>
+
+        <!-- el paso siguiente · sprint o llamada -->
+        <div class="ctas2">
+          <a class="cta2" href="#" data-mesa="llamada">
+            <div class="ct" data-d="mesa.cta.t">Agendá una videollamada con el fundador.</div>
+            <div class="cs" data-d="mesa.cta.s">Un problema. Una estrategia de meses a validar. <b>Una hora con el fundador.</b></div>
+            <span class="cgo">Agendar la videollamada →</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== ZÓCALO + FOOTER ==================== -->
+<div class="zocalo">
+  <div class="ztop">
+    <h3>Ya sos parte de la familia <span class="wmz">narra<span class="s">global</span></span>. Y nos encanta!</h3>
+    <p class="zsub">Con tu suscripción activa te damos la bienvenida a una comunidad que venimos cuidando y asesorando desde hace <b>+12 años</b>. Todos nuestros datos y soluciones están disponibles para tu proyecto. <b>Gracias por estar.</b></p>
+  </div>
+
+  <div class="zrow">
+    <div class="zlab">Confían su narrativa</div>
+    <div class="zlogos">
+      <img src="logos/google.png" alt="Google"><img src="logos/hbomax.png" alt="HBO Max"><img src="logos/bayer.png" alt="Bayer"><img src="logos/syngenta.png" alt="Syngenta"><img src="logos/amgen.png" alt="Amgen"><img src="logos/loreal.png" alt="L'Oréal"><img src="logos/bid.png" alt="BID"><img src="logos/volkswagen.png" alt="Volkswagen"><img src="logos/accenture.png" alt="Accenture"><img src="logos/river.png" alt="River Plate">
+    </div>
+  </div>
+
+  <div class="zrow">
+    <div class="zlab">Publican nuestros datos</div>
+    <div class="zlogos medios">
+      <img src="medios/cnn.png" alt="CNN"><img src="medios/forbes.png" alt="Forbes"><img src="medios/univision.png" alt="Univisión"><img src="medios/tve.png" alt="TVE"><img src="medios/infobae.png" alt="Infobae"><img src="medios/telefe.jpg" alt="Telefe"><img src="medios/clarin.jpg" alt="Clarín"><img src="medios/lanacion.png" alt="La Nación"><img src="medios/tn.png" alt="TN">
+    </div>
+  </div>
+
+  <div class="family">
+    <img src="marca/narraglobal-placa-azul.png" alt="narraglobal">
+    <img src="marca/narranoise-placa-azul.png" alt="narranoise">
+    <img src="marca/narrachat-placa-azul.png" alt="narrachat">
+  </div>
+
+</div>
+
+<footer>
+  <img class="fwm" src="marca/narraglobal-placa-azul.png" alt="narraglobal">
+</footer>
+
+<!-- ==================== MODAL · AMPLIAR GRÁFICA ==================== -->
+<div class="chart-modal" id="chartModal" onclick="closeChart(event)">
+  <div class="chart-modal-card">
+    <div class="chart-modal-head">
+      <span id="chartModalTitle"></span>
+      <button class="chart-modal-x" type="button" onclick="closeChart()" aria-label="Cerrar">✕</button>
+    </div>
+    <svg id="chartModalSvg" viewBox="0 0 1120 500" width="100%"></svg>
+  </div>
+</div>
+
+<script src="datos.js"></script>
+<script>
+/* ============ NARRA v1 · adaptador + derivaciones + hidratación ============
+   El producto lee TODO de window.NARRA (datos.js). Regla: una sola fuente por
+   número — lo que se puede calcular desde otro campo, se calcula acá. */
+(function(){
+  if(!window.NARRA || window.NARRA.schema_version!==1){
+    document.body.innerHTML='<div style="max-width:60ch;margin:18vh auto;padding:28px;font-family:Inter,system-ui,sans-serif;color:#111319;border:2px solid #FF3D7A;border-radius:12px"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;letter-spacing:2px;color:#FF3D7A;margin-bottom:10px">DATOS INCOMPATIBLES</div><b>El archivo de datos no coincide con esta versión del producto</b> (schema_version '+((window.NARRA||{}).schema_version)+' — se espera 1).<br><br>Un tablero roto a la vista se arregla en una hora; uno plausible con datos mal leídos se descubre en una reunión. No se muestra nada hasta corregir datos.js.</div>';
+    throw new Error('NARRA schema_version incompatible');
+  }
+})();
+const NARRA=window.NARRA;
+/* fechas ISO → display */
+const MES_C=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const _d=iso=>{const d=new Date(iso+'T12:00');return isNaN(d)?null:d;};
+const fCorta=iso=>{const d=_d(iso);return d?`${d.getDate()} ${MES_C[d.getMonth()]}`:iso;};
+const DIA_L=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MES_L=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const fLarga=iso=>{const d=_d(iso);return d?`${DIA_L[d.getDay()]} ${d.getDate()} de ${MES_L[d.getMonth()]}`:iso;};
+/* meta → consts del producto */
+const META={titulo:NARRA.meta.nombre_corto?('narraglobal · Tablero · '+NARRA.meta.nombre_corto):'',
+            fundador:NARRA.meta.fundador||'', mesaPrefill:NARRA.meta.mesa_prefill||''};
+const WA=NARRA.meta.wa;
+const PRECIO_BASE=NARRA.meta.precio_base, PRECIO_PRO=NARRA.meta.precio_pro;
+/* piezas: el drawer deriva lb; la fecha se formatea; pl se muestra en mayúscula */
+const PIEZAS=NARRA.piezas.map(p=>({n:p.n,f:p.f?fCorta(p.f):'',pl:(p.pl||'').toUpperCase(),cal:p.cal,com:p.com,eco:p.eco,
+  hit:p.hit,ring:p.ring,host:p.host||0,cause:p.hit?undefined:p.cause,
+  lb:(p.hit&&p.host)?'Llegó, y llegó mal':'Qué hizo la gente',p:p.lectura||''}));
+const TIPOS=NARRA.censo.tipos;
+const POOL=NARRA.pool;
+const DIST=NARRA.dist.map(p=>({...p}));
+const MIGSEG=NARRA.publicos.mig;
+const CRUCE_RIVAL=NARRA.cruce_rival;
+/* ---------- derivaciones (tabla §3 de la Fase 2) ---------- */
+const _ult=s=>{for(let i=(s||[]).length-1;i>=0;i--)if(s[i]!=null)return s[i];return null;};
+const _prev=s=>{const v=(s||[]).filter(x=>x!=null);return v.length>1?v[v.length-2]:null;};
+/* la vara = promedio de calidad de los rivales (SIN vos) — se declara ACÁ porque la escena la usa temprano */
+const RIVALES=POOL.filter(f=>!f.you);
+const VARA=Math.round(RIVALES.reduce((a,f)=>a+_ult(f.s),0)/RIVALES.length);
+const D_ORD=[...POOL].sort((a,b)=>_ult(b.s)-_ult(a.s));
+const _qw=NARRA.qc.week.vos, _ql=_ult(_qw), _qp=_prev(_qw);
+const _sl=(NARRA.series&&NARRA.series.llegaron)||[], _ll=_ult(_sl), _lp=_prev(_sl);
+const _ds=DIST.map(p=>p.s).filter(v=>v!=null);
+const _hayScores=_ds.length&&Math.max(..._ds)>0;
+const _semDis=DIST.filter(p=>p.hit===0), _causasSem={};
+_semDis.forEach(p=>{const pz=NARRA.piezas.find(z=>(p.id&&z.id===p.id)||z.n===p.l);if(pz&&pz.cause)_causasSem[pz.cause]=(_causasSem[pz.cause]||0)+1;});
+const _cMax=Object.entries(_causasSem).sort((a,b)=>b[1]-a[1])[0]||[null,0];
+const _mDest=seg=>{const m={};(MIGSEG[seg]||[]).forEach(f=>{m[f[1]]=(m[f[1]]||0)+f[2];});return m;};
+const SEG_T=(NARRA.publicos.segmentos)||{};
+const _segD={};
+['fan','seg','vis','nue'].forEach(s=>{const m=_mDest(s);const sum=Object.values(m).reduce((a,b)=>a+b,0);
+  const total=SEG_T[s]||sum||0, exp=m.exp||0;
+  _segD[s]={total,exp,share:total?Math.round(exp/total*100):0,rest:total-exp,apag:m.off||0,otr:m.otr||0};});
+const _imp=NARRA.piezas.filter(p=>p.hit===1);
+const _disT={};NARRA.piezas.forEach(p=>{if(!p.hit&&p.cause)_disT[p.cause]=(_disT[p.cause]||0)+1;});
+const _disMax=Object.entries(_disT).sort((a,b)=>b[1]-a[1])[0]||[null,0];
+const DERIV={
+  llegaron:_ll!=null?_ll:(DIST.some(p=>p.hit!=null)?DIST.filter(p=>p.hit===1).length:'—'),
+  lanzadas:DIST.length||'—',
+  no_llegaron:DIST.some(p=>p.hit!=null)?DIST.filter(p=>p.hit!==1).length:'—',
+  delta_llegaron:(_ll!=null&&_lp!=null)?_ll-_lp:null,
+  calidad:(_ql!=null&&_ql>0)?_ql:'—',
+  delta_calidad:(_ql!=null&&_qp!=null&&_ql>0)?_ql-_qp:null,
+  techo_sem:_hayScores?Math.max(..._ds):'—',
+  piso_sem:_hayScores?Math.min(..._ds):'—',
+  vara:VARA, pool_n:POOL.length, puesto:D_ORD.findIndex(f=>f.you)+1,
+  /* criterio FIRMADO 17 jul 2026: ganás la semana si subiste Y estás al nivel o arriba de la vara */
+  ganaste:(_ql!=null&&_qp!=null&&_ql>0)?((_ql-_qp>0&&_ql>=VARA)?1:0):null,
+  sem_causa_max:_cMax[0]||'—', sem_causa_max_n:_cMax[1],
+  piezas_total:NARRA.piezas.length,
+  impactos:_imp.length,
+  disueltas_total:NARRA.piezas.filter(p=>p.hit===0).length,
+  disueltas_causa_max:_disMax[1],
+  anillos_caros_de10:_imp.length?Math.round(_imp.filter(p=>p.ring<=1).length/_imp.length*10):0,
+  devolvieron_total:(NARRA.censo.devolvieron_total!=null)?NARRA.censo.devolvieron_total:'—',
+  eco_max:Math.max(0,...NARRA.piezas.map(p=>p.eco||0)),
+  fan_total:_segD.fan.total, seg_total:_segD.seg.total, vis_total:_segD.vis.total, nue_total:_segD.nue.total,
+  fan_share_pc:_segD.fan.share, seg_share_pc:_segD.seg.share,
+  fan_de10:Math.floor(_segD.fan.share/10), seg_de10:Math.floor(_segD.seg.share/10),
+  fan_exp:_segD.fan.exp, fan_sin_exp:_segD.fan.rest, fan_apag:_segD.fan.apag,
+  seg_exp:_segD.seg.exp, seg_rest:_segD.seg.rest, seg_otr:_segD.seg.otr,
+  vis_otr:_segD.vis.otr, nue_apag:_segD.nue.apag, nue_exp:_segD.nue.exp
+};
+const hueco=s=>(s==null?'':String(s)).replace(/\{([a-z0-9_]+)\}/g,(x,k)=>(DERIV[k]!=null?DERIV[k]:x));
+const CO=NARRA.copy||{};
+/* bloques que nacen del copy, con los huecos resueltos */
+const CAPS=[
+ {c:'',k:'01 · Lanzamiento',t:hueco(CO.caps1_t),p:hueco(CO.caps1_p)},
+ {c:'warn',k:'02 · Los que se disolvieron',t:hueco(CO.caps2_t),p:hueco(CO.caps2_p)},
+ {c:'good',k:'03 · Los que impactaron',t:hueco(CO.caps3_t),p:hueco(CO.caps3_p)}
+];
+const QC={week:Object.assign({},NARRA.qc.week,{note:hueco(CO.qc_note_week)}),
+          month:Object.assign({},NARRA.qc.month,{note:hueco(CO.qc_note_month)})};
+const MIGTXT={todos:hueco(CO.mig_todos),fan:hueco(CO.mig_fan),seg:hueco(CO.mig_seg),vis:hueco(CO.mig_vis),nue:hueco(CO.mig_nue)};
+const JUGADA={fan:hueco(CO.jugada_fan),seguidor:hueco(CO.jugada_seguidor),visitante:hueco(CO.jugada_visitante),nuevo:hueco(CO.jugada_nuevo)};
+const COMP_INSIGHT=(CO.comp_insight||[]).map(par=>par.map(hueco));
+const GAP_INSIGHT=(CO.gap_insight||[]).map(hueco);
+const PUB_INSIGHT=(CO.pub_insight||[]).map(hueco);
+const POS_LECTURA=hueco(CO.pos_lectura);
+const WA_PUBLICOS=hueco(CO.wa_publicos||'Quiero trabajar los datos de mis públicos: fans, seguidores, visitantes y nuevos.');
+const WA_GAP=hueco(CO.wa_gap);
+const TEXTOS=CO.textos||{};
+/* ---------- hidratación (un valor vacío deja el hueco [corchetes] del producto) ---------- */
+if(META.titulo) document.title=META.titulo;
+Object.keys(TEXTOS).forEach(k=>{
+  const el=document.querySelector('[data-d="'+k+'"]');
+  if(!el){ console.warn('TEXTOS sin destino: '+k); return; }
+  const v=hueco(TEXTOS[k]); if(v==null||v==='') return;
+  if(el.namespaceURI==='http://www.w3.org/2000/svg') el.textContent=v; else el.innerHTML=v;
+});
+/* ---------- derivados que escriben directo (hero + fechas): una sola fuente por número ---------- */
+(function(){
+  const w=(k,v)=>{const el=document.querySelector('[data-d="'+k+'"]');if(el&&v!=null&&v!=='')el.innerHTML=v;};
+  const arrow=d=>d==null?'<s class="fl">=</s>':(d>0?`<s class="up">▲ +${d}</s>`:(d<0?`<s class="dn">▼ −${Math.abs(d)}</s>`:'<s class="fl">=</s>'));
+  if(DERIV.llegaron!=='—') w('hero.c1.v',`${DERIV.llegaron} <u>de ${DERIV.lanzadas}</u> ${arrow(DERIV.delta_llegaron)}`);
+  if(DERIV.calidad!=='—') w('hero.c2.v',`${DERIV.calidad} ${arrow(DERIV.delta_calidad)}`);
+  if(DERIV.techo_sem!=='—') w('hero.c3.v',DERIV.techo_sem+'%');
+  if(DERIV.piso_sem!=='—') w('hero.c4.v',DERIV.piso_sem+'%');
+  if(NARRA.meta.actualizado) w('hero.actualizado','Actualizado · '+fLarga(NARRA.meta.actualizado));
+  if(NARRA.meta.proxima_publicos) w('peek.pub.prox','Mensual · próxima el '+fCorta(NARRA.meta.proxima_publicos));
+  if(NARRA.meta.proxima_mesa) w('peek.mesa.prox','Quincenal · próxima el '+fCorta(NARRA.meta.proxima_mesa));
+})();
+/* ---- titulares colapsables ---- */
+/* ---------- scroll suave y largo hacia las secciones ---------- */
+function glide(target){
+  // el topbar es sticky: hay que descontarlo o la sección queda tapada
+  const bar=document.querySelector('.topbar');
+  const off=(bar?bar.getBoundingClientRect().height:0)+16;
+  const dest=Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - off);
+  const from=window.pageYOffset, dist=dest-from;
+  if(Math.abs(dist)<2) return;
+  // más distancia, más tiempo: entre 900ms y 1900ms
+  const dur=Math.min(1900, Math.max(900, Math.abs(dist)*0.9));
+  const ease=t=>t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;   // easeInOutCubic
+  let t0=null;
+  function step(ts){
+    if(t0===null) t0=ts;
+    const p=Math.min((ts-t0)/dur,1);
+    window.scrollTo(0, from+dist*ease(p));
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href');
+    if(id==='#') return;
+    const el=document.querySelector(id);
+    if(!el) return;
+    e.preventDefault();
+    glide(el);
+  });
+});
+
+/* ================= PLAN Y ACCESO =================
+   ?plan=base|pro|demo  ·  ?exp=2026-07-20   (mañana viene del alta)
+   base → blanco completo + grafito en vidrio con llamador
+   demo → igual, con el vencimiento a la vista
+   pro  → todo abierto                                              */
+const Q=new URLSearchParams(location.search);
+const PLAN0=(Q.get('plan')||'base').toLowerCase();
+const PLAN=(PLAN0==='cortesia')?'demo':PLAN0;   // ?plan=cortesia y ?plan=demo son lo mismo
+const EXP=Q.get('exp')||'';      // ISO: 2026-07-20 o 2026-07-20T18:00
+const ES_PRO=(PLAN==='pro');
+const VTO=(PLAN==='demo'&&EXP)?new Date(EXP.length<=10?EXP+'T23:59:59':EXP):null;
+
+/* el cartel de anuncios del topbar · estado de la suscripción + qué se puede hacer con ella */
+function reloj(ms){
+  const t=Math.max(0,Math.floor(ms/1000));
+  const d=Math.floor(t/86400);
+  const h=String(Math.floor(t%86400/3600)).padStart(2,'0');
+  const m=String(Math.floor(t%3600/60)).padStart(2,'0');
+  const s=String(t%60).padStart(2,'0');
+  return (d>0?d+'d ':'')+h+':'+m+':'+s;    // más de un día: "3d 07:12:40"
+}
+function fechaCorta(d){
+  const dias=['dom','lun','mar','mié','jue','vie','sáb'],
+        meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const conHora=(d.getHours()||d.getMinutes()) && !(d.getHours()===23&&d.getMinutes()===59);
+  return dias[d.getDay()]+' '+d.getDate()+' '+meses[d.getMonth()]+
+         (conHora?(', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' h'):'');
+}
+const WA_REACTIVAR='https://wa.me/'+WA+'?text='+encodeURIComponent('Quiero reactivar mi suscripción narraglobal.');
+const WA_MANTENER='https://wa.me/'+WA+'?text='+encodeURIComponent('Quiero mantener mi suscripción narraglobal cuando termine la cortesía.');
+const WA_HABLAR='https://wa.me/'+WA+'?text='+encodeURIComponent('Quiero hablar sobre mi suscripción narraglobal.');
+
+/* la cortesía venció: el tablero se despide, con el histórico a resguardo */
+function cierreCortesia(){
+  if(document.getElementById('velo-fin')) return;
+  const v=document.createElement('div'); v.id='velo-fin';
+  v.innerHTML='<div class="vf-in">'+
+    '<div class="vf-k">Cortesía · finalizada'+(VTO?(' el '+fechaCorta(VTO)):'')+'</div>'+
+    '<h2>La cortesía terminó.<br>Tu historia queda guardada.</h2>'+
+    '<p>El tablero queda tal como lo dejaste, y tu narrativa sigue sumando semanas ahí afuera. '+
+    'Reactivá la suscripción y lo retomamos en el próximo pulso, <b>con tu histórico intacto</b>.</p>'+
+    '<div class="vf-ctas">'+
+      '<a class="vf-cta b" href="'+WA_REACTIVAR+'" target="_blank" rel="noopener">Reactivar mi suscripción · '+PRECIO_BASE+'</a>'+
+      '<a class="vf-cta g" href="'+WA_HABLAR+'" target="_blank" rel="noopener">Hablar con '+((typeof META!=='undefined'&&META.fundador)||'el fundador')+'</a>'+
+    '</div>'+
+    '<div class="vf-wm">narra<span class="s">global</span></div>'+
+  '</div>';
+  document.body.appendChild(v);
+  document.documentElement.style.overflow='hidden';
+  const el=document.getElementById('ann');
+  if(el){ el.className='ann warn';
+    el.innerHTML='<span class="dt"></span><span class="tx"><b>Cortesía finalizada</b></span>'+
+      '<a class="ann-cta pro" href="'+WA_REACTIVAR+'" target="_blank" rel="noopener">Reactivar · '+PRECIO_BASE+'</a>'; }
+}
+function anuncio(){
+  const el=document.getElementById('ann'); if(!el) return;
+
+  if(ES_PRO){                              // Pro: nada que vender; la pausa es suya
+    el.className='ann pro';
+    el.innerHTML='<span class="dt"></span><span class="tx"><b>Suscripción Pro</b> <em>· activa</em></span>'+
+      '<a class="ann-chip" href="#pausa">Pausa estratégica · incluida</a>';
+    return;
+  }
+
+  if(PLAN==='demo'){                       // cortesía para exclientes: retener, y de paso subir
+    el.className='ann warn';
+    el.innerHTML='<span class="dt"></span>'+
+      '<span class="tx"><b>Cortesía narraglobal</b>'+
+      (VTO?(' · <span class="cd" id="cd">--:--:--</span> <em>· vence el '+fechaCorta(VTO)+'</em>'):' <em>· tu tablero sigue vivo</em>')+
+      '</span>'+
+      '<a class="ann-cta keep" href="'+WA_MANTENER+'" target="_blank" rel="noopener">Mantenerla · '+PRECIO_BASE+'</a>'+
+      '<a class="ann-cta pro" href="#pausa">Pasar a Pro</a>';
+    if(VTO){
+      let iv=null;
+      const tic=()=>{
+        const c=document.getElementById('cd'); if(!c) return;
+        const falta=VTO-new Date();
+        c.textContent=reloj(falta);
+        if(falta<=0){ if(iv) clearInterval(iv); cierreCortesia(); }
+      };
+      tic(); iv=setInterval(tic,1000);
+    }
+    return;
+  }
+
+  el.className='ann';                      // cliente activo: estado sereno + una sola puerta a Pro
+  el.innerHTML='<span class="dt"></span><span class="tx"><b>Suscripción narraglobal</b> <em>· activa</em></span>'+
+    '<a class="ann-cta pro" href="#pausa">Probá Pro · 1 mes gratis</a>';
+}
+anuncio();
+if(VTO && VTO-new Date()<=0) cierreCortesia();   // si ya venció, se cierra desde el arranque
+
+/* en la cortesía, el zócalo no da la bienvenida: deja la puerta abierta */
+if(PLAN==='demo'){
+  const zh=document.querySelector('.zocalo .ztop h3'), zs=document.querySelector('.zocalo .zsub');
+  if(zh) zh.innerHTML='La familia <span class="wmz">narra<span class="s">global</span></span> te sigue esperando.';
+  if(zs) zs.innerHTML='Fuiste parte, y la puerta quedó abierta: tu histórico está guardado y tu tablero se reactiva en el día. <b>Volvé cuando quieras.</b>';
+}
+
+/* los bloques con data-lock no abren sin Pro.
+   Si la sección tiene vista previa animada (.peek) se muestra ésa;
+   si no, el cuerpo real queda en VIDRIO (silueta, ilegible). */
+function lockUp(){
+  document.querySelectorAll('.hrow[data-lock]').forEach(row=>{
+    const locked=!ES_PRO, id=row.dataset.coll;
+    const body=document.getElementById(id);
+    const btn=row.querySelector('.collap');
+    const call=document.querySelector('.lockrow[data-for="'+id+'"]');
+    const peek=document.querySelector('.peek[data-for="'+id+'"]');
+    if(call) call.style.display=locked?'':'none';
+    if(peek) peek.style.display=locked?'':'none';
+    if(btn){ btn.classList.toggle('lock',locked); btn.style.display=locked?'none':''; }
+    if(body){
+      if(locked && peek){                       // hay loop: el cuerpo real no se muestra
+        body.classList.remove('glass');
+        body.classList.add('closed');
+        body.setAttribute('aria-hidden','true');
+      }else if(locked){                          // sin loop (mesa chica): cerrada, sin vidrio
+        body.classList.remove('glass');
+        body.classList.add('closed');
+        body.setAttribute('aria-hidden','true');
+      }else{                                     // Pro: se abre normal
+        body.classList.remove('glass');
+        body.classList.add('closed');
+        body.removeAttribute('aria-hidden');
+      }
+    }
+  });
+}
+lockUp();
+
+/* cada vista previa avisa su alto real: el iframe se ajusta, no recorta */
+addEventListener('message',e=>{
+  const d=e.data||{};
+  if(!d.peek||!d.h) return;
+  const fr=document.querySelector('.peek-fr[src*="p='+d.peek+'"]');
+  if(fr) fr.style.height=(d.h+8)+'px';
+});
+
+/* el menú acompaña el scroll: marca la sección que estás mirando */
+(function scrollspy(){
+  const links=[...document.querySelectorAll('.nb nav a')];
+  const secs=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  if(!secs.length) return;
+  const bar=document.querySelector('.topbar');
+  let tick=false;
+  function mark(){
+    tick=false;
+    const y=window.pageYOffset+(bar?bar.getBoundingClientRect().height:0)+60;
+    let cur=0;
+    secs.forEach((s,i)=>{ if(s.offsetTop<=y) cur=i; });
+    links.forEach((a,i)=>a.classList.toggle('on',i===cur));
+  }
+  window.addEventListener('scroll',()=>{ if(!tick){ tick=true; requestAnimationFrame(mark); } },{passive:true});
+  window.addEventListener('resize',mark);
+  mark();
+})();
+
+document.querySelectorAll('.hrow[data-coll]').forEach(row=>{
+  row.addEventListener('click',()=>{
+    const body=document.getElementById(row.dataset.coll), btn=row.querySelector('.collap');
+    if(!body) return;
+    // bloqueado: no abre. El click empuja al llamador.
+    if(row.dataset.lock && PLAN!=='pro'){
+      const call=document.querySelector('.lockrow[data-for="'+row.dataset.coll+'"]');
+      if(call){ call.classList.remove('flash'); void call.offsetWidth; call.classList.add('flash'); }
+      return;
+    }
+    const closed=body.classList.toggle('closed');
+    btn.classList.toggle('closed',closed);
+    btn.setAttribute('aria-expanded',String(!closed));
+  });
+});
+
+/* ================= PIEZAS ================= */
+/* CAUSAS se deriva de PIEZAS (disueltos agrupados por causa, orden descendente). Override: CAUSAS_MANUAL en datos.js */
+const CAUSAS=(typeof CAUSAS_MANUAL!=='undefined')?CAUSAS_MANUAL:(()=>{const m=new Map();PIEZAS.forEach(p=>{if(!p.hit&&p.cause)m.set(p.cause,(m.get(p.cause)||0)+1);});return[...m.entries()].map(([id,n])=>({id,n})).sort((a,b)=>b.n-a.n);})();
+
+/* ============ ESCENA · DOS CUADRANTES Y UNA FRONTERA ============ */
+const ORI={x:100,y:504};
+const NL={x0:150,x1:618,y0:58,y1:518};      // NO LLEGA · X = calidad narrativa 0–100
+const FR=646;                                // la frontera
+const LL={x0:674,x1:1112,y0:58,y1:518};      // LLEGA · X = profundidad del vínculo
+const BANDS=['SÓLO REPITEN','TE DISCUTEN','TE PIDEN ALGO','TE BANCAN','SE CUENTAN A SÍ MISMOS'];
+const BW=(LL.x1-LL.x0)/5, BX=i=>LL.x0+BW*i+BW/2;
+/* dentro de LLEGA: Y = calidad narrativa (0 abajo · 100 arriba) */
+const YQ=q=>LL.y1-24-(q/100)*(LL.y1-24-(LL.y0+104));
+const RN=['Se cuentan a sí mismos','Te bancan','Te piden algo','Te discuten','Sólo repiten'];  // ring 0..4
+const R2B=[4,3,2,1,0];                       // ring 0 (identificación) → banda 4 (la más profunda)
+const QX=q=>NL.x0+(q/100)*(NL.x1-NL.x0);
+const rnd=(s=>()=>((s=s*16807%2147483647)-1)/2147483646)(7);
+
+(function(){let s='';
+  s+=`<rect x="${NL.x0}" y="${NL.y0}" width="${NL.x1-NL.x0}" height="${NL.y1-NL.y0}" rx="6" fill="#FF3D7A" opacity=".045"/>`;
+  s+=`<rect x="${NL.x0}" y="${NL.y0}" width="${NL.x1-NL.x0}" height="${NL.y1-NL.y0}" rx="6" fill="none" stroke="#FF3D7A" stroke-opacity=".26" stroke-dasharray="6 5"/>`;
+  s+=`<text x="${(NL.x0+NL.x1)/2}" y="${NL.y0+58}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-weight="600" font-size="33" letter-spacing="6" fill="#FF3D7A" opacity=".17">NO LLEGA</text>`;
+  s+=`<text x="${(NL.x0+NL.x1)/2}" y="${NL.y0+78}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" letter-spacing="1.6" fill="#FF3D7A" opacity=".55">NADIE TE DEVOLVIÓ EL MENSAJE</text>`;
+  s+=`<rect x="${LL.x0}" y="${LL.y0}" width="${LL.x1-LL.x0}" height="${LL.y1-LL.y0}" rx="6" fill="#00C281" opacity=".05"/>`;
+  s+=`<rect x="${LL.x0}" y="${LL.y0}" width="${LL.x1-LL.x0}" height="${LL.y1-LL.y0}" rx="6" fill="none" stroke="#00C281" stroke-opacity=".32"/>`;
+  s+=`<text x="${(LL.x0+LL.x1)/2}" y="${LL.y0+58}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-weight="600" font-size="33" letter-spacing="6" fill="#00875a" opacity=".15">LLEGA</text>`;
+  s+=`<text x="${(LL.x0+LL.x1)/2}" y="${LL.y0+78}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" letter-spacing="1.6" fill="#00875a" opacity=".6">VOLVIÓ CON TUS PALABRAS</text>`;
+  /* franja de RUIDO: llegó, pero mal construido (bajo la barrera) */
+  s+=`<rect x="${LL.x0}" y="${YQ(28).toFixed(1)}" width="${LL.x1-LL.x0}" height="${(LL.y1-6-YQ(28)).toFixed(1)}" fill="#FF3D7A" opacity=".05"/>`;
+  s+=`<text x="${LL.x0+12}" y="${(YQ(28)+16).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="8" letter-spacing="1.4" fill="#c9265b" opacity=".7">RUIDO · LLEGÓ SIN CONSTRUCCIÓN</text>`;
+  /* Y = calidad narrativa */
+  [0,50,100].forEach(q=>{const y=YQ(q);
+    s+=`<line x1="${LL.x1}" y1="${y.toFixed(1)}" x2="${LL.x1+7}" y2="${y.toFixed(1)}" stroke="#b7bac2"/>`;
+    s+=`<text x="${LL.x1+11}" y="${(y+3).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#969aa4">${q}</text>`;});
+  s+=`<text x="${LL.x1+30}" y="${YQ(50).toFixed(1)}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" letter-spacing="1.3" fill="#b7bac2" transform="rotate(90 ${LL.x1+30} ${YQ(50).toFixed(1)})">CALIDAD NARRATIVA ↑</text>`;
+  s+=`<line x1="${LL.x0}" y1="${YQ(VARA).toFixed(1)}" x2="${LL.x1}" y2="${YQ(VARA).toFixed(1)}" stroke="#3E1CFF" stroke-opacity=".3" stroke-dasharray="4 4"/>`;
+  s+=`<text x="${LL.x1-8}" y="${(YQ(56)-5).toFixed(1)}" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="7.5" letter-spacing="1.2" fill="#3E1CFF" opacity=".7">PROMEDIO COMPETIDORES ${VARA}</text>`;
+  for(let i=1;i<5;i++){const x=LL.x0+BW*i;
+    s+=`<line x1="${x.toFixed(1)}" y1="${LL.y0+92}" x2="${x.toFixed(1)}" y2="${LL.y1}" stroke="#00C281" stroke-opacity=".16"/>`;}
+  BANDS.forEach((b,i)=>{s+=`<text x="${BX(i).toFixed(1)}" y="${LL.y1-12}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" letter-spacing="1.1" font-weight="${i===4?600:400}" fill="${i===4?'#00875a':'#9aa3ad'}">${b}</text>`;});
+  s+=`<text x="${LL.x0+12}" y="${LL.y1+20}" font-family="'IBM Plex Mono',monospace" font-size="8" letter-spacing="1.3" fill="#b7bac2">← VÍNCULO BARATO</text>`;
+  s+=`<text x="${LL.x1-12}" y="${LL.y1+20}" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="8" letter-spacing="1.3" fill="#00875a">CARO · SE CUENTAN A SÍ MISMOS →</text>`;
+  s+=`<line x1="${FR}" y1="${NL.y0-16}" x2="${FR}" y2="548" stroke="#111319" stroke-width="1.6"/>`;
+  s+=`<text x="${FR}" y="${NL.y0-24}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" letter-spacing="1.6" fill="#111319">LA FRONTERA</text>`;
+  s+=`<text x="${FR-11}" y="330" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" letter-spacing="1.2" fill="#969aa4" transform="rotate(-90 ${FR-11} 330)">LA CALIDAD TE TRAE HASTA ACÁ · SÓLO LA DEVOLUCIÓN LA CRUZA</text>`;
+  document.getElementById('zones').innerHTML=s;})();
+
+(function(){let s='';
+  s+=`<line x1="${NL.x0}" y1="548" x2="${NL.x1}" y2="548" stroke="#b7bac2"/>`;
+  [0,25,50,75,100].forEach(q=>{const x=QX(q);
+    s+=`<line x1="${x.toFixed(1)}" y1="548" x2="${x.toFixed(1)}" y2="556" stroke="#b7bac2" stroke-width="1.2"/>`;
+    s+=`<text x="${x.toFixed(1)}" y="570" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#969aa4">${q}</text>`;});
+  s+=`<rect x="${QX(VARA).toFixed(1)}" y="545" width="${(QX(100)-QX(VARA)).toFixed(1)}" height="3" fill="#3E1CFF" opacity=".35"/>`;
+  s+=`<text x="${QX(78).toFixed(1)}" y="540" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" letter-spacing="1.2" fill="#3E1CFF">SOBRE EL PROMEDIO DE COMPETIDORES (${VARA})</text>`;
+  s+=`<text x="${QX(50).toFixed(1)}" y="588" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" letter-spacing="1.5" fill="#b7bac2">CALIDAD NARRATIVA · CUÁN LEJOS LLEGÓ ANTES DE MORIR</text>`;
+  document.getElementById('qaxis').innerHTML=s;})();
+
+const SHOTS=[];
+PIEZAS.forEach((pz,i)=>{
+  const s={i,pz,hit:!!pz.hit};
+  /* impacto: X = profundidad del vínculo · Y = calidad narrativa · color = signo */
+  if(s.hit){ s.ex=BX(R2B[pz.ring])+(rnd()-.5)*40; s.ey=YQ(pz.cal)+(rnd()-.5)*14; s.host=!!pz.host; }
+  else { s.qx=QX(pz.cal); s.ex=LL.x1; s.ey=300; }
+  s.delay=i*0.030+rnd()*0.015;
+  s.cx=(ORI.x+s.ex)/2+(rnd()-.5)*60;
+  s.cy=Math.min(ORI.y,s.ey)-(160+rnd()*130)*1.9;
+  if(!s.hit){
+    let lo=0,hi2=1;
+    for(let k=0;k<30;k++){const m=(lo+hi2)/2,u=1-m;
+      const x=u*u*ORI.x+2*u*m*s.cx+m*m*s.ex;
+      if(x<s.qx) lo=m; else hi2=m;}
+    s.die=Math.max(.05,Math.min(.99,(lo+hi2)/2));
+  }
+  SHOTS.push(s);
+});
+const bez=(t,s)=>{const u=1-t;return{x:u*u*ORI.x+2*u*t*s.cx+t*t*s.ex, y:u*u*ORI.y+2*u*t*s.cy+t*t*s.ey};};
+
+const TR=trails, SH=shots, FL=flags, CL=clusters, W=world, ZD=zdis, SVG=document.getElementById('sc');
+let raf=null; const DUR=7600;
+
+function setCap(i){const c=CAPS[i],b=cap;b.classList.remove('show','warn','good');if(c.c)b.classList.add(c.c);
+  setTimeout(()=>{capK.textContent=c.k;capT.textContent=c.t;capP.innerHTML=c.p;b.classList.add('show');},280);}
+function hud(l,i,d){hL.textContent=l;hI.textContent=i;hD.textContent=d;
+  hIp.textContent=l?Math.round(i/PIEZAS.length*100)+'%':'—';hDp.textContent=l?Math.round(d/PIEZAS.length*100)+'%':'—';}
+function btns(k){[0,1,2].forEach(i=>document.getElementById('b'+i).classList.toggle('on',i===k));}
+
+/* punto rojo tenue: el mensaje murió acá. Su X es su calidad narrativa. */
+const dead=(x,y,i,em)=>`<g class="hitzone" data-i="${i}">
+  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="transparent"/>
+  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${em?8:6.5}" fill="#FF3D7A" opacity="${em?.20:.13}"/>
+  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${em?3.6:3}" fill="#FF3D7A" opacity="${em?.85:.5}"/></g>`;
+/* touchpoint. Si llegó con calidad bajo la barrera → signo de admiración rojo (RUIDO). */
+const BARRERA=28;
+const touch=(x,y,h,i,warn)=>{const c=h?'#FF3D7A':'#00C281';
+  let g=`<g class="hitzone" data-i="${i}">
+  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="15" fill="none" stroke="${c}" stroke-width="1" opacity=".28"/>
+  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="${c}" stroke-width="1.4" opacity=".6"/>
+  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="16" fill="transparent"/>
+  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.6" fill="${c}"/>`;
+  if(warn){const wx=x+14, wy=y-13;
+    g+=`<circle cx="${wx.toFixed(1)}" cy="${wy.toFixed(1)}" r="9.5" fill="#FF3D7A"/>
+        <circle cx="${wx.toFixed(1)}" cy="${wy.toFixed(1)}" r="9.5" fill="none" stroke="#fff" stroke-width="1.6"/>
+        <text x="${wx.toFixed(1)}" y="${(wy+4).toFixed(1)}" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#fff">!</text>`;}
+  return g+`</g>`;};
+
+function fly(){
+  cancelAnimationFrame(raf); hideCard();
+  TR.innerHTML='';SH.innerHTML='';FL.innerHTML='';CL.innerHTML='';
+  document.getElementById('drops').innerHTML='';
+  W.style.transition='transform .8s cubic-bezier(.4,0,.2,1)'; W.setAttribute('transform','translate(0,0) scale(1)');
+  const t0=performance.now();
+  (function step(now){
+    const g=Math.min(1,((now||performance.now())-t0)/DUR);
+    let tr='',sh='',fl='',L=0,I=0,D=0;
+    SHOTS.forEach(s=>{
+      const p=Math.max(0,Math.min(1,(g-s.delay)/(0.80-s.delay*0.4)));
+      if(p<=0)return; L++;
+      const end=s.hit?p:Math.min(p,s.die);
+      let d='';for(let k=0;k<=22;k++){const pt=bez(end*k/22,s);d+=(k?'L':'M')+pt.x.toFixed(1)+' '+pt.y.toFixed(1);}
+      tr+=`<path d="${d}" fill="none" stroke="${s.hit?(s.host?'#FF3D7A':'#00C281'):'#c9ccd3'}" stroke-width="1.1" opacity="${s.hit?.45:.3}" stroke-dasharray="${s.hit?'':'3 3'}"/>`;
+      const pt=bez(end,s);
+      if(!s.hit&&p>=s.die){D++;const f=Math.min(1,(p-s.die)/0.12);
+        if(f<1){sh+=`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${(3+f*12).toFixed(1)}" fill="none" stroke="#FF3D7A" stroke-width="1" opacity="${((1-f)*.5).toFixed(2)}"/>`;}
+        fl+=dead(pt.x,pt.y,s.i,s.pz.cal>=50);
+      } else if(s.hit&&p>=1){I++;fl+=touch(s.ex,s.ey,s.host,s.i,s.pz.cal<BARRERA);}
+      else sh+=`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="3.4" fill="#111319"/>`;
+    });
+    TR.innerHTML=tr;SH.innerHTML=sh;FL.innerHTML=fl;hud(L,I,D);
+    if(g<1) raf=requestAnimationFrame(step); else {hud(20,5,15);setCap(0);bindPoints();}
+  })();
+}
+/* Cap 2: los muertos, leídos sobre el eje de calidad. Los que murieron cerca de la diana
+   están BIEN HECHOS: no fallaron por construcción, fallaron por falta de término. */
+/* Cap 2 · el cuadrante NO LLEGA, leído sobre el eje de calidad */
+function zoomDissolve(){cancelAnimationFrame(raf);hideCard();
+  W.style.transition='transform 1s cubic-bezier(.4,0,.2,1)';
+  W.setAttribute('transform','translate(-60,-20) scale(1.28)');
+  let s='',drops='';
+  SHOTS.forEach(sh=>{if(sh.hit)return;
+    const pt=bez(sh.die,sh), alto=sh.pz.cal>=50;
+    drops+=`<line x1="${pt.x.toFixed(1)}" y1="${pt.y.toFixed(1)}" x2="${pt.x.toFixed(1)}" y2="548" stroke="${alto?'#FF3D7A':'#eceef1'}" stroke-width="1" stroke-dasharray="2 4" opacity="${alto?.55:.9}"/>`;
+    if(alto){
+      s+=`<text x="${pt.x.toFixed(1)}" y="${(pt.y-17).toFixed(1)}" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="#c9265b">${sh.pz.n}</text>`;
+      s+=`<text x="${pt.x.toFixed(1)}" y="${(pt.y-6).toFixed(1)}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" letter-spacing="1" fill="#969aa4">CAL ${sh.pz.cal}</text>`;
+    }});
+  document.getElementById('drops').innerHTML=drops;
+  const PX=176, PY=118;
+  s+=`<rect x="${PX-16}" y="${PY-28}" width="286" height="146" rx="10" fill="#fff" stroke="#e8e9ed"/>`;
+  s+=`<text x="${PX}" y="${PY-8}" font-family="'IBM Plex Mono',monospace" font-size="8" letter-spacing="1.3" fill="#c9265b">POR QUÉ SE DISOLVIERON · 15</text>`;
+  CAUSAS.forEach((c,i)=>{const y=PY+18+i*29,w=c.n*15;
+    s+=`<text x="${PX}" y="${y}" font-family="Inter,sans-serif" font-size="11.5" font-weight="${i?400:600}" fill="${i?'#565a64':'#111319'}">${c.id}</text>`;
+    s+=`<rect x="${PX}" y="${y+5}" width="${w}" height="6" rx="1.5" fill="#FF3D7A" opacity="${i?.35:.85}"/>`;
+    s+=`<text x="${PX+238}" y="${y+11}" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="600" fill="${i?'#969aa4':'#111319'}">${c.n}</text>`;});
+  s+=`<text x="${PX}" y="${PY+104}" font-family="Fraunces,serif" font-size="15" letter-spacing="-.35" fill="#111319">3 de cada 4 fallan por lo mismo</text>`;
+  s+=`<rect x="330" y="392" width="300" height="74" rx="10" fill="#fff" stroke="#FF3D7A"/>`;
+  s+=`<text x="346" y="414" font-family="'IBM Plex Mono',monospace" font-size="8" letter-spacing="1.3" fill="#c9265b">LOS QUE MURIERON PEGADOS A LA FRONTERA</text>`;
+  s+=`<text x="346" y="434" font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#111319">Están bien hechos. No fallaron por construcción.</text>`;
+  s+=`<text x="346" y="452" font-family="Inter,sans-serif" font-size="11.5" fill="#565a64">Fallaron porque no había nada para repetir.</text>`;
+  CL.innerHTML=s;setCap(1);}
+
+/* Cap 3 · el cuadrante LLEGA, banda por banda */
+function zoomImpact(){cancelAnimationFrame(raf);hideCard();
+  document.getElementById('drops').innerHTML='';
+  W.style.transition='transform 1s cubic-bezier(.4,0,.2,1)';
+  W.setAttribute('transform','translate(-560,-30) scale(1.42)');
+  let s='';
+  SHOTS.forEach(sh=>{if(!sh.hit)return;const p=sh.pz;
+    s+=`<text x="${sh.ex.toFixed(1)}" y="${(sh.ey-19).toFixed(1)}" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" font-weight="600" fill="${p.host?'#c9265b':'#111319'}">${p.n}</text>`;
+    s+=`<text x="${sh.ex.toFixed(1)}" y="${(sh.ey+26).toFixed(1)}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" letter-spacing="1" fill="#969aa4">CAL ${p.cal} · ECO ${p.eco}%</text>`;});
+  // llamada sobre el ruido
+  s+=`<rect x="${LL.x0+150}" y="${(YQ(13)+42).toFixed(1)}" width="270" height="60" rx="10" fill="#fff" stroke="#FF3D7A"/>`;
+  s+=`<text x="${LL.x0+166}" y="${(YQ(13)+62).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="8" letter-spacing="1.3" fill="#c9265b">LLEGÓ HONDO · EN CONTRA · SIN CONSTRUCCIÓN</text>`;
+  s+=`<text x="${LL.x0+166}" y="${(YQ(13)+80).toFixed(1)}" font-family="Inter,sans-serif" font-size="11.5" fill="#565a64">Circuló por el tema, no por lo que hiciste.</text>`;
+  // barras de composición, arriba del cuadrante
+  const X=LL.x0+16, Y0=104;
+  s+=`<rect x="${X-10}" y="${Y0-24}" width="250" height="196" rx="10" fill="#fff" stroke="#e8e9ed"/>`;
+  s+=`<text x="${X}" y="${Y0-6}" font-family="'IBM Plex Mono',monospace" font-size="7.5" letter-spacing="1.3" fill="#969aa4">QUÉ CONSTRUYERON · 214 PERSONAS</text>`;
+  TIPOS.forEach((t,i)=>{const y=Y0+12+i*28,w=t.pc*1.5,col=['#111319','#565a64','#8a8f9b','#c9ccd3','#e2e4e8'][i];
+    s+=`<text x="${X}" y="${y}" font-family="Inter,sans-serif" font-size="9.5" font-weight="600" fill="#111319">${t.t}</text>`;
+    s+=`<rect x="${X}" y="${y+4}" width="160" height="6" rx="1.5" fill="none" stroke="#e8e9ed"/><rect x="${X}" y="${y+4}" width="${w}" height="6" rx="1.5" fill="${col}"/>`;
+    s+=`<text x="${X+220}" y="${y+10}" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="600" fill="#111319">${t.pc}%</text>`;});
+  s+=`<text x="${X}" y="${Y0+160}" font-family="Fraunces,serif" font-size="14" letter-spacing="-.3" fill="#3E1CFF">62% puso algo de su parte</text>`;
+  CL.innerHTML=s;setCap(2);}
+
+/* ---- card por punto ---- */
+function bindPoints(){
+  document.querySelectorAll('.hitzone').forEach(g=>{
+    g.onclick=e=>{e.stopPropagation();showCard(+g.dataset.i, g);};
+  });
+}
+function showCard(i,g){
+  const p=PIEZAS[i], card=pc;
+  const st = p.hit ? (p.host?['ho','Impactó · hostil']:['ok','Impactó']) : ['no','Se disolvió'];
+  pcSt.className='st '+st[0]; pcSt.textContent=st[1];
+  pcT.textContent=p.n;
+  pcM.textContent=`${p.f} · ${p.pl} · ${p.hit?RN[p.ring]:p.cause}`;
+  pcN.innerHTML=`<div><b class="num">${p.cal}</b><s>calidad</s></div>
+                 <div><b class="num">${p.com}</b><s>te escribieron</s></div>
+                 <div><b class="num" style="color:${p.eco?'var(--blue)':'var(--pink)'}">${p.eco}%</b><s>eco</s></div>`;
+  pcL.textContent = p.hit ? (p.lb||'Qué hizo la gente') : 'Qué le faltó';
+  pcP.innerHTML = (p.hit && p.cal<BARRERA)
+    ? `<span style="display:flex;gap:8px;align-items:flex-start;background:var(--pink-soft);border:1px solid #ffd9e5;border-radius:8px;padding:9px 10px;margin-bottom:8px">
+         <b style="background:var(--pink);color:#fff;border-radius:50%;width:16px;height:16px;display:grid;place-items:center;font-size:11px;flex:none">!</b>
+         <span style="font-size:12px;color:var(--pink-ink);line-height:1.45"><b>Llegó sin construcción.</b> Circuló por el tema, no por lo que hiciste. Calidad ${p.cal} — bajo la barrera de ruido (${BARRERA}).</span>
+       </span>` + p.p
+    : p.p;
+  const bb=g.getBoundingClientRect(), vb=vp.getBoundingClientRect();
+  let x=bb.left-vb.left+bb.width/2-145, y=bb.top-vb.top-16;
+  x=Math.max(12,Math.min(x, vb.width-302));
+  y=Math.max(12,Math.min(y, vb.height-260));
+  card.style.left=x+'px'; card.style.top=y+'px';
+  card.classList.add('show');
+}
+function hideCard(){pc.classList.remove('show');}
+SVG.addEventListener('click',e=>{if(!e.target.closest('.hitzone')) hideCard();});
+
+function go(k){btns(k);if(k===0)fly();if(k===1){zoomDissolve();bindPoints();}if(k===2){zoomImpact();bindPoints();}}
+go(0);
+
+/* ================= LA DIANA DEL VERTICAL =================
+   Una porción por actor. Cada punto es una pieza publicada (un tiro).
+   Radio = calidad narrativa de esa pieza. El centro es el techo de calidad.
+   El anillo punteado es el UMBRAL DE LLEGADA: adentro = alguien la devolvió con sus términos.
+   Se lee de un vistazo: cuántos tiros tiró cada uno, y cuántos cruzaron. */
+/* ===== EL VERTICAL · UNA FICHA POR COMPETIDOR =====
+   Small multiples: una ficha por actor con su curva de 8 semanas, delta, techo, piso y volumen.
+   Sin comentarios, sin vistas: la calidad se mide sobre la pieza publicada.        */
+const SEM=['S1','S2','S3','S4','S5','S6','S7','S8'];
+/* la vara = el promedio de calidad de tus competidores, SIN vos.
+   Si te incluyeras, te estarías midiendo contra un promedio que contiene tu propio número. */
+/* RIVALES y VARA se declaran en el adaptador (arriba), antes de que la escena los use */
+(function(){
+  const box=document.getElementById('smGrid'); if(!box) return;
+  const U=7, mn=28, mx=82, W=230, H=40;
+  const X=i=>4+i*(W-8)/U, Y=v=>H-4-((v-mn)/(mx-mn))*(H-10);
+  const ord=[...POOL].sort((a,b)=>b.s[U]-a.s[U]);
+  let h='';
+  ord.forEach(a=>{
+    const dl=a.s[U]-a.s[U-1];
+    const cls=dl>0?'up':(dl<0?'dn':'fl'), dt=dl>0?'▲ +'+dl:(dl<0?'▼ '+dl:'=');
+    const col=a.you?'#3E1CFF':'#969aa4';
+    const pts=a.s.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    const base=a.s.slice(0,U).map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    const area=`${X(0).toFixed(1)},${H-3} `+pts+` ${X(U).toFixed(1)},${H-3}`;
+    /* el último tramo se pinta por su delta: verde si subió, rosa si bajó, gris si no se movió */
+    const dc = dl>0 ? '#00875a' : (dl<0 ? '#FF3D7A' : '#969aa4');
+    h+=`<div class="smc${a.you?' you':''}">
+      <div class="t"><span class="n"><em class="fg">${a.pais||''}</em>${a.you?'Vos':a.n}</span><span class="dd ${cls}">${dt}</span></div>
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Calidad de ${a.n}, ocho semanas">
+        <rect x="${X(U-1).toFixed(1)}" y="0" width="${(W-X(U-1)).toFixed(1)}" height="${H}" fill="${dc}" opacity=".06"/>
+        <polygon points="${area}" fill="${col}" opacity=".06"/>
+        <line x1="0" y1="${Y(VARA).toFixed(1)}" x2="${W}" y2="${Y(VARA).toFixed(1)}" stroke="#00C281" stroke-width="1" stroke-dasharray="3 3"/>
+        <polyline points="${base}" fill="none" stroke="${col}" stroke-width="${a.you?2.4:1.8}" stroke-linejoin="round"/>
+        <polyline points="${X(U-1).toFixed(1)},${Y(a.s[U-1]).toFixed(1)} ${X(U).toFixed(1)},${Y(a.s[U]).toFixed(1)}" fill="none" stroke="${dc}" stroke-width="${a.you?3:2.4}" stroke-linecap="round"/>
+        <circle cx="${X(U).toFixed(1)}" cy="${Y(a.s[U]).toFixed(1)}" r="${a.you?7:6}" fill="${dc}" opacity=".16"/>
+        <circle cx="${X(U).toFixed(1)}" cy="${Y(a.s[U]).toFixed(1)}" r="${a.you?4:3.2}" fill="${dc}"/>
+      </svg>
+      <div class="meta">
+        <span>Esta semana<b>${a.s[U]}</b></span>
+        <span>Techo<b>${a.techo}</b></span>
+        <span>Piso<b>${a.piso}</b></span>
+        <span>Piezas<b>${a.piezas}</b></span>
+      </div>
+      <a class="smlink" href="${(a.pieza&&a.pieza.url)||('https://www.instagram.com/'+a.h.replace('@',''))}" target="_blank" rel="noopener">Ver sus ${a.piezas} piezas →</a>
+    </div>`;
+  });
+  box.innerHTML=h;
+  const vos=POOL.find(f=>f.you);
+  const pf=ord.findIndex(x=>x.you)+1;
+  const n=document.getElementById('bumpNote');
+  if(n) n.innerHTML=`Estás <b>${pf}º de ${POOL.length}</b> con calidad ${vos.s[U]}; el promedio de tus competidores es <b>${VARA}</b>. ${POS_LECTURA}`;
+})();
+
+/* cerrar el gap · sólo los que te sacan ventaja, y el hueco que no ocupa nadie */
+(function(){
+  const box=document.getElementById('gapBox'); if(!box) return;
+  const vos=POOL.find(f=>f.you), pv=vos.s[vos.s.length-1];
+  const arriba=POOL.filter(f=>!f.you && f.s[f.s.length-1]>pv && f.bien)
+                   .sort((a,b)=>b.s[b.s.length-1]-a.s[a.s.length-1]);
+  let h='<div class="gk">Cerrá el gap</div><div class="gh">Aprendé de tus competidores</div>';
+  arriba.forEach(f=>{
+    const p=f.pieza||{};
+    h+=`<div class="gapc">
+      <div class="gc-top"><span class="gc-name"><em class="fg">${f.pais||''}</em>${f.n}</span><span class="gc-gap">+${f.s[f.s.length-1]-pv} sobre vos</span></div>
+      <div class="gc-pieza">
+        <span class="gc-k">Su pieza techo · <b>${p.q||f.techo}</b></span>
+        <div class="gc-t">${p.t||''}</div>
+        <div class="gc-f">${p.f||''}</div>
+        <div class="gc-best">${p.por||f.bien}</div>
+      </div>
+      <div class="gc-do"><b>Cómo cerrás:</b> ${f.cierra}</div>
+      <div class="gc-links"><a href="${p.url||'#'}" target="_blank" rel="noopener">Ver la pieza →</a><a href="#" data-gap="${f.n}">Trabajarlo con narrachat →</a></div>
+    </div>`;
+  });
+  box.innerHTML=h;
+  document.querySelectorAll('a[data-chat="publicos"]').forEach(a=>{
+  a.href='https://wa.me/'+WA+'?text='+encodeURIComponent(WA_PUBLICOS);
+  a.target='_blank'; a.rel='noopener';
+});
+document.querySelectorAll('a[data-gap="semana"]').forEach(a=>{
+    a.href='https://wa.me/'+WA+'?text='+encodeURIComponent(WA_GAP);
+    a.target='_blank'; a.rel='noopener';
+  });
+  box.querySelectorAll('a[data-gap]').forEach(a=>{
+    const k=a.dataset.gap;
+    const t = `${k} me saca ventaja en calidad narrativa. Explicame qué hace distinto y cómo lo llevo a mis piezas de esta semana.`;
+    a.href='https://wa.me/'+WA+'?text='+encodeURIComponent(t); a.target='_blank'; a.rel='noopener';
+  });
+})();
+
+/* ===== 04 · PÚBLICOS =====
+   Los públicos salen de la SERIE (quién vuelve y quién no). El pronombre sale del TEXTO.
+   Las dos cosas son deterministas: no requieren el modelo. */
+/* sparklines del monitor: PODADAS con el panel (Fase 2) */
+
+/* ================= 04 · TUS PÚBLICOS · el río / la retención / la deriva ================= */
+(function(){
+const C={lav:'#ffffff',lav2:'#c9ccd3',slate:'#4b5160',slate2:'#343a45',pink:'#ff7aa5',gray:'#8b90a0',grid:'#3d424d',mute:'#6b7280',bg:'#262a33'};
+const W=620,H=230,L=42,R=14,T=16,B=30;
+const px=(i,n)=>L+i*((W-L-R)/(n-1)), py=(v,max)=>H-B-(v/max)*(H-B-T);
+function spline(pts){
+  if(pts.length<2)return'';
+  let d=`M${pts[0][0]},${pts[0][1]}`;
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+    const c1=[p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6];
+    const c2=[p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6];
+    d+=` C${c1[0]},${c1[1]} ${c2[0]},${c2[1]} ${p2[0]},${p2[1]}`;
+  }
+  return d;
+}
+const el=(t,a)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',t);
+  for(const k in a)e.setAttribute(k,a[k]);return e;};
+function gridLines(svg,max,ticks,labels){
+  ticks.forEach(v=>{const y=py(v,max);
+    svg.appendChild(el('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:C.grid,'stroke-width':1}));
+    const t=el('text',{x:L-9,y:y+3,'text-anchor':'end',class:'ptick'});t.textContent=v;svg.appendChild(t);});
+  labels.forEach((s,i)=>{const t=el('text',{x:px(i,labels.length),y:H-B+16,'text-anchor':'middle',class:'ptick'});
+    t.textContent=s;svg.appendChild(t);});
+}
+
+/* A · EL RÍO */
+(function(){
+  const svg=document.getElementById('rio'); if(!svg)return;
+  const nuc=[30,31,33,35,36,38,39,40,41,42,43,43],
+        hab=[55,58,52,60,62,58,65,68,66,70,74,72],
+        pas=[90,100,95,110,120,105,115,125,118,130,128,135],
+        nue=[210,240,190,260,300,220,280,310,250,290,284,300];
+  const n=12,MAX=600;
+  const cum=[];let prev=new Array(n).fill(0);
+  [nuc,hab,pas,nue].forEach(sr=>{const c=sr.map((v,i)=>prev[i]+v);cum.push(c);prev=c;});
+  gridLines(svg,MAX,[0,200,400,600],['','','ABR','','','MAY','','','JUN','','','JUL']);
+  const cols=[C.lav,C.lav2,C.slate,C.slate2];
+  for(let k=3;k>=0;k--){
+    const top=cum[k].map((v,i)=>[px(i,n),py(v,MAX)]);
+    const base=(k===0?new Array(n).fill(0):cum[k-1]).map((v,i)=>[px(i,n),py(v,MAX)]).reverse();
+    svg.appendChild(el('path',{d:spline(top)+' L'+base.map(p=>p.join(',')).join(' L')+' Z',
+      fill:cols[k],stroke:C.bg,'stroke-width':1}));
+  }
+  const nl=nuc.map((v,i)=>[px(i,n),py(v,MAX)]);
+  svg.appendChild(el('path',{d:spline(nl),fill:'none',stroke:C.bg,'stroke-width':1.4}));
+  const t=el('text',{x:W-R,y:py(600,MAX)-4,'text-anchor':'end',class:'ptick'});
+  t.textContent='PERSONAS QUE ESCRIBIERON';svg.appendChild(t);
+})();
+
+/* B · RETENCIÓN */
+(function(){
+  const svg=document.getElementById('ret'); if(!svg)return;
+  const series=[
+    {n:'Dolor',    v:[100,86,74,68,64,62,61], c:C.lav,  w:2.4, lab:1},
+    {n:'Orgullo',  v:[100,79,65,56,51,49,48], c:C.lav,  w:2.4, lab:1, dash:'5 3'},
+    {n:'Miedo',    v:[100,68,52,42,37,35,33], c:C.gray, w:1.5},
+    {n:'Esperanza',v:[100,61,42,33,28,26,24], c:C.gray, w:1.5, dash:'4 3'},
+    {n:'Bronca',   v:[100,44,26,18,15,13,12], c:C.pink, w:2.4, lab:1},
+    {n:'Burla',    v:[100,33,17,11,8,7,6],    c:C.pink, w:1.5, dash:'4 3'}
+  ];
+  const n=7,MAX=100;
+  gridLines(svg,MAX,[0,50,100],['0','1','2','3','4','5','6']);
+  const xl=el('text',{x:W-R,y:H-B+16,'text-anchor':'end',class:'ptick'});
+  xl.textContent='SEMANAS DESDE QUE APARECIÓ';svg.appendChild(xl);
+  series.forEach(sr=>{
+    const pts=sr.v.map((v,i)=>[px(i,n),py(v,MAX)]);
+    svg.appendChild(el('path',{d:spline(pts),fill:'none',stroke:sr.c,'stroke-width':sr.w,
+      'stroke-dasharray':sr.dash||'none','stroke-linecap':'round'}));
+    if(sr.lab){
+      svg.appendChild(el('circle',{cx:pts[6][0],cy:pts[6][1],r:3,fill:sr.c}));
+      const t=el('text',{x:pts[6][0]-8,y:pts[6][1]-8,'text-anchor':'end',class:'ptick'});
+      t.setAttribute('fill',sr.c);t.textContent=sr.n.toUpperCase()+' '+sr.v[6]+'%';svg.appendChild(t);
+    }
+  });
+})();
+
+/* C · DERIVA DEL PRONOMBRE */
+(function(){
+  const svg=document.getElementById('der'); if(!svg)return;
+  const n=12,MAX=50;
+  const nos=[38,36,37,33,31,30,27,25,24,22,21,19],
+        vos=[19,21,20,24,26,27,30,33,34,36,38,41],
+        yo =[24,23,25,24,23,24,23,22,23,22,21,21],
+        ell=[19,20,18,19,20,19,20,20,19,20,20,19];
+  gridLines(svg,MAX,[0,25,50],['','','ABR','','','MAY','','','JUN','','','JUL']);
+  const yl=el('text',{x:L-9,y:py(50,MAX)-6,'text-anchor':'end',class:'ptick'});
+  yl.textContent='%';svg.appendChild(yl);
+  [[ell,C.slate,1.4,'4 3'],[yo,C.gray,1.4,'none'],[vos,C.pink,2.6,'none'],[nos,C.lav,2.6,'none']]
+  .forEach(function(cfg){
+    const v=cfg[0],c=cfg[1],w=cfg[2],d=cfg[3];
+    const pts=v.map((x,i)=>[px(i,n),py(x,MAX)]);
+    svg.appendChild(el('path',{d:spline(pts),fill:'none',stroke:c,'stroke-width':w,
+      'stroke-dasharray':d,'stroke-linecap':'round'}));
+  });
+  const cx=px(6.1,n), cy=py(28.5,MAX);
+  svg.appendChild(el('line',{x1:cx,x2:cx,y1:T,y2:H-B,stroke:C.mute,'stroke-width':1,'stroke-dasharray':'3 3'}));
+  svg.appendChild(el('circle',{cx:cx,cy:cy,r:4.5,fill:C.bg,stroke:C.gray,'stroke-width':1.5}));
+  const t=el('text',{x:cx+8,y:T+11,class:'ptick'});t.textContent='EL CRUCE';svg.appendChild(t);
+  const a=el('text',{x:px(11,n),y:py(19,MAX)+14,'text-anchor':'end',class:'ptick'});
+  a.setAttribute('fill',C.lav);a.textContent='NOSOTROS 19%';svg.appendChild(a);
+  const b=el('text',{x:px(11,n),y:py(41,MAX)-9,'text-anchor':'end',class:'ptick'});
+  b.setAttribute('fill',C.pink);b.textContent='VOS 41%';svg.appendChild(b);
+})();
+})();
+
+/* ============ LA CURVA DE CALIDAD NARRATIVA · techos y pisos ============ */
+/* la vara de la curva = el promedio del pool (VARA), calculado. Override: QVARA_MANUAL en datos.js */
+const QVARA=(typeof QVARA_MANUAL!=='undefined')?QVARA_MANUAL:VARA;
+let qcMode='week';
+function qcSet(m){qcMode=m;
+  document.getElementById('qgW').classList.toggle('on',m==='week');
+  document.getElementById('qgM').classList.toggle('on',m==='month');
+  qcDraw();}
+function qcDraw(){
+  const D=QC[qcMode], svg=document.getElementById('qcSvg'); if(!svg)return;
+  const W=1080,H=380,L=54,R=30,T=34,B=44, n=D.vos.length;
+  const MIN=0,MAX=80;
+  const X=i=>n===1?L:L+i*((W-L-R)/(n-1));
+  const Y=v=>H-B-((v-MIN)/(MAX-MIN))*(H-B-T);
+  let s='';
+  // bandas de mes
+  (D.bands||[]).forEach((b,k)=>{const x0=X(b.s)-((W-L-R)/(n-1))/2, x1=X(b.e)+((W-L-R)/(n-1))/2;
+    if(k%2===1) s+=`<rect x="${Math.max(L-10,x0).toFixed(1)}" y="${T-14}" width="${(x1-x0).toFixed(1)}" height="${H-B-T+14}" fill="#f7f8fa"/>`;
+    s+=`<text x="${((x0+x1)/2).toFixed(1)}" y="${T-18}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9.5" letter-spacing="1.4" fill="#b7bac2">${b.n}</text>`;});
+  // grilla
+  [0,20,40,60,80].forEach(v=>{const y=Y(v);
+    s+=`<line x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}" stroke="#f0f1f4"/>`;
+    s+=`<text x="${L-10}" y="${(y+3).toFixed(1)}" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#969aa4">${v}</text>`;});
+  // el promedio de los competidores
+  const yv=Y(QVARA);
+  s+=`<line x1="${L}" y1="${yv.toFixed(1)}" x2="${W-R}" y2="${yv.toFixed(1)}" stroke="#b7bac2" stroke-width="1.5" stroke-dasharray="6 5"/>`;
+  s+=`<text x="${W-R}" y="${(yv-8).toFixed(1)}" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9" letter-spacing="1.2" fill="#969aa4">PROMEDIO DE TUS COMPETIDORES · ${QVARA}</text>`;
+  // banda techo–piso
+  const up=D.techo.map((v,i)=>[X(i),Y(v)]), lo=D.piso.map((v,i)=>[X(i),Y(v)]).reverse();
+  s+=`<path d="M${up.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L')} L${lo.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L')} Z" fill="#3E1CFF" opacity=".05"/>`;
+  // tu curva
+  const vos=D.vos.map((v,i)=>[X(i),Y(v)]);
+  s+=`<polyline points="${vos.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="none" stroke="#3E1CFF" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+  D.vos.forEach((v,i)=>{const cur=(i===n-1);
+    // techo
+    s+=`<text x="${X(i).toFixed(1)}" y="${(Y(D.techo[i])-9).toFixed(1)}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="${cur?11.5:10.5}" font-weight="${cur?600:400}" fill="#00875a" opacity="${cur?1:.75}">▲ ${D.techo[i]}</text>`;
+    // piso
+    s+=`<text x="${X(i).toFixed(1)}" y="${(Y(D.piso[i])+18).toFixed(1)}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="${cur?11.5:10.5}" font-weight="${cur?600:400}" fill="#FF3D7A" opacity="${cur?1:.75}">▼ ${D.piso[i]}</text>`;
+    // punto y valor
+    s+=`<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="${cur?6:4}" fill="#3E1CFF" stroke="#fff" stroke-width="${cur?2:1.4}"/>`;
+    if(cur){
+      s+=`<text x="${X(i).toFixed(1)}" y="${(Y(v)-15).toFixed(1)}" text-anchor="middle" font-weight="700" font-size="16" fill="#3E1CFF">${v}%</text>`;
+      s+=`<text x="${(X(i)-14).toFixed(1)}" y="${(Y(v)+5).toFixed(1)}" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9" letter-spacing="1.2" fill="#3E1CFF">CALIDAD NARRATIVA · PROMEDIO</text>`;
+    }
+    // eje x
+    s+=`<text x="${X(i).toFixed(1)}" y="${H-B+22}" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9.5" letter-spacing="1.2" fill="${cur?'#111319':'#969aa4'}">${D.labels[i]}</text>`;
+  });
+  svg.innerHTML=s;
+  document.getElementById('qcNote').textContent=D.note;
+}
+qcDraw();
+
+/* ---------- Ampliar cualquier gráfica ---------- */
+function openChart(id,title,maxw){
+  const src=document.getElementById(id); if(!src) return;
+  const big=document.getElementById('chartModalSvg');
+  big.setAttribute('viewBox', src.getAttribute('viewBox')||'0 0 1120 500');
+  big.innerHTML=src.innerHTML;
+  big.style.maxWidth=maxw||'100%';
+  document.getElementById('chartModalTitle').textContent=title||'';
+  document.getElementById('chartModal').classList.add('on');
+}
+function closeChart(ev){
+  if(ev && ev.target && ev.target.id!=='chartModal' && ev.type==='click') return;
+  document.getElementById('chartModal').classList.remove('on');
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.getElementById('chartModal').classList.remove('on'); });
+
+/* ---------- Los posteos de la semana · una barra por posteo ---------- */
+/* k (hi/lo/mid) se deriva del ranking si falta en los datos */
+(()=>{if(DIST.some(p=>!p.k)){const mx=Math.max(...DIST.map(p=>p.s)),mn=Math.min(...DIST.map(p=>p.s));DIST.forEach(p=>{if(!p.k)p.k=p.s===mx?'hi':(p.s===mn?'lo':'mid');});}})();
+function renderDist(){
+  const el=document.getElementById('distSvg'); if(!el) return;
+  const x0=40,xMax=290,yTop=30,yBot=384,W=330;
+  const n=DIST.length, rowH=(yBot-yTop)/n, bh=Math.min(9,rowH-4);
+  const xv=s=>x0+(s/100)*(xMax-x0);
+  const dkey=k=>(DIST[k].d!=null)?DIST[k].d:('#'+k);
+  const prom=Math.round(DIST.reduce((a,p)=>a+p.s,0)/n);
+  let s=[],i,gi=0;
+  // franjas por día (agrupa piezas del mismo día)
+  for(i=0;i<n;){ let q=i; while(q<n && dkey(q)===dkey(i)) q++;
+    const y0=yTop+rowH*i, y1=yTop+rowH*q, ym=(y0+y1)/2;
+    if(gi%2===0) s.push(`<rect x="0" y="${y0.toFixed(1)}" width="${W}" height="${(y1-y0).toFixed(1)}" fill="#f7f8fa" opacity=".75"/>`);
+    s.push(`<text x="12" y="${(ym-1).toFixed(1)}" font-size="11" font-weight="700" fill="#111319" text-anchor="middle">${DIST[i].wd||''}</text>`);
+    s.push(`<text x="12" y="${(ym+9).toFixed(1)}" font-size="7" fill="#969aa4" text-anchor="middle">${DIST[i].d||''}</text>`);
+    i=q; gi++;
+  }
+  // eje + gridlines
+  s.push(`<line x1="${x0}" y1="${yBot}" x2="${xMax}" y2="${yBot}" stroke="#d9dbe0"/>`);
+  [0,20,40,60,80,100].forEach(g=>{const gx=xv(g);
+    s.push(`<line x1="${gx.toFixed(1)}" y1="${yTop}" x2="${gx.toFixed(1)}" y2="${yBot}" stroke="#e8e9ed"/>`);
+    s.push(`<text x="${gx.toFixed(1)}" y="${yBot+14}" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#969aa4" text-anchor="middle">${g}</text>`);
+  });
+  // el promedio de la semana
+  const xm=xv(prom);
+  s.push(`<line x1="${xm.toFixed(1)}" y1="${yTop}" x2="${xm.toFixed(1)}" y2="${yBot}" stroke="#3E1CFF" stroke-width="1.2" stroke-dasharray="4 3"/>`);
+  s.push(`<rect x="${(xm-19).toFixed(1)}" y="${yTop-19}" width="38" height="15" rx="3" fill="#3E1CFF"/>`);
+  s.push(`<text x="${xm.toFixed(1)}" y="${yTop-8}" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">prom ${prom}</text>`);
+  // barras
+  DIST.forEach((p,j)=>{
+    const yc=yTop+rowH*(j+0.5), bw=Math.max(xv(p.s)-x0,1);
+    const col=(p.k==='lo')?'#FF3D7A':'#3E1CFF', op=(p.k==='mid')?'.45':'1';
+    const nc=(p.k==='lo')?'#FF3D7A':((p.k==='hi')?'#3E1CFF':'#565a64');
+    s.push(`<rect x="${x0}" y="${(yc-bh/2).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${col}" opacity="${op}"/>`);
+    s.push(`<text x="${(xv(p.s)+6).toFixed(1)}" y="${(yc+3).toFixed(1)}" font-size="10" font-weight="700" fill="${nc}">${p.s}</text>`);
+    s.push(`<rect x="0" y="${(yc-rowH/2).toFixed(1)}" width="${W}" height="${rowH.toFixed(1)}" fill="transparent" style="cursor:pointer" onmouseenter="dTip(event,${j})" onmousemove="dTip(event,${j})" onmouseleave="dOut()" onclick="dGo(${j})"/>`);
+  });
+  el.innerHTML=s.join('');
+  const sub=document.getElementById('distSub');
+  if(sub) sub.innerHTML=`${n} posteos · promedio <b>${prom}</b> · techo ${Math.max(...DIST.map(p=>p.s))} · piso ${Math.min(...DIST.map(p=>p.s))}`;
+}
+function dTip(ev,i){
+  const p=DIST[i], tip=document.getElementById('distTip'), card=document.getElementById('distCard');
+  if(!p||!tip||!card) return;
+  const r=card.getBoundingClientRect(), col=(p.k==='lo')?'#FF3D7A':'#3E1CFF';
+  tip.innerHTML=`<div class="tt-h">${p.d?p.d+' · ':''}posteo</div><div class="tt-v" style="color:${col}">${p.s}<span>%</span></div><div class="tt-d">${p.l}</div><div class="tt-go">ver post →</div>`;
+  const w=200, x=ev.clientX-r.left, y=ev.clientY-r.top;
+  tip.style.left=Math.min(Math.max(x-w/2,6), r.width-w-6)+'px';
+  tip.style.top=Math.max(y-tip.offsetHeight-14,6)+'px';
+  tip.classList.add('on');
+}
+function dOut(){const t=document.getElementById('distTip'); if(t) t.classList.remove('on');}
+function dGo(i){ if(DIST[i]) window.open(DIST[i].url,'_blank','noopener'); }
+renderDist();
+
+/* ---------- Las cintas · CONDUCTA hace un mes → CONDUCTA hoy ----------
+   Se puede filtrar por segmento de permanencia: "Fan" muestra cómo se movieron
+   sólo los 120 fans. Un diagrama, dos preguntas: qué se movió, y de quiénes.
+   Ventana móvil de 4 semanas. Los totales cierran con las cards de misión.        */
+const CON={exp:'Se exponen',des:'Te desafían',esc:'Te escuchan',otr:'Hablan de otra cosa',off:'Se apagaron'};
+const CCOL={exp:'#3E1CFF',des:'#6b52ff',esc:'#8f7dff',otr:'#b7bac2',off:'#FF3D7A'};
+const ORD_C=['exp','des','esc','otr','off'];
+const SEGN={todos:'toda tu gente',fan:'los fans',seg:'los seguidores',vis:'los visitantes',nue:'los nuevos'};
+
+/* de → a → personas, por segmento de permanencia */
+let migSeg='todos';
+function migFlujos(seg){
+  if(seg!=='todos') return MIGSEG[seg];
+  const m={};
+  Object.values(MIGSEG).forEach(fs=>fs.forEach(([a,b,v])=>{ m[a+'>'+b]=(m[a+'>'+b]||0)+v; }));
+  return Object.entries(m).map(([k,v])=>[k.split('>')[0],k.split('>')[1],v]);
+}
+function renderMig(){
+  const el=document.getElementById('migSvg'); if(!el) return;
+  const flujos=migFlujos(migSeg);
+  if(!flujos.some(f=>f[2]>0)){ el.innerHTML=''; return; }   // sin datos (muda o semana vacía): sin cintas, sin ruido
+  const yTop=34,yBot=376, xL=176,xR=666, nw=13, gap=10;
+  const izq=Object.fromEntries(ORD_C.map(id=>[id,0]));
+  const der=Object.fromEntries(ORD_C.map(id=>[id,0]));
+  flujos.forEach(([a,b,v])=>{ izq[a]+=v; der[b]+=v; });
+  const izqOrd=ORD_C.filter(id=>izq[id]>0), derOrd=ORD_C.filter(id=>der[id]>0);
+  const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+  const kI=(yBot-yTop-gap*(izqOrd.length-1))/sum(izq);
+  const kD=(yBot-yTop-gap*(derOrd.length-1))/sum(der);
+  const pos={},cur={};
+  let y=yTop; izqOrd.forEach(id=>{ pos['L'+id]={y0:y,h:izq[id]*kI}; cur['L'+id]=y; y+=izq[id]*kI+gap; });
+  y=yTop;     derOrd.forEach(id=>{ pos['R'+id]={y0:y,h:der[id]*kD}; cur['R'+id]=y; y+=der[id]*kD+gap; });
+  const rk=id=>ORD_C.indexOf(id);
+
+  let s='<defs><clipPath id="migClip"><rect x="'+(xL+nw)+'" y="0" width="0" height="400">'+
+        '<animate attributeName="width" from="0" to="'+(xR-xL-nw+1)+'" dur="1.1s" fill="freeze"/></rect></clipPath></defs>';
+  s+='<g clip-path="url(#migClip)">';
+  flujos.slice().sort((a,b)=>b[2]-a[2]).forEach(([a,b,v])=>{
+    if(v<=0) return;                                        // un flujo en cero no dibuja cinta
+    const hA=v*kI, hB=v*kD, y0=cur['L'+a], y1=cur['R'+b];
+    cur['L'+a]+=hA; cur['R'+b]+=hB;
+    const x0=xL+nw, x1=xR, cx=(x0+x1)/2;
+    const dir = b==='off' ? -1 : (a===b ? 0 : (rk(b)<rk(a) ? 1 : -1));
+    const c = dir===1 ? '#3E1CFF' : dir===-1 ? '#FF3D7A' : '#c9ccd3';
+    const op = dir===0 ? .28 : .45;
+    const d=`M${x0},${y0} C${cx},${y0} ${cx},${y1} ${x1},${y1} L${x1},${y1+hB} C${cx},${y1+hB} ${cx},${y0+hA} ${x0},${y0+hA} Z`;
+    s+=`<path class="rib" d="${d}" fill="${c}" opacity="${op}"><title>${CON[a]} → ${CON[b]} · ${v} personas</title></path>`;
+    const mid=`M${x0},${(y0+hA/2).toFixed(1)} C${cx},${(y0+hA/2).toFixed(1)} ${cx},${(y1+hB/2).toFixed(1)} ${x1},${(y1+hB/2).toFixed(1)}`;
+    if(hB>=4) s+=`<path class="flow" d="${mid}" fill="none" stroke="${c}" stroke-width="${Math.max(1,Math.min(hB*.32,5)).toFixed(1)}" stroke-linecap="round" opacity=".5"/>`;
+  });
+  s+='</g>';
+  izqOrd.forEach(id=>{const p=pos['L'+id];
+    s+=`<rect x="${xL}" y="${p.y0.toFixed(1)}" width="${nw}" height="${Math.max(p.h,2).toFixed(1)}" rx="3" fill="${CCOL[id]}"/>`;
+    s+=`<text x="${xL-12}" y="${(p.y0+p.h/2+4).toFixed(1)}" text-anchor="end" font-size="12.5" fill="#565a64">${CON[id]}</text>`;
+    s+=`<text x="${xL-12}" y="${(p.y0+p.h/2+19).toFixed(1)}" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9.5" fill="#969aa4">${izq[id]}</text>`;
+  });
+  derOrd.forEach(id=>{const p=pos['R'+id];
+    s+=`<rect x="${xR}" y="${p.y0.toFixed(1)}" width="${nw}" height="${Math.max(p.h,2).toFixed(1)}" rx="3" fill="${CCOL[id]}"/>`;
+    s+=`<text x="${xR+nw+12}" y="${(p.y0+p.h/2+4).toFixed(1)}" font-size="12.5" font-weight="500" fill="#111319">${CON[id]}</text>`;
+    s+=`<text x="${xR+nw+12}" y="${(p.y0+p.h/2+19).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="9.5" fill="#969aa4">${der[id]}</text>`;
+  });
+  s+=`<text x="${xL+nw}" y="18" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9" letter-spacing="1.4" fill="#969aa4">HACE UN MES</text>`;
+  s+=`<text x="${xR}" y="18" font-family="'IBM Plex Mono',monospace" font-size="9" letter-spacing="1.4" fill="#969aa4">HOY</text>`;
+  el.innerHTML=s;
+
+  const rk2=id=>ORD_C.indexOf(id);
+  const sost = flujos.filter(f=>f[0]===f[1]&&f[0]!=='off').reduce((a,f)=>a+f[2],0);
+  const subs = flujos.filter(f=>f[1]!=='off'&&f[0]!==f[1]&&rk2(f[1])<rk2(f[0])).reduce((a,f)=>a+f[2],0);
+  const baja = flujos.filter(f=>f[1]!=='off'&&f[0]!==f[1]&&rk2(f[1])>rk2(f[0])&&f[0]!=='off').reduce((a,f)=>a+f[2],0);
+  const apag = flujos.filter(f=>f[1]==='off').reduce((a,f)=>a+f[2],0);
+  const volv = flujos.filter(f=>f[0]==='off').reduce((a,f)=>a+f[2],0);
+  const expHoy=der.exp||0, expAntes=izq.exp||0, neto=expHoy-expAntes;
+  const total=sum(izq);
+
+  /* cada segmento se lee por SU métrica determinante, no siempre por exposición */
+  const fmt=(a,b)=>{const d=b-a; return `<b>${a} → ${b}</b> (${d>0?'+':''}${d})`;};
+  const CLAVE={
+    todos:()=>`Exposición: ${fmt(expAntes,expHoy)}. ${MIGTXT.todos}`,
+    fan:()=>`Fans que se exponen: ${fmt(expAntes,expHoy)}. ${MIGTXT.fan}`,
+    seg:()=>{
+      const suben=flujos.filter(f=>f[1]==='exp'&&f[0]!=='exp').reduce((a,f)=>a+f[2],0);
+      return `Dieron el paso: <b>${suben} seguidores</b> pasaron a exponerse este mes. ${MIGTXT.seg}`;
+    },
+    vis:()=>{
+      const otrA=izq.otr||0, otrB=der.otr||0;
+      return `Siguen trayendo su tema: ${fmt(otrA,otrB)} de ${total}. ${MIGTXT.vis}`;
+    },
+    nue:()=>`Se apagaron: <b>${apag} de ${total}</b> en su primer mes. ${MIGTXT.nue}`
+  };
+  const box=document.getElementById('migBox');
+  if(box){
+    box.innerHTML=`<div class="mb-net">${CLAVE[migSeg]()}</div>`;
+  }
+}
+
+document.querySelectorAll('#migTg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#migTg button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); migSeg=b.dataset.seg; renderMig();
+  });
+});
+renderMig();
+
+/* ================= SEMÁFORO Y DATOS PENDIENTES =================
+   Cada card declara qué es "bueno" para ella:  data-good="up" | "down"
+     · si el movimiento va en la dirección buena → VERDE
+     · si va en la contraria                     → ROJO
+     · si no se movió                            → gris
+   Y si el dato todavía no está, la card se marca así:
+
+       <div class="c" data-good="up" data-avail="2026-07-21">
+         <span class="n num" data-val="">…</span>
+
+   con data-val vacío → en vez del número muestra “Disponible el 21/07”.
+   ============================================================== */
+function fecha(iso){
+  const d=new Date(iso.length<=10?iso+'T12:00':iso);
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('es-AR',{day:'numeric',month:'long'});
+}
+function semaforo(){
+  document.querySelectorAll('.c[data-good],.pp[data-good]').forEach(card=>{
+    const good=card.dataset.good||'up';
+    const d=card.querySelector('.d, .n s');
+    if(!d) return;
+    const t=(d.textContent||'').trim();
+    const dir = t.indexOf('▲')===0 ? 'up' : (t.indexOf('▼')===0 ? 'down' : 'flat');
+    d.classList.remove('up','dn','fl');
+    d.classList.add(dir==='flat' ? 'fl' : (dir===good ? 'up' : 'dn'));
+  });
+}
+function pendientes(){
+  document.querySelectorAll('[data-avail]').forEach(card=>{
+    const n=card.querySelector('.n');
+    if(!n) return;
+    const val=n.dataset.val;
+    const falta = val==='' || val==='—' || val==null;
+    if(!falta) return;                       // el dato está: no toco nada
+    const caja=card.querySelector('.val') || n.parentElement;
+    caja.innerHTML='<span class="pend">Disponible el '+fecha(card.dataset.avail)+'</span>';
+    card.classList.add('wait');
+  });
+}
+semaforo(); pendientes();
+
+/* la vista extra abre y cierra */
+document.querySelectorAll('.extra-h[data-x]').forEach(h=>{
+  h.addEventListener('click',()=>{
+    const b=document.getElementById(h.dataset.x), btn=h.querySelector('.collap');
+    if(!b) return;
+    const closed=b.classList.toggle('closed');
+    btn.classList.toggle('closed',closed);
+    btn.setAttribute('aria-expanded',String(!closed));
+  });
+});
+
+/* LA JUGADA → narrachat, con el contexto del segmento ya cargado */
+document.querySelectorAll('.play[data-chat]').forEach(a=>{
+  const k=a.dataset.chat;
+  a.href='https://wa.me/'+WA+'?text='+encodeURIComponent(JUGADA[k]||'');
+  a.target='_blank'; a.rel='noopener';
+});
+
+
+
+/* ---------- La lectura de la Pausa · tres oraciones, una por insight ----------
+   Dos insights de competidores + uno de públicos. Rotan cada semana:
+   el dato de públicos se recalcula cada 4 semanas, pero el ÁNGULO cambia todos los lunes. */
+(function(){
+  const el=document.getElementById('synth'); if(!el) return;
+  const d=new Date(), inicio=new Date(d.getFullYear(),0,1);
+  const w=Math.floor((d-inicio)/604800000) % 4;
+  const c=COMP_INSIGHT[w], p=PUB_INSIGHT[w], g=GAP_INSIGHT[w];
+  el.innerHTML=c[0]+' '+c[1]+' '+p+' '+g;
+})();
+
+/* ---------- El cruce de la semana: vos contra el que pasaste ---------- */
+(function(){
+  const box=document.getElementById('crossViz'); if(!box) return;
+  const vos=POOL.find(f=>f.you);
+  const orden=[...POOL].sort((a,b)=>b.s[b.s.length-1]-a.s[a.s.length-1]);
+  const i=orden.findIndex(f=>f.you);
+  const riv=(typeof CRUCE_RIVAL==='string'&&POOL.find(f=>f.n===CRUCE_RIVAL))||orden[i+1]||orden[i-1];   // regla por default; datos.js puede fijar cruce_rival
+  if(!vos||!riv) return;
+  const W=250,H=64, U=vos.s.length-1, mn=40, mx=70;
+  const X=i=>6+i*(W-12)/U, Y=v=>H-8-((Math.max(mn,Math.min(mx,v))-mn)/(mx-mn))*(H-18);
+  const line=(a,col,wd)=>a.s.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const dV=vos.s[U]-vos.s[U-1], dR=riv.s[U]-riv.s[U-1];
+  const cV=dV>0?'#00875a':(dV<0?'#FF3D7A':'#969aa4');
+  const cR=dR>0?'#00875a':(dR<0?'#FF3D7A':'#969aa4');
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tu curva contra la del competidor inmediato">`;
+  // el rival, en gris
+  s+=`<polyline points="${line(riv)}" fill="none" stroke="#c9ccd3" stroke-width="1.8" stroke-linejoin="round"/>`;
+  s+=`<circle cx="${X(U).toFixed(1)}" cy="${Y(riv.s[U]).toFixed(1)}" r="3" fill="${cR}"/>`;
+  // vos, en azul: el azul es tuyo
+  s+=`<polyline points="${line(vos)}" fill="none" stroke="#3E1CFF" stroke-width="2.4" stroke-linejoin="round"/>`;
+  s+=`<circle cx="${X(U).toFixed(1)}" cy="${Y(vos.s[U]).toFixed(1)}" r="5.5" fill="${cV}" opacity=".18"/>`;
+  s+=`<circle cx="${X(U).toFixed(1)}" cy="${Y(vos.s[U]).toFixed(1)}" r="3.4" fill="#3E1CFF"/>`;
+  s+=`</svg>`;
+  s+=`<span class="lg">
+        <span><i style="background:#3E1CFF"></i>Vos <b>${vos.s[U]}</b> <em style="font-style:normal;color:${cV}">${dV>0?'+'+dV:dV}</em></span>
+        <span><i style="background:#c9ccd3"></i>${riv.n} <b>${riv.s[U]}</b> <em style="font-style:normal;color:${cR}">${dR>0?'+'+dR:dR}</em></span>
+      </span>
+      <span class="un">Calidad narrativa · últimas 8 semanas</span>`;
+  box.innerHTML=s;
+})();
+
+/* el promedio de competidores se escribe solo: si cambia el pool, cambia el copy */
+['varaHero','varaRef','varaLeg'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.textContent=VARA;
+});
+
+/* el CTA único de la mesa chica: va directo al fundador */
+document.querySelectorAll('a[data-mesa]').forEach(a=>{
+  const t = (typeof META!=='undefined'&&META.mesaPrefill)||'Quiero agendar una videollamada para destrabar una decisión. El tema es:';
+  a.href='https://wa.me/'+WA+'?text='+encodeURIComponent(t);
+  a.target='_blank'; a.rel='noopener';
+});
+
+/* el umbral vende: con el precio, y sólo si todavía no es Pro.
+   En Pro no hay venta: el corte nombra lo que empieza, no lo que falta. */
+(function(){
+  const el=document.getElementById('cutPro'), eb=document.getElementById('cutBase'); if(!el) return;
+  if(ES_PRO){
+    if(eb) eb.innerHTML='Hasta acá · <b>tu semana</b>';
+    el.innerHTML='Lo que sigue · <b>la pausa estratégica</b> · incluida en tu plan'; el.removeAttribute('href'); return;
+  }
+  el.innerHTML='Mejorá a <b>Pro</b> · '+PRECIO_PRO+' →';
+})();
+
+/* la banda de narrachat del cierre de 03: directo al chat, con el pedido armado */
+document.querySelectorAll('a.chatband').forEach(a=>{
+  a.href='https://wa.me/'+WA+'?text='+encodeURIComponent('Quiero bajar las acciones de esta semana a piezas con narrachat.');
+  a.target='_blank'; a.rel='noopener';
+});
+
+/* chips y llamadores de narrachat: cada uno abre el chat con su pregunta armada */
+document.querySelectorAll('a.nchip').forEach(a=>{
+  const q=((a.querySelector('.q')||{}).textContent||'').trim();
+  const t=q.startsWith('¿')?q:'Dame el contexto de estas métricas de mi tablero.';
+  a.href='https://wa.me/'+WA+'?text='+encodeURIComponent(t);
+  a.target='_blank'; a.rel='noopener';
+});
+document.querySelectorAll('a.cz-go').forEach(a=>{
+  a.href='https://wa.me/'+WA+'?text='+encodeURIComponent('Mostrame las piezas de la semana y su lectura.');
+  a.target='_blank'; a.rel='noopener';
+});
+/* el llamador de las secciones bloqueadas: pasar a Pro se pide por el chat */
+document.querySelectorAll('.lockrow a.go').forEach(a=>{
+  a.href='https://wa.me/'+WA+'?text='+encodeURIComponent('Quiero pasar a Pro y abrir la pausa estratégica.');
+  a.target='_blank'; a.rel='noopener';
+});
+
+</script>
+</body>
+</html>
