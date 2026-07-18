@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Entrar from "./pages/Entrar";
+import Alta from "./pages/Alta";
 import Suscripcion from "./pages/Suscripcion";
 import Admin from "./pages/admin/Admin";
 import AdminSuscripcion from "./pages/admin/AdminSuscripcion";
@@ -11,6 +12,7 @@ const App = () => (
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/entrar" element={<Entrar />} />
+      <Route path="/alta/:codigo" element={<Alta />} />
       <Route path="/suscripcion/:codigo" element={<Suscripcion />} />
       {/* la misma pantalla si escriben la ruta con tilde */}
       <Route path="/suscripción/:codigo" element={<Suscripcion />} />

@@ -12,6 +12,7 @@ Sigue el modelo de `ALTA-checklist`: el pago no es el alta, estados del cliente
 | Ruta | Qué es | Quién entra |
 |---|---|---|
 | `/suscripcion/{código}` | El tablero del cliente (también funciona `/suscripción/…` con tilde) | El cliente, con magic link a su email |
+| `/alta/{código}` | El **onboarding post-login**: wizard de ~2 min que completa el alta (nombre, de dónde comunica, categoría, sus @ públicos por red, competidores si es PRO, equipo y su WhatsApp) | El cliente en estado `borrador` |
 | `/entrar` | Puerta desde la landing: pide el email y redirige al tablero (o al back office si el email es admin) | Cualquiera |
 | `/admin` | Back office: el store de clientes (altas, estados, pulso, pausas) | Equipo narraglobal (rol admin) |
 | `/admin/suscripcion/{id}` | Las semanas de un cliente: pegar datos.js, validar, ver como cliente, programar, publicar | Equipo narraglobal |
@@ -74,8 +75,26 @@ El plan de la suscripción reemplaza al `?plan=` de la URL de antes: `base`, `pr
 `demo` con su vencimiento (el contador de cortesía del tablero sale de ahí).
 
 Reglas de experiencia que ya se cumplen: el cliente **nunca ve una pantalla muerta** —
-sin login le pide el email; sin tablero publicado le dice **la fecha concreta** de su
-primera entrega (según su pulso); pausado ve cómo reactivar por WhatsApp.
+sin login le pide el email; en `borrador` lo lleva a **completar su alta** (`/alta/{código}`);
+sin tablero publicado le dice **la fecha concreta** de su primera entrega (según su pulso);
+pausado ve cómo reactivar por WhatsApp.
+
+### El alta post-login (`/alta/{código}`)
+
+Migración `supabase/migrations/20260718120000_alta_onboarding.sql`. El cliente que pagó
+entra en `borrador`; al abrir su tablero se lo redirige al wizard. Guarda los **campos
+confirmados** (no la conversación) en columnas nuevas de `suscripciones`: `pais_de`,
+`pais_para`, `categoria`, `redes` (jsonb `[{red,usuario}]`), `competidores` (jsonb, solo
+PRO), `equipo_tamano`, `equipo_telefono`, `alta_completada_en`. Pedimos **solo los @
+públicos** — nunca login a las redes. El paso de benchmark muestra el cupón `PRO2` si el
+plan es base, o la carga de hasta 5 competidores si es PRO.
+
+Al terminar, el wizard llama a la función **`completar_alta(p_codigo, p_datos)`** —
+`SECURITY DEFINER`, valida el email del magic link y el estado `borrador`, escribe solo
+los campos del alta y pasa a `activo`. Así el cliente **no** recibe un `UPDATE` amplio
+sobre su fila (no puede tocar `plan`/`estado`/`demo_expira`). En el back office, cada
+suscripción muestra un panel **read-only "Datos del alta"** para confirmar los @ antes de
+tirar el pull de Apify.
 
 ## 4 · Lo que viene (fases siguientes, no incluido acá)
 
