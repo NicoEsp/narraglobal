@@ -34,6 +34,22 @@ as $$
 declare
   fila public.suscripciones;
 begin
+  -- Invariantes del alta, validadas en el servidor: no alcanza con que la web
+  -- valide. Un cliente autenticado podría llamar la RPC directo con datos
+  -- incompletos y pasar a 'activo' sin sus @ ni su teléfono.
+  if coalesce(nullif(trim(p_datos->>'nombre'), ''), '') = ''
+     or coalesce(nullif(trim(p_datos->>'telefono'), ''), '') = ''
+     or coalesce(nullif(trim(p_datos->>'categoria'), ''), '') = '' then
+    raise exception 'alta_incompleta'
+      using hint = 'Faltan nombre, teléfono o categoría.';
+  end if;
+  if coalesce(jsonb_typeof(p_datos->'redes'), '') <> 'array' then
+    raise exception 'alta_incompleta' using hint = 'redes debe ser una lista.';
+  end if;
+  if jsonb_array_length(p_datos->'redes') < 1 then
+    raise exception 'alta_incompleta' using hint = 'Hace falta al menos una red con su @.';
+  end if;
+
   update public.suscripciones s
   set
     nombre          = coalesce(nullif(trim(p_datos->>'nombre'), ''), s.nombre),
@@ -42,7 +58,11 @@ begin
     pais_para       = nullif(trim(p_datos->>'pais_para'), ''),
     categoria       = nullif(trim(p_datos->>'categoria'), ''),
     redes           = coalesce(p_datos->'redes', '[]'::jsonb),
-    competidores    = coalesce(p_datos->'competidores', '[]'::jsonb),
+    -- competidores es solo PRO: en base/demo se ignora lo que mande el cliente.
+    competidores    = case
+                        when s.plan = 'pro' then coalesce(p_datos->'competidores', '[]'::jsonb)
+                        else '[]'::jsonb
+                      end,
     equipo_tamano   = greatest(0, coalesce((p_datos->>'equipo_tamano')::int, 0)),
     equipo_telefono = nullif(trim(p_datos->>'equipo_telefono'), ''),
     alta_completada_en = now(),

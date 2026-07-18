@@ -345,23 +345,32 @@ const Alta = () => {
                 sólo lo público.
               </div>
               <div className="alta-nets">
-                {REDES.map((r) => (
-                  <div
-                    key={r}
-                    className={'alta-rednet' + (redes[r].on ? ' on' : '')}
-                    onClick={() => toggleRed(r)}
-                  >
-                    <span className="nb"><span className="g" />{r}</span>
-                    <input
-                      className="at"
-                      placeholder={r === 'Otra' ? '@usuario o link' : '@usuario'}
-                      value={redes[r].usuario}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => setUsuario(r, e.target.value)}
-                    />
-                    <span className="plus">+</span>
-                  </div>
-                ))}
+                {REDES.map((r) =>
+                  redes[r].on ? (
+                    <div key={r} className="alta-rednet on">
+                      <span className="nb"><span className="g" />{r}</span>
+                      <input
+                        className="at"
+                        autoFocus
+                        aria-label={'Tu usuario en ' + r}
+                        placeholder={r === 'Otra' ? '@usuario o link' : '@usuario'}
+                        value={redes[r].usuario}
+                        onChange={(e) => setUsuario(r, e.target.value)}
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      key={r}
+                      type="button"
+                      className="alta-rednet"
+                      aria-pressed={false}
+                      onClick={() => toggleRed(r)}
+                    >
+                      <span className="nb"><span className="g" />{r}</span>
+                      <span className="plus">+</span>
+                    </button>
+                  ),
+                )}
               </div>
               <div className="alta-actions">
                 <button className="alta-btn" onClick={avanzar} disabled={!puedeAvanzar}>
@@ -487,25 +496,45 @@ const Alta = () => {
               <span className="alta-eyebrow">Paso 6 de 7</span>
               <div className="alta-q">¿Trabajás solo o con equipo?</div>
               <div className="alta-qs">Para saber cómo hablarte a vos — y a ellos.</div>
-              <div className="alta-toggle">
-                <span
+              <div className="alta-toggle" role="radiogroup" aria-label="¿Trabajás solo o con equipo?">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={!conEquipo}
                   className={'t' + (!conEquipo ? ' sel' : '')}
                   onClick={() => setConEquipo(false)}
                 >
                   Trabajo solo
-                </span>
-                <span
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={conEquipo}
                   className={'t' + (conEquipo ? ' sel' : '')}
                   onClick={() => setConEquipo(true)}
                 >
                   Con equipo
-                </span>
+                </button>
               </div>
               {conEquipo && (
                 <div className="alta-stepper">
-                  <span className="s" onClick={() => setEquipoN((n) => Math.max(1, n - 1))}>–</span>
-                  <span className="cnt">{equipoN}</span>
-                  <span className="s" onClick={() => setEquipoN((n) => n + 1)}>+</span>
+                  <button
+                    type="button"
+                    className="s"
+                    aria-label="Restar una persona"
+                    onClick={() => setEquipoN((n) => Math.max(1, n - 1))}
+                  >
+                    –
+                  </button>
+                  <span className="cnt" aria-live="polite">{equipoN}</span>
+                  <button
+                    type="button"
+                    className="s"
+                    aria-label="Sumar una persona"
+                    onClick={() => setEquipoN((n) => n + 1)}
+                  >
+                    +
+                  </button>
                   <span className="cl">personas además de vos</span>
                 </div>
               )}

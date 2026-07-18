@@ -4,6 +4,7 @@
 
 .alta {
   --gray: #b7bac2;
+
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -114,6 +115,7 @@
 .alta-rednet {
   border: 1.5px solid var(--line-2); border-radius: 12px; padding: 6px 8px 6px 14px;
   display: flex; align-items: center; gap: 10px; transition: .15s; cursor: pointer;
+  width: 100%; font: inherit; text-align: left; color: var(--ink); background: #fff;
 }
 .alta-rednet.on { border-color: var(--blue); background: var(--blue-soft); cursor: default; }
 .alta-rednet .nb {
@@ -187,7 +189,7 @@
 .alta-toggle { display: flex; gap: 10px; margin-bottom: 8px; }
 .alta-toggle .t {
   flex: 1; text-align: center; border: 1.5px solid var(--line-2); border-radius: 12px; padding: 15px;
-  font-size: 15px; font-weight: 600; color: var(--ink-soft); cursor: pointer; background: #fff;
+  font-family: var(--sans); font-size: 15px; font-weight: 600; color: var(--ink-soft); cursor: pointer; background: #fff;
 }
 .alta-toggle .t.sel { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
 .alta-stepper { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
@@ -196,6 +198,17 @@
   place-items: center; font-size: 22px; color: var(--ink-soft); cursor: pointer; background: #fff; user-select: none;
 }
 .alta-stepper .s:hover { border-color: var(--blue); color: var(--blue); }
+
+/* foco visible en los controles operables por teclado */
+.alta-cat:focus-visible,
+.alta-rednet:focus-visible,
+.alta-toggle .t:focus-visible,
+.alta-stepper .s:focus-visible,
+.alta-addp:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-color: var(--blue);
+}
 .alta-stepper .cnt { font-weight: 700; font-size: 40px; letter-spacing: -1px; min-width: 52px; text-align: center; }
 .alta-stepper .cl { font-size: 13px; color: var(--mute); }
 
