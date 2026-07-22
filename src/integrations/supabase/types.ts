@@ -82,48 +82,72 @@ export type Database = {
       }
       suscripciones: {
         Row: {
+          alta_completada_en: string | null
+          categoria: string | null
           codigo: string
+          competidores: Json
           created_at: string
           demo_expira: string | null
           email: string
+          equipo_telefono: string | null
+          equipo_tamano: number
           estado: string
           id: string
           nombre: string
+          pais_de: string | null
+          pais_para: string | null
           plan: string
           pulso_dia: string
           pulso_hora: string
+          redes: Json
           telefono: string | null
           token: string
           tz: string
           updated_at: string
         }
         Insert: {
+          alta_completada_en?: string | null
+          categoria?: string | null
           codigo: string
+          competidores?: Json
           created_at?: string
           demo_expira?: string | null
           email: string
+          equipo_telefono?: string | null
+          equipo_tamano?: number
           estado?: string
           id?: string
           nombre: string
+          pais_de?: string | null
+          pais_para?: string | null
           plan?: string
           pulso_dia?: string
           pulso_hora?: string
+          redes?: Json
           telefono?: string | null
           token?: string
           tz?: string
           updated_at?: string
         }
         Update: {
+          alta_completada_en?: string | null
+          categoria?: string | null
           codigo?: string
+          competidores?: Json
           created_at?: string
           demo_expira?: string | null
           email?: string
+          equipo_telefono?: string | null
+          equipo_tamano?: number
           estado?: string
           id?: string
           nombre?: string
+          pais_de?: string | null
+          pais_para?: string | null
           plan?: string
           pulso_dia?: string
           pulso_hora?: string
+          redes?: Json
           telefono?: string | null
           token?: string
           tz?: string
@@ -201,6 +225,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      completar_alta: {
+        Args: { p_codigo: string; p_datos: Json }
+        Returns: Database["public"]["Tables"]["suscripciones"]["Row"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

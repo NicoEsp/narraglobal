@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { useSesion } from '@/hooks/useAcceso';
@@ -14,6 +14,7 @@ type Tablero = Tables<'tableros'>;
 type Estado =
   | { paso: 'cargando' }
   | { paso: 'sin-acceso' }
+  | { paso: 'alta-pendiente'; suscripcion: Suscripcion }
   | { paso: 'pausada'; suscripcion: Suscripcion }
   | { paso: 'sin-tablero'; suscripcion: Suscripcion }
   | { paso: 'listo'; suscripcion: Suscripcion; tablero: Tablero };
@@ -39,6 +40,10 @@ const Suscripcion = () => {
       if (!vivo) return;
       if (!sus) {
         setEstado({ paso: 'sin-acceso' });
+        return;
+      }
+      if (sus.estado === 'borrador') {
+        setEstado({ paso: 'alta-pendiente', suscripcion: sus });
         return;
       }
       if (sus.estado === 'pausado') {
@@ -96,6 +101,10 @@ const Suscripcion = () => {
         <div className="tb-cargando">Cargando tu tablero…</div>
       </div>
     );
+  }
+
+  if (estado.paso === 'alta-pendiente') {
+    return <Navigate to={'/alta/' + estado.suscripcion.codigo} replace />;
   }
 
   if (estado.paso === 'sin-acceso') {

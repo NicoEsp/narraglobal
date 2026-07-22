@@ -35,6 +35,65 @@ const aInputLocal = (d: Date) => {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 };
 
+type RedItem = { red: string; usuario: string };
+
+/** Datos que el cliente cargó en su alta (/alta). Read-only: sirve para
+    confirmar los @ antes de tirar el pull de Apify. */
+const PanelAlta = ({ sus }: { sus: Suscripcion }) => {
+  const redes = Array.isArray(sus.redes) ? (sus.redes as unknown as RedItem[]) : [];
+  const competidores = Array.isArray(sus.competidores)
+    ? (sus.competidores as unknown as string[])
+    : [];
+  const hayAlta = Boolean(sus.alta_completada_en) || redes.length > 0;
+
+  return (
+    <div className="bo-form" style={{ gridTemplateColumns: '1fr 1fr', marginBottom: 24 }}>
+      <div className="campo ancho">
+        <label>Datos del alta {hayAlta ? '' : '· sin completar'}</label>
+      </div>
+      {!hayAlta ? (
+        <div className="bo-nota">
+          El cliente todavía no completó su alta en <b>/alta/{sus.codigo}</b>. Aparece acá cuando la
+          termina (y pasa a estado <b>activo</b>).
+        </div>
+      ) : (
+        <>
+          <div className="campo">
+            <label>Redes (los @ públicos)</label>
+            <div style={{ fontSize: 13.5, lineHeight: 1.6 }}>
+              {redes.length === 0
+                ? '—'
+                : redes.map((r) => `${r.red}: ${r.usuario}`).join(' · ')}
+            </div>
+          </div>
+          <div className="campo">
+            <label>Categoría / mercado</label>
+            <div style={{ fontSize: 13.5, lineHeight: 1.6 }}>
+              {sus.categoria || '—'}
+              {sus.pais_para ? ` · para ${sus.pais_para}` : ''}
+              {sus.pais_de ? ` · desde ${sus.pais_de}` : ''}
+            </div>
+          </div>
+          <div className="campo">
+            <label>Teléfono / equipo</label>
+            <div style={{ fontSize: 13.5, lineHeight: 1.6 }}>
+              {sus.telefono || '—'}
+              {sus.equipo_tamano > 0 ? ` · equipo de ${sus.equipo_tamano}` : ' · trabaja solo'}
+              {sus.equipo_telefono ? ` · compañero ${sus.equipo_telefono}` : ''}
+            </div>
+          </div>
+          {competidores.length > 0 && (
+            <div className="campo">
+              <label>Competidores (PRO)</label>
+              <div style={{ fontSize: 13.5, lineHeight: 1.6 }}>{competidores.join(' · ')}</div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
 const AdminSuscripcion = () => {
   const { id } = useParams<{ id: string }>();
   const [sus, setSus] = useState<Suscripcion | null>(null);
@@ -152,6 +211,8 @@ const AdminSuscripcion = () => {
           </a>
         </p>
       )}
+
+      {sus && <PanelAlta sus={sus} />}
 
       <div className="bo-acciones">
         <button
