@@ -105,26 +105,28 @@ El plan de la suscripción reemplaza al `?plan=` de la URL de antes: `base`, `pr
 `demo` con su vencimiento (el contador de cortesía del tablero sale de ahí).
 
 Reglas de experiencia que ya se cumplen: el cliente **nunca ve una pantalla muerta** —
-sin login le pide el email; en `borrador` lo lleva a **completar su alta** (`/alta/{código}`);
+sin login le pide el email; con el **alta pendiente** (`alta_completada_en` vacío y no
+pausada, sin importar el estado) lo lleva a completar su alta (`/alta/{código}`);
 sin tablero publicado le dice **la fecha concreta** de su primera entrega (según su pulso);
 pausado ve cómo reactivar por WhatsApp.
 
 ### El alta post-login (`/alta/{código}`)
 
-Migración `supabase/migrations/20260718120000_alta_onboarding.sql`. El cliente que pagó
-entra en `borrador`; al abrir su tablero se lo redirige al wizard. Guarda los **campos
-confirmados** (no la conversación) en columnas nuevas de `suscripciones`: `pais_de`,
-`pais_para`, `categoria`, `redes` (jsonb `[{red,usuario}]`), `competidores` (jsonb, solo
-PRO), `equipo_tamano`, `equipo_telefono`, `alta_completada_en`. Pedimos **solo los @
-públicos** — nunca login a las redes. El paso de benchmark muestra el cupón `PRO2` si el
-plan es base, o la carga de hasta 5 competidores si es PRO.
+Migraciones `20260718120000_alta_onboarding.sql` → `20260724130000_alta_pendiente_sin_borrador.sql`.
+El cliente que pagó entra en `borrador`; al abrir su tablero se lo redirige al wizard.
+Guarda los **campos confirmados** (no la conversación) en columnas de `suscripciones`:
+`pais_de`, `pais_para`, `categoria`, `redes` (jsonb `[{red,usuario}]`), `competidores`
+(jsonb, hasta 5 — «a quién mirar de cerca», incluido en el Narra ID de **todos** los
+planes), `equipo_tamano`, `equipo_telefono`, `alta_completada_en`. Pedimos **solo los @
+públicos** — nunca login a las redes.
 
 Al terminar, el wizard llama a la función **`completar_alta(p_codigo, p_datos)`** —
-`SECURITY DEFINER`, valida el email del magic link y el estado `borrador`, escribe solo
-los campos del alta y pasa a `activo`. Así el cliente **no** recibe un `UPDATE` amplio
-sobre su fila (no puede tocar `plan`/`estado`/`demo_expira`). En el back office, cada
-suscripción muestra un panel **read-only "Datos del alta"** para confirmar los @ antes de
-tirar el pull de Apify.
+`SECURITY DEFINER`, valida el email del login y que el **alta esté pendiente**
+(`alta_completada_en` vacío y no pausada), escribe solo los campos del alta, y si venía
+en `borrador` lo promueve a `activo` (los demás estados se conservan). Así el cliente
+**no** recibe un `UPDATE` amplio sobre su fila (no puede tocar `plan`/`estado`/`demo_expira`).
+En el back office, cada suscripción muestra un panel **read-only "Datos del alta"** para
+confirmar los @ antes de tirar el pull de Apify.
 
 ## 4 · Lo que viene (fases siguientes, no incluido acá)
 

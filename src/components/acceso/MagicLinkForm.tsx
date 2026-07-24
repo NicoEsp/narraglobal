@@ -48,6 +48,7 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
   const [aviso, setAviso] = useState<string | null>(null);
   const [espera, setEspera] = useState(0);
   const codigoRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
   // countdown del reenvío
   useEffect(() => {
@@ -56,8 +57,11 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
     return () => clearInterval(t);
   }, [paso, espera, email]);
 
+  // El foco sigue al paso: al pedir el código va al input del código; al
+  // volver con «Cambiar email» (que desmonta el botón enfocado) va al email.
   useEffect(() => {
     if (paso === 'codigo') codigoRef.current?.focus();
+    else emailRef.current?.focus();
   }, [paso]);
 
   const enviar = async (e: FormEvent) => {
@@ -152,6 +156,7 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
           <p className="acc-p">{detalle}</p>
           <form className="acc-form" onSubmit={enviar}>
             <input
+              ref={emailRef}
               className="acc-input"
               type="email"
               autoComplete="email"
@@ -161,7 +166,7 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            {error && <div className="acc-error">{error}</div>}
+            {error && <div className="acc-error" role="alert">{error}</div>}
             <button className="acc-btn" type="submit" disabled={ocupado}>
               {ocupado ? 'Enviando…' : 'Enviarme el código de acceso'}
             </button>
@@ -176,7 +181,7 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
             <b>código de 6 dígitos</b> y un link de acceso. Poné el código acá — o abrí el link
             desde este dispositivo. Si no llega en un par de minutos, revisá spam.
           </p>
-          {aviso && <div className="acc-aviso">{aviso}</div>}
+          {aviso && <div className="acc-aviso" role="status">{aviso}</div>}
           <form className="acc-form" onSubmit={verificar}>
             <input
               ref={codigoRef}
@@ -190,7 +195,7 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
               value={codigo}
               onChange={(e) => setCodigo(e.target.value.replace(/\D/g, '').slice(0, 6))}
             />
-            {error && <div className="acc-error">{error}</div>}
+            {error && <div className="acc-error" role="alert">{error}</div>}
             <button
               className="acc-btn"
               type="submit"

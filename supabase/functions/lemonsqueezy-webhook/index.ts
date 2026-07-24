@@ -131,6 +131,7 @@ interface Fila {
   codigo: string;
   estado: string;
   alta_completada_en: string | null;
+  ls_subscription_id: string | null;
 }
 
 /** Estado operativo al reactivar: si nunca onboardeó vuelve a 'borrador'
@@ -143,7 +144,7 @@ async function buscarFila(
   subscriptionId: string | null,
   email: string,
 ): Promise<{ fila: Fila | null; error: unknown }> {
-  const cols = 'id, codigo, estado, alta_completada_en';
+  const cols = 'id, codigo, estado, alta_completada_en, ls_subscription_id';
   if (subscriptionId) {
     const { data, error } = await db
       .from('suscripciones')
@@ -221,6 +222,11 @@ Deno.serve(async (req) => {
   // la DB por default. Los dos eventos son válidos como alta: cubre configs de
   // LS que solo suscriban uno de los dos, y el que llegue segundo solo
   // sincroniza columnas ls_*.
+  //
+  // Supuesto de diseño: el store de LS vende SOLO planes del tablero. Si algún
+  // día se vende otra cosa por LS (un workshop, un informe), filtrar acá por
+  // variant/product antes de dar de alta — hoy cualquier orden del store crea
+  // (o reactiva) una suscripción.
   if (tipo === 'order_created' || tipo === 'subscription_created') {
     if (!email) return json({ error: 'sin_email' }, 400);
 
@@ -284,11 +290,30 @@ Deno.serve(async (req) => {
         console.error(`${tipo} · insert`, error);
         return json({ error: 'db_error' }, 500);
       }
-      // 23505 en el email único = reintento de LS que entró en paralelo:
-      // dedup, no un error. 23505 en codigo = choque de código: reintentar.
+      // 23505 en el email único = el evento gemelo insertó primero (en cada
+      // venta LS manda order_created Y subscription_created casi juntos).
+      // No basta con responder dedup: este evento trae datos que el gemelo no
+      // tenía (p.ej. subscription_created trae el ls_subscription_id) y LS no
+      // lo va a reintentar después de un 200 — re-buscamos y sincronizamos.
+      // 23505 en codigo = choque de código: reintentar con otro.
       if (String(error.message ?? '').includes('suscripciones_email_unico')) {
-        console.log(`${tipo}${marca} · ${email} insertado por un evento paralelo, dedup`);
-        return json({ ok: true, dedup: true });
+        const { fila: ganadora, error: errRe } = await buscarFila(db, subscriptionId, email);
+        if (errRe || !ganadora) {
+          // Transitorio raro (el gemelo todavía no es visible): 500 para que
+          // LS reintente y el camino de "ya existe" lo resuelva.
+          console.error(`${tipo} · re-lookup tras 23505`, errRe);
+          return json({ error: 'db_error' }, 500);
+        }
+        const { error: errSync } = await db
+          .from('suscripciones')
+          .update(columnasLS(payload, subscriptionId, attrs))
+          .eq('id', ganadora.id);
+        if (errSync) {
+          console.error(`${tipo} · sync tras 23505`, errSync);
+          return json({ error: 'db_error' }, 500);
+        }
+        console.log(`${tipo}${marca} · ${email} insertado por el evento gemelo, sync ls_*`);
+        return json({ ok: true, dedup: true, codigo: ganadora.codigo });
       }
     }
     return json({ error: 'codigo_colision' }, 500);
@@ -322,6 +347,17 @@ Deno.serve(async (req) => {
       // log para revisarlo.
       console.warn(`${tipo}${marca} · sin fila para ${email || subscriptionId}, ignorado`);
       return json({ ok: true, sin_fila: true });
+    }
+
+    // La fila matcheó por email pero está atada a OTRA suscripción de LS:
+    // es un evento tardío de una sub vieja (p.ej. el expired de la sub
+    // anterior reintentado después de una recompra). No puede pausar ni
+    // tocar al cliente vigente.
+    if (subscriptionId && fila.ls_subscription_id && fila.ls_subscription_id !== subscriptionId) {
+      console.warn(
+        `${tipo}${marca} · sub ${subscriptionId} no es la vigente (${fila.ls_subscription_id}) de ${email || fila.codigo}, ignorado`,
+      );
+      return json({ ok: true, sub_no_vigente: true });
     }
 
     const cambios: Attrs = { ...columnasLS(payload, subscriptionId, attrs) };
