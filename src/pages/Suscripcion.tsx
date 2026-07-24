@@ -60,7 +60,14 @@ const Suscripcion = () => {
         .maybeSingle();
       if (!vivo) return;
       if (!tab) {
-        setEstado({ paso: 'sin-tablero', suscripcion: sus });
+        // Sin tablero todavía: si el alta nunca se completó, el cliente tiene
+        // que poder onboardear antes de que su tablero exista (aunque la
+        // suscripción ya figure 'activo'). Si ya lo completó, está en espera.
+        if (sus.alta_completada_en === null) {
+          setEstado({ paso: 'alta-pendiente', suscripcion: sus });
+        } else {
+          setEstado({ paso: 'sin-tablero', suscripcion: sus });
+        }
         return;
       }
       setEstado({ paso: 'listo', suscripcion: sus, tablero: tab });

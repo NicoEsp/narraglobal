@@ -191,8 +191,11 @@ const Alta = () => {
     );
   }
 
-  // Alta ya hecha (o pausada): el tablero decide qué mostrar.
-  if (sus.estado !== 'borrador') {
+  // El onboarding está disponible mientras el alta siga pendiente
+  // (alta_completada_en null) y la suscripción no esté pausada — aunque ya
+  // figure 'activo'. Si el alta ya se completó o está pausada, manda el tablero.
+  const altaPendiente = sus.alta_completada_en === null && sus.estado !== 'pausado';
+  if (!altaPendiente) {
     return <Navigate to={'/suscripcion/' + sus.codigo} replace />;
   }
 
