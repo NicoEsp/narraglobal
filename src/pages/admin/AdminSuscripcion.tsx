@@ -84,7 +84,7 @@ const PanelAlta = ({ sus }: { sus: Suscripcion }) => {
           </div>
           {competidores.length > 0 && (
             <div className="campo">
-              <label>Competidores (PRO)</label>
+              <label>Mirar de cerca (hasta 5)</label>
               <div style={{ fontSize: 13.5, lineHeight: 1.6 }}>{competidores.join(' · ')}</div>
             </div>
           )}

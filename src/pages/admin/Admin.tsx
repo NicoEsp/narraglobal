@@ -257,11 +257,30 @@ const Admin = () => {
                 </td>
                 <td>
                   <span className={'bo-chip ' + s.plan}>{s.plan}</span>
+                  {(s.ls_subscription_id || s.ls_customer_id) && (
+                    <span
+                      className="bo-chip ls"
+                      title={
+                        'Cobro por Lemon Squeezy' +
+                        (s.ls_estado ? ' · ' + s.ls_estado : '') +
+                        (s.ls_renueva_en ? ' · renueva ' + s.ls_renueva_en.slice(0, 10) : '') +
+                        (s.ls_termina_en ? ' · termina ' + s.ls_termina_en.slice(0, 10) : '')
+                      }
+                    >
+                      LS{s.ls_test_mode ? ' test' : ''}
+                      {s.ls_estado && s.ls_estado !== 'active' ? ' · ' + s.ls_estado : ''}
+                    </span>
+                  )}
                 </td>
                 <td>
                   <span className={'bo-chip ' + chipEstado(s.estado)}>
                     {s.estado.replace('_', ' ')}
                   </span>
+                  {s.alta_completada_en === null && s.estado !== 'borrador' && s.estado !== 'pausado' && (
+                    <span className="bo-chip demo" title="Todavía no completó el wizard de /alta">
+                      sin alta
+                    </span>
+                  )}
                 </td>
                 <td style={{ whiteSpace: 'nowrap' }}>
                   {s.pulso_dia} {s.pulso_hora.slice(0, 5)}

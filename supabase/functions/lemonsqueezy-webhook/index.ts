@@ -1,26 +1,38 @@
 // ============================================================================
 // LEMON SQUEEZY · webhook
 // Recibe los eventos de pago de Lemon Squeezy y los mapea al store de clientes.
-// Es la pieza que automatiza el "+ Nueva suscripción" que hoy hace el equipo a
-// mano en /admin (ver docs/SUSCRIPCIONES.md §3).
+// Automatiza el "+ Nueva suscripción" del back office y acompaña el ciclo de
+// vida completo del cobro (docs/SUSCRIPCIONES.md §5).
 //
-//   order_created          → crea la fila en `suscripciones` (estado='borrador')
-//   subscription_cancelled → pasa esa fila a `pausado`
+//   order_created / subscription_created → alta en `suscripciones` ('borrador')
+//     · si el email ya existía pausado, lo reactiva (recompra = intención clara)
+//   subscription_resumed / _unpaused     → reactiva ('activo' o 'borrador' si
+//     nunca completó su alta)
+//   subscription_expired / _paused       → 'pausado'
+//   subscription_cancelled               → NO pausa: el cliente ya pagó el
+//     período; LS manda subscription_expired cuando de verdad termina
+//   subscription_updated                 → sincroniza los datos de LS y pausa
+//     si el status quedó terminal (unpaid/expired/paused). Nunca des-pausa
+//     solo: reactivar tras una pausa de operación es decisión del equipo o del
+//     propio cliente (resumed/unpaused/recompra).
+//   subscription_payment_*               → solo sincronizan identidad (el
+//     payload es la FACTURA, no la suscripción: su status es de factura)
 //
-// El esquema ya lo espera: no migra nada (docs/SUSCRIPCIONES.md §4). El match
-// natural es el `email` (la llave del magic link; un email por suscripción).
+// El estado operativo (borrador→activo→con_historico→live / pausado) sigue
+// siendo nuestro; las columnas ls_* guardan la identidad y el estado del cobro
+// (migración 20260724150000_lemon_squeezy_suscripcion.sql).
 //
 // Config (dashboard → Edge Functions → Secrets):
 //   LEMONSQUEEZY_WEBHOOK_SECRET   el signing secret del webhook en LS  (obligatorio)
 //   LS_VARIANT_PRO                variant_id del plan PRO en LS         (opcional)
-//   LS_VARIANT_BASE              variant_id del plan base en LS        (opcional)
+//   LS_VARIANT_BASE               variant_id del plan base en LS        (opcional)
 //   SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY   los inyecta la plataforma
 //
 // La firma es HMAC-SHA256 hex del body crudo, en el header `X-Signature`
 // (así lo manda LS). Sin secret válido, cualquiera podría postear pagos falsos.
 // ============================================================================
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SECRET = Deno.env.get('LEMONSQUEEZY_WEBHOOK_SECRET') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
@@ -57,15 +69,102 @@ function igualSeguro(a: string, b: string): boolean {
   return dif === 0;
 }
 
-/** Mapea la variante comprada en LS a nuestro plan (`base` | `pro`). */
-function planDeEvento(attrs: Record<string, unknown>): 'base' | 'pro' {
-  const item = (attrs.first_order_item ?? {}) as Record<string, unknown>;
-  const variantId = String(item.variant_id ?? attrs.variant_id ?? '');
+type Attrs = Record<string, unknown>;
+
+const texto = (v: unknown): string | null => {
+  const s = String(v ?? '').trim();
+  return s === '' || s === 'null' || s === 'undefined' ? null : s;
+};
+
+/** variant_id del evento: subscription_* lo trae plano; order_created, en first_order_item. */
+function variantDeEvento(attrs: Attrs): string {
+  const item = (attrs.first_order_item ?? {}) as Attrs;
+  return String(item.variant_id ?? attrs.variant_id ?? '');
+}
+
+/** Plan según los LS_VARIANT_* configurados. null = la variante no mapea. */
+function planPorVariante(attrs: Attrs): 'base' | 'pro' | null {
+  const variantId = variantDeEvento(attrs);
   if (variantId && variantId === (Deno.env.get('LS_VARIANT_PRO') ?? '')) return 'pro';
   if (variantId && variantId === (Deno.env.get('LS_VARIANT_BASE') ?? '')) return 'base';
-  // Fallback por nombre de producto si no hay variantes configuradas.
-  const nombre = String(item.product_name ?? attrs.product_name ?? '').toLowerCase();
+  return null;
+}
+
+/** Plan para un alta: variante configurada, o fallback por nombre de producto. */
+function planDeEvento(attrs: Attrs): 'base' | 'pro' {
+  const porVariante = planPorVariante(attrs);
+  if (porVariante) return porVariante;
+  const item = (attrs.first_order_item ?? {}) as Attrs;
+  const nombre = String(
+    item.product_name ?? attrs.product_name ?? item.variant_name ?? attrs.variant_name ?? '',
+  ).toLowerCase();
   return nombre.includes('pro') ? 'pro' : 'base';
+}
+
+/** Qué objeto vino en data: orden, suscripción o factura de suscripción. */
+type TipoPayload = 'orders' | 'subscriptions' | 'subscription-invoices' | '';
+
+/** Columnas ls_* a sincronizar. Cuidado con el tipo del payload: el status de
+    una orden ('paid') o de una factura ('pending'|'paid'…) NO es el status de
+    la suscripción — solo un payload de suscripción escribe ls_estado/fechas. */
+function columnasLS(payload: TipoPayload, subscriptionId: string | null, attrs: Attrs): Attrs {
+  const out: Attrs = {};
+  if (subscriptionId) out.ls_subscription_id = subscriptionId;
+  const customer = texto(attrs.customer_id);
+  if (customer) out.ls_customer_id = customer;
+  if (typeof attrs.test_mode === 'boolean') out.ls_test_mode = attrs.test_mode;
+  if (payload === 'orders' || payload === 'subscriptions') {
+    const variant = texto(variantDeEvento(attrs));
+    if (variant) out.ls_variant_id = variant;
+  }
+  if (payload === 'subscriptions') {
+    const status = texto(attrs.status);
+    if (status) out.ls_estado = status;
+    if ('renews_at' in attrs) out.ls_renueva_en = texto(attrs.renews_at);
+    if ('ends_at' in attrs) out.ls_termina_en = texto(attrs.ends_at);
+  }
+  return out;
+}
+
+interface Fila {
+  id: string;
+  codigo: string;
+  estado: string;
+  alta_completada_en: string | null;
+}
+
+/** Estado operativo al reactivar: si nunca onboardeó vuelve a 'borrador'
+    (la web lo lleva al wizard de /alta), si ya lo hizo vuelve a 'activo'. */
+const estadoReactivado = (fila: Fila) => (fila.alta_completada_en ? 'activo' : 'borrador');
+
+/** Busca la fila del cliente: primero por la suscripción de LS, después por email. */
+async function buscarFila(
+  db: SupabaseClient,
+  subscriptionId: string | null,
+  email: string,
+): Promise<{ fila: Fila | null; error: unknown }> {
+  const cols = 'id, codigo, estado, alta_completada_en';
+  if (subscriptionId) {
+    const { data, error } = await db
+      .from('suscripciones')
+      .select(cols)
+      .eq('ls_subscription_id', subscriptionId)
+      .limit(1)
+      .maybeSingle();
+    if (error) return { fila: null, error };
+    if (data) return { fila: data as Fila, error: null };
+  }
+  if (!email) return { fila: null, error: null };
+  // ilike da el match case-insensitive, pero % y _ son comodines de LIKE:
+  // escapados, un email como a_b@mail.com no puede matchear otra fila.
+  const patron = email.replace(/([%_\\])/g, '\\$1');
+  const { data, error } = await db
+    .from('suscripciones')
+    .select(cols)
+    .ilike('email', patron)
+    .limit(1)
+    .maybeSingle();
+  return { fila: (data as Fila | null) ?? null, error };
 }
 
 const json = (obj: unknown, status = 200) =>
@@ -88,8 +187,8 @@ Deno.serve(async (req) => {
 
   // 2) Parsear el evento ya verificado.
   let evento: {
-    meta?: { event_name?: string };
-    data?: { attributes?: Record<string, unknown> };
+    meta?: { event_name?: string; test_mode?: boolean; custom_data?: Record<string, unknown> };
+    data?: { type?: string; id?: string; attributes?: Attrs };
   };
   try {
     evento = JSON.parse(raw);
@@ -99,40 +198,64 @@ Deno.serve(async (req) => {
 
   const tipo = evento.meta?.event_name ?? '';
   const attrs = evento.data?.attributes ?? {};
+  const payload = (evento.data?.type ?? '') as TipoPayload;
   const email = String(attrs.user_email ?? '').trim().toLowerCase();
+  // El id de la suscripción de LS: en subscription_* es data.id; en los
+  // subscription_payment_* el data es la FACTURA y viene en attrs.subscription_id.
+  const subscriptionId =
+    payload === 'subscriptions'
+      ? texto(evento.data?.id)
+      : payload === 'subscription-invoices'
+        ? texto(attrs.subscription_id)
+        : null;
+  const testMode = attrs.test_mode === true || evento.meta?.test_mode === true;
+  const marca = testMode ? ' [test-mode]' : '';
 
   const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  // ── order_created → alta en 'borrador' ──────────────────────────────────
-  // El cliente que pagó entra en borrador; al abrir su tablero se lo lleva al
-  // wizard de /alta/{codigo}. El token (pago ↔ narrachat ↔ tablero) lo pone la
-  // DB por default.
-  if (tipo === 'order_created') {
+  // ── order_created / subscription_created → alta (o reactivación) ─────────
+  // El cliente que paga entra en 'borrador'; al abrir su tablero se lo lleva
+  // al wizard de /alta/{codigo}. El token (pago ↔ narrachat ↔ tablero) lo pone
+  // la DB por default. Los dos eventos son válidos como alta: cubre configs de
+  // LS que solo suscriban uno de los dos, y el que llegue segundo solo
+  // sincroniza columnas ls_*.
+  if (tipo === 'order_created' || tipo === 'subscription_created') {
     if (!email) return json({ error: 'sin_email' }, 400);
 
-    // Idempotencia: LS reintenta. Un email = una suscripción (modelo del store).
-    // `email` no tiene unique en el esquema, así que limitamos a 1 (maybeSingle
-    // tiraría si hubiera duplicados) y dedup por lookup-previo. Queda una ventana
-    // de carrera estrecha si dos reintentos entran a la vez; los reintentos de LS
-    // van espaciados, así que en la práctica no ocurre.
-    const { data: existente, error: errBusca } = await db
-      .from('suscripciones')
-      .select('id, codigo, estado')
-      .ilike('email', email)
-      .limit(1)
-      .maybeSingle();
+    const { fila: existente, error: errBusca } = await buscarFila(db, subscriptionId, email);
     if (errBusca) {
-      console.error('order_created · lookup', errBusca);
+      console.error(`${tipo} · lookup`, errBusca);
       return json({ error: 'db_error' }, 500);
     }
+
     if (existente) {
-      // Ya existe (reintento del webhook o cliente que vuelve). No lo pisamos:
-      // reactivar un cliente pausado o cambiarle el plan es una decisión de
-      // operación, no del webhook. Devolvemos 200 para que LS no reintente.
-      console.log(`order_created · ya existe ${email} (${existente.estado}), skip`);
-      return json({ ok: true, dedup: true, codigo: existente.codigo });
+      // Ya existe: sincronizamos identidad LS y, si estaba pausado, la compra
+      // nueva lo reactiva (autoservicio: nadie del equipo tiene que intervenir).
+      const cambios: Attrs = { ...columnasLS(payload, subscriptionId, attrs) };
+      let reactivada = false;
+      if (existente.estado === 'pausado') {
+        cambios.estado = estadoReactivado(existente);
+        cambios.plan = planDeEvento(attrs);
+        reactivada = true;
+      } else {
+        // Cliente vigente que compra de nuevo (upgrade/downgrade autoservicio):
+        // el plan sigue a lo que compró, pero solo con LS_VARIANT_* configurados
+        // — el fallback por nombre es demasiado frágil para pisar un plan vivo.
+        const plan = planPorVariante(attrs);
+        if (plan) cambios.plan = plan;
+      }
+      const { error } = await db.from('suscripciones').update(cambios).eq('id', existente.id);
+      if (error) {
+        console.error(`${tipo} · update existente`, error);
+        return json({ error: 'db_error' }, 500);
+      }
+      console.log(
+        `${tipo}${marca} · ${email} ya existía (${existente.estado})` +
+          (reactivada ? ' → reactivada' : ' · sync ls_*'),
+      );
+      return json({ ok: true, dedup: !reactivada, reactivada, codigo: existente.codigo });
     }
 
     const nombre = String(attrs.user_name ?? '').trim() || email;
@@ -143,41 +266,106 @@ Deno.serve(async (req) => {
     for (let intento = 0; intento < 2; intento++) {
       const { data: fila, error } = await db
         .from('suscripciones')
-        .insert({ codigo: generarCodigo(), nombre, email, plan, estado: 'borrador' })
+        .insert({
+          codigo: generarCodigo(),
+          nombre,
+          email,
+          plan,
+          estado: 'borrador',
+          ...columnasLS(payload, subscriptionId, attrs),
+        })
         .select('codigo')
         .single();
       if (!error) {
-        console.log(`order_created · alta ${email} plan=${plan} codigo=${fila.codigo}`);
+        console.log(`${tipo}${marca} · alta ${email} plan=${plan} codigo=${fila.codigo}`);
         return json({ ok: true, codigo: fila.codigo });
       }
-      // El único unique del esquema es `codigo`: 23505 = choque de código →
-      // reintentar con otro. Cualquier otro error es real.
       if (error.code !== '23505') {
-        console.error('order_created · insert', error);
+        console.error(`${tipo} · insert`, error);
         return json({ error: 'db_error' }, 500);
+      }
+      // 23505 en el email único = reintento de LS que entró en paralelo:
+      // dedup, no un error. 23505 en codigo = choque de código: reintentar.
+      if (String(error.message ?? '').includes('suscripciones_email_unico')) {
+        console.log(`${tipo}${marca} · ${email} insertado por un evento paralelo, dedup`);
+        return json({ ok: true, dedup: true });
       }
     }
     return json({ error: 'codigo_colision' }, 500);
   }
 
-  // ── subscription_cancelled → 'pausado' ──────────────────────────────────
-  // El cliente ve cómo reactivar por WhatsApp (lo maneja la pantalla del tablero).
-  if (tipo === 'subscription_cancelled') {
-    if (!email) return json({ error: 'sin_email' }, 400);
-    const { error } = await db
-      .from('suscripciones')
-      .update({ estado: 'pausado' })
-      .ilike('email', email);
-    if (error) {
-      console.error('subscription_cancelled · update', error);
+  // ── el resto de los eventos de suscripción ───────────────────────────────
+  const EVENTOS_SUB = new Set([
+    'subscription_updated',
+    'subscription_cancelled',
+    'subscription_resumed',
+    'subscription_expired',
+    'subscription_paused',
+    'subscription_unpaused',
+    'subscription_payment_success',
+    'subscription_payment_failed',
+    'subscription_payment_recovered',
+    'subscription_payment_refunded',
+  ]);
+
+  if (EVENTOS_SUB.has(tipo)) {
+    if (!email && !subscriptionId) return json({ error: 'sin_email' }, 400);
+
+    const { fila, error: errBusca } = await buscarFila(db, subscriptionId, email);
+    if (errBusca) {
+      console.error(`${tipo} · lookup`, errBusca);
       return json({ error: 'db_error' }, 500);
     }
-    console.log(`subscription_cancelled · pausado ${email}`);
-    return json({ ok: true });
+    if (!fila) {
+      // Suscripción de LS que no está en nuestro store (p.ej. anterior al
+      // sistema, o borrada a mano). 200 para que LS no reintente; queda en el
+      // log para revisarlo.
+      console.warn(`${tipo}${marca} · sin fila para ${email || subscriptionId}, ignorado`);
+      return json({ ok: true, sin_fila: true });
+    }
+
+    const cambios: Attrs = { ...columnasLS(payload, subscriptionId, attrs) };
+
+    if (tipo === 'subscription_resumed' || tipo === 'subscription_unpaused') {
+      // El cliente retomó su suscripción él mismo → vuelve a entrar.
+      if (fila.estado === 'pausado') cambios.estado = estadoReactivado(fila);
+    } else if (tipo === 'subscription_expired' || tipo === 'subscription_paused') {
+      // Se terminó el acceso pago (o LS dejó de cobrar) → pausa operativa.
+      cambios.estado = 'pausado';
+    } else if (tipo === 'subscription_updated') {
+      // Red de seguridad: LS manda updated ante cualquier cambio. Si el status
+      // quedó terminal, pausamos aunque el evento específico se haya perdido.
+      // Nunca des-pausa: eso es de resumed/unpaused/recompra o del equipo.
+      const status = String(attrs.status ?? '');
+      if (status === 'expired' || status === 'unpaid' || status === 'paused') {
+        cambios.estado = 'pausado';
+      }
+      // Cambio de plan (upgrade/downgrade se hace en el portal de LS y llega
+      // como updated con otra variante). Solo con LS_VARIANT_* configurados:
+      // el fallback por nombre es demasiado frágil para tocar un plan vigente.
+      const plan = planPorVariante(attrs);
+      if (plan) cambios.plan = plan;
+    }
+    // subscription_cancelled NO cambia el estado: el cliente pagó hasta
+    // ends_at y LS manda subscription_expired en esa fecha. Acá solo queda
+    // registrado ls_estado='cancelled' + ls_termina_en para que el equipo lo
+    // vea venir en el back office. Los subscription_payment_* tampoco: son la
+    // factura (identidad sí, estado no).
+
+    const { error } = await db.from('suscripciones').update(cambios).eq('id', fila.id);
+    if (error) {
+      console.error(`${tipo} · update`, error);
+      return json({ error: 'db_error' }, 500);
+    }
+    console.log(
+      `${tipo}${marca} · ${email || subscriptionId}` +
+        (cambios.estado ? ` → estado=${cambios.estado}` : ' · sync ls_*'),
+    );
+    return json({ ok: true, codigo: fila.codigo, estado: cambios.estado ?? fila.estado });
   }
 
-  // Otros eventos (subscription_created, _updated, _payment_success…): 200 para
-  // que LS los marque entregados. Se implementan cuando hagan falta.
-  console.log(`evento ignorado: ${tipo}`);
+  // Otros eventos (order_refunded, license_*…): 200 para que LS los marque
+  // entregados. Se implementan cuando hagan falta.
+  console.log(`evento ignorado: ${tipo}${marca}`);
   return json({ ok: true, ignored: tipo });
 });

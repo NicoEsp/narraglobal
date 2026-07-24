@@ -1,10 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+declare global {
+  interface Window {
+    /** La inyecta lemon.js; en una SPA hay que llamarla tras montar. */
+    createLemonSqueezy?: () => void;
+  }
+}
+
 // WhatsApp (código país + número, sin + ni espacios)
 const WA = '5491130731011';
 
-// Suscripción → por ahora WhatsApp. Reemplazar por la URL de checkout cuando esté.
-const CHECKOUT = 'https://wa.me/5491130731011?text=Hola%2C%20quiero%20comenzar%20mi%20suscripci%C3%B3n%20al%20tablero%20narraglobal.';
+// Suscripción → checkout de Lemon Squeezy (overlay). La URL viene de
+// VITE_LS_CHECKOUT_URL (.env y Vercel): el "Share → Copy link" del producto.
+// embed=1 hace que lemon.js la abra como overlay sobre la landing.
+// Sin la URL configurada, el CTA cae a WhatsApp (la landing nunca se rompe).
+const LS_CHECKOUT = (import.meta.env.VITE_LS_CHECKOUT_URL ?? '').trim();
+const CHECKOUT = LS_CHECKOUT
+  ? LS_CHECKOUT + (LS_CHECKOUT.includes('?') ? '&' : '?') + 'embed=1'
+  : 'https://wa.me/5491130731011?text=Hola%2C%20quiero%20comenzar%20mi%20suscripci%C3%B3n%20al%20tablero%20narraglobal.';
+const CHECKOUT_CTA_CLASS = LS_CHECKOUT ? ' lemonsqueezy-button' : '';
 
 // Logos de clientes del carrusel (marquee)
 interface ClientDef { file: string; alt: string; fallback: string; size?: 'md' | 'lg'; }
@@ -74,6 +88,24 @@ const Index = () => {
   const [otraOn, setOtraOn] = useState(false);
   const [otra, setOtra] = useState('');
 
+  // ===== lemon.js: abre el checkout como overlay sobre la landing =====
+  // Se carga solo si hay checkout configurado. Si el script no llega a cargar
+  // (bloqueadores), el <a> navega igual al checkout hosteado: nada se rompe.
+  useEffect(() => {
+    if (!LS_CHECKOUT) return;
+    const YA = 'script[data-lemon]';
+    if (document.querySelector(YA)) {
+      window.createLemonSqueezy?.();
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = 'https://app.lemonsqueezy.com/js/lemon.js';
+    s.defer = true;
+    s.dataset.lemon = '1';
+    s.onload = () => window.createLemonSqueezy?.();
+    document.head.appendChild(s);
+  }, []);
+
   // ===== escala de la captura del tablero (se comporta como una foto) =====
   useEffect(() => {
     const wrap = shotWrapRef.current;
@@ -141,8 +173,7 @@ const Index = () => {
             <h1 className="hh">El sistema de control de tu narrativa pública</h1>
             <p className="hsub">Cada lunes, un tablero actualizado con datos NarraNoise®: qué mensajes llegaron, cómo rendís frente a tu competencia y qué hacen tus públicos. Sin jerga, con un plan de acción para la semana.</p>
             <div className="hctas">
-              {/* CTA: reemplazar por la URL de checkout cuando esté */}
-              <a className="btn-p" href={CHECKOUT} target="_blank" rel="noopener">Quiero comenzar mi suscripción</a>
+              <a className={'btn-p' + CHECKOUT_CTA_CLASS} href={CHECKOUT} target="_blank" rel="noopener">Quiero comenzar mi suscripción</a>
               <span className="cta-price">Desde<b>USD 299/mes</b></span>
             </div>
           </div>
@@ -380,8 +411,7 @@ const Index = () => {
             <div className="mc-t">Tu primer tablero llega el próximo lunes.</div>
             <div className="mc-s">Suscripción mensual · desde USD 299/mes</div>
           </div>
-          {/* CTA: reemplazar por la URL de checkout cuando esté */}
-          <a className="mc-btn" href={CHECKOUT} target="_blank" rel="noopener">Comenzar mi suscripción</a>
+          <a className={'mc-btn' + CHECKOUT_CTA_CLASS} href={CHECKOUT} target="_blank" rel="noopener">Comenzar mi suscripción</a>
         </div>
       </section>
 

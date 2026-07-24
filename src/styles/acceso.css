@@ -18,6 +18,9 @@
 .acc-btn.sec{background:var(--paper-2);color:var(--ink);border:1.5px solid var(--line-2)}
 .acc-error{font-size:13px;color:var(--pink-ink);background:#fff0f5;border-radius:8px;padding:10px 12px;line-height:1.45}
 .acc-ok{font-size:14px;color:var(--green-ink);background:var(--mint);border-radius:8px;padding:12px 14px;line-height:1.5}
+.acc-aviso{font-size:13px;color:#b26a00;background:#fff7e6;border-radius:8px;padding:10px 12px;line-height:1.45;margin-bottom:12px}
+.acc-otp{font-family:var(--mono);font-size:26px;letter-spacing:12px;text-align:center;padding:12px 0 12px 12px}
+.acc-nota{margin-top:14px;font-size:12px;color:var(--mute);line-height:1.5}
 .acc-links{margin-top:20px;display:flex;gap:16px;flex-wrap:wrap}
 .acc-links a,.acc-links button{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mute);background:none;border:0;cursor:pointer;text-decoration:none;padding:0}
 .acc-links a:hover,.acc-links button:hover{color:var(--blue)}
@@ -66,6 +69,8 @@
 .bo-chip.demo{background:#fff7e6;color:#b26a00}
 .bo-chip.ok{background:var(--mint);color:var(--green-ink)}
 .bo-chip.off{background:#fff0f5;color:var(--pink-ink)}
+.bo-chip.ls{background:#fffbe6;color:#8a6d00;border:1px solid #f0e3a0;margin-left:6px}
+.bo-chip+.bo-chip{margin-left:6px}
 .bo-vacio{background:#fff;border:1.5px dashed var(--line-2);border-radius:12px;padding:40px;text-align:center;color:var(--mute);font-size:14px}
 .bo-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:24px}
 .bo-form .campo{display:flex;flex-direction:column;gap:6px}

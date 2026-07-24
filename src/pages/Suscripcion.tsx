@@ -42,12 +42,16 @@ const Suscripcion = () => {
         setEstado({ paso: 'sin-acceso' });
         return;
       }
-      if (sus.estado === 'borrador') {
-        setEstado({ paso: 'alta-pendiente', suscripcion: sus });
-        return;
-      }
       if (sus.estado === 'pausado') {
         setEstado({ paso: 'pausada', suscripcion: sus });
+        return;
+      }
+      // La MISMA regla que /alta: alta pendiente = alta_completada_en null y
+      // no pausada, sin mirar el estado. Si las reglas difirieran, las dos
+      // pantallas podrían derivarse mutuamente en un loop infinito (p.ej. un
+      // 'borrador' con alta ya completada, tocado a mano desde el admin).
+      if (sus.alta_completada_en === null) {
+        setEstado({ paso: 'alta-pendiente', suscripcion: sus });
         return;
       }
       const { data: tab } = await supabase
@@ -60,14 +64,7 @@ const Suscripcion = () => {
         .maybeSingle();
       if (!vivo) return;
       if (!tab) {
-        // Sin tablero todavía: si el alta nunca se completó, el cliente tiene
-        // que poder onboardear antes de que su tablero exista (aunque la
-        // suscripción ya figure 'activo'). Si ya lo completó, está en espera.
-        if (sus.alta_completada_en === null) {
-          setEstado({ paso: 'alta-pendiente', suscripcion: sus });
-        } else {
-          setEstado({ paso: 'sin-tablero', suscripcion: sus });
-        }
+        setEstado({ paso: 'sin-tablero', suscripcion: sus });
         return;
       }
       setEstado({ paso: 'listo', suscripcion: sus, tablero: tab });
@@ -94,7 +91,7 @@ const Suscripcion = () => {
         <MagicLinkForm
           kick="Tablero de suscripción"
           titulo="Entrá a tu tablero"
-          detalle="Ingresá el email de tu suscripción y te mandamos un link de acceso. Sin contraseñas."
+          detalle="Ingresá el email de tu suscripción y te mandamos un código de acceso. Sin contraseñas."
           redirectTo={window.location.origin + '/suscripcion/' + (codigo ?? '')}
         />
         <div className="acc-pie">narraglobal · datos NarraNoise®</div>

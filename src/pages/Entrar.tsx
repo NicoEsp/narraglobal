@@ -55,7 +55,7 @@ const Entrar = () => {
         <MagicLinkForm
           kick="Clientes"
           titulo="Entrá a tu tablero"
-          detalle="Ingresá el email de tu suscripción y te mandamos un link de acceso directo a tu tablero."
+          detalle="Ingresá el email de tu suscripción y te mandamos un código de acceso directo a tu tablero."
           redirectTo={window.location.origin + '/entrar'}
         />
         <div className="acc-pie">narraglobal · datos NarraNoise®</div>

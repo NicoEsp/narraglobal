@@ -24,7 +24,7 @@ const AdminMarco = ({ children }: { children: ReactNode }) => {
         <MagicLinkForm
           kick="Back office"
           titulo="Mesa de trabajo"
-          detalle="Acceso para el equipo narraglobal. Ingresá tu email y te mandamos el link."
+          detalle="Acceso para el equipo narraglobal. Ingresá tu email y te mandamos el código."
           redirectTo={window.location.origin + window.location.pathname}
         />
         <div className="acc-pie">narraglobal · back office</div>
