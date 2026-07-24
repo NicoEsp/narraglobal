@@ -93,6 +93,13 @@ export type Database = {
           equipo_tamano: number
           estado: string
           id: string
+          ls_customer_id: string | null
+          ls_estado: string | null
+          ls_renueva_en: string | null
+          ls_subscription_id: string | null
+          ls_termina_en: string | null
+          ls_test_mode: boolean | null
+          ls_variant_id: string | null
           nombre: string
           pais_de: string | null
           pais_para: string | null
@@ -117,6 +124,13 @@ export type Database = {
           equipo_tamano?: number
           estado?: string
           id?: string
+          ls_customer_id?: string | null
+          ls_estado?: string | null
+          ls_renueva_en?: string | null
+          ls_subscription_id?: string | null
+          ls_termina_en?: string | null
+          ls_test_mode?: boolean | null
+          ls_variant_id?: string | null
           nombre: string
           pais_de?: string | null
           pais_para?: string | null
@@ -141,6 +155,13 @@ export type Database = {
           equipo_tamano?: number
           estado?: string
           id?: string
+          ls_customer_id?: string | null
+          ls_estado?: string | null
+          ls_renueva_en?: string | null
+          ls_subscription_id?: string | null
+          ls_termina_en?: string | null
+          ls_test_mode?: boolean | null
+          ls_variant_id?: string | null
           nombre?: string
           pais_de?: string | null
           pais_para?: string | null

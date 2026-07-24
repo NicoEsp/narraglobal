@@ -56,7 +56,6 @@ const Alta = () => {
   });
   const [competidores, setCompetidores] = useState<string[]>([]);
   const [nuevoComp, setNuevoComp] = useState('');
-  const [topeAviso, setTopeAviso] = useState(false);
   const [conEquipo, setConEquipo] = useState(false);
   const [equipoN, setEquipoN] = useState(1);
   const [wa, setWa] = useState('');
@@ -108,11 +107,7 @@ const Alta = () => {
 
   const sumarComp = () => {
     const v = nuevoComp.trim();
-    if (competidores.length >= 5) {
-      setTopeAviso(true);
-      return;
-    }
-    if (!v) return;
+    if (competidores.length >= 5 || !v) return;
     setCompetidores((c) => [...c, v]);
     setNuevoComp('');
   };
@@ -159,7 +154,7 @@ const Alta = () => {
         <MagicLinkForm
           kick="Alta de tu suscripción"
           titulo="Activá tu tablero"
-          detalle="Ingresá el email con el que te suscribiste y te mandamos un link para completar tu alta. Sin contraseñas."
+          detalle="Ingresá el email con el que te suscribiste y te mandamos un código para completar tu alta. Sin contraseñas."
           redirectTo={window.location.origin + '/alta/' + (codigo ?? '')}
         />
         <div className="acc-pie">narraglobal · datos NarraNoise®</div>
@@ -409,10 +404,7 @@ const Alta = () => {
                         <button
                           className="x"
                           aria-label={'Quitar ' + c}
-                          onClick={() => {
-                            setCompetidores((l) => l.filter((_, i) => i !== idx));
-                            setTopeAviso(false);
-                          }}
+                          onClick={() => setCompetidores((l) => l.filter((_, i) => i !== idx))}
                         >
                           ×
                         </button>
@@ -450,7 +442,7 @@ const Alta = () => {
                   </button>
                 </div>
               )}
-              {topeAviso && competidores.length >= 5 && (
+              {competidores.length >= 5 && (
                 <div className="alta-mwarn" role="status">
                   Cinco es el máximo. Para sumar una nueva, sacá primero una de la lista.
                 </div>
