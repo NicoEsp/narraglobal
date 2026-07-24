@@ -134,44 +134,7 @@
 .alta-rednet .plus { margin-left: auto; color: var(--mute); font-size: 18px; padding-right: 8px; }
 .alta-rednet.on .plus { display: none; }
 
-/* benchmark base */
-.alta-viz { border: 1px solid var(--line); border-radius: 12px; padding: 14px 14px 12px; background: #fff; margin-bottom: 12px; }
-.alta-vizhd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.alta-vizhd .k { font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-soft); }
-.alta-tagx { font-family: var(--mono); font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--mute); border: 1px solid var(--line); border-radius: 5px; padding: 2px 6px; }
-.alta-spark { width: 100%; height: 92px; display: block; }
-.alta-vizleg { display: flex; gap: 18px; margin-top: 9px; }
-.alta-vizleg span { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--ink-soft); }
-.alta-vizleg .li { width: 16px; height: 0; border-top: 2.4px solid var(--blue); }
-.alta-vizleg .li.gray { border-top: 2px dashed var(--gray); }
-.alta-vizleg b { color: var(--ink); font-weight: 700; }
-
-/* cupón PRO (plan base) */
-.alta-coupon {
-  position: relative; display: flex; align-items: stretch; border: 1.5px dashed rgba(255,255,255,.25);
-  border-radius: 12px; overflow: hidden; background: var(--ink); cursor: pointer; transition: .15s;
-}
-.alta-coupon::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-.alta-coupon > * { position: relative; }
-.alta-coupon .cl { padding: 12px 14px; flex: 1; }
-.alta-coupon .cl .k { font-family: var(--mono); font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; color: #8f7bff; margin-bottom: 4px; }
-.alta-coupon .cl .ct { font-size: 12.5px; color: rgba(255,255,255,.9); line-height: 1.45; }
-.alta-coupon .cl .ct b { color: #fff; }
-.alta-coupon .cl .cterms { font-size: 11px; color: rgba(255,255,255,.6); margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.16); line-height: 1.4; }
-.alta-coupon .cl .cterms b { color: #8f7bff; }
-.alta-coupon .cr {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  padding: 10px 16px; border-left: 1.5px dashed rgba(255,255,255,.25);
-}
-.alta-coupon .cr .off { font-weight: 800; font-size: 22px; letter-spacing: -1px; color: #8f7bff; }
-.alta-coupon .cr .code { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; background: #fff; color: var(--ink); border-radius: 4px; padding: 2px 7px; }
-.alta-cophint { font-family: var(--mono); font-size: 7.5px; letter-spacing: .8px; text-transform: uppercase; color: #8f7bff; margin-top: 3px; text-align: center; }
-
-/* competidores PRO */
+/* mirar de cerca (competidores, incluido en Narra ID) */
 .alta-minis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
 .alta-mcard { border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; background: #fff; }
 .alta-mcard .top { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
@@ -179,11 +142,18 @@
 .alta-mcard .nm { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .alta-mcard .x { margin-left: auto; color: var(--mute); cursor: pointer; font-size: 13px; line-height: 1; background: none; border: 0; }
 .alta-mcard .x:hover { color: var(--pink); }
+.alta-mcard .bot { display: flex; align-items: baseline; gap: 6px; }
+.alta-mcard .bot .val { font-family: var(--serif); font-weight: 600; font-size: 18px; letter-spacing: -.5px; color: var(--ink); }
+.alta-mcard .bot .mlab { font-size: 10px; color: var(--mute); }
 .alta-addp {
   padding: 12px; text-align: center; font-size: 13px; color: var(--blue); font-weight: 600;
   cursor: pointer; border: 1px dashed var(--line-2); border-radius: 10px; background: #fff; width: 100%;
 }
 .alta-addp:hover { border-color: var(--blue); }
+.alta-mwarn {
+  margin-top: 12px; font-size: 12.5px; color: var(--pink-ink); background: var(--pink-soft);
+  border-radius: 8px; padding: 10px 12px; line-height: 1.45;
+}
 
 /* toggle equipo + stepper */
 .alta-toggle { display: flex; gap: 10px; margin-bottom: 8px; }
@@ -239,13 +209,25 @@
 .alta-agbtn:hover { background: var(--blue-soft); }
 .alta-agnote { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); line-height: 1.5; }
 .alta-agnote b { color: var(--ink); }
-.alta-nchat {
-  display: flex; align-items: center; gap: 14px; border-radius: 13px; padding: 14px 16px;
+/* ya sos parte de la familia */
+.alta-famhead { margin: 22px 0 12px; }
+.alta-famtitle {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  font-family: var(--serif); font-weight: 500; font-size: 19px; letter-spacing: -.4px; color: var(--ink);
+}
+.alta-famwm { height: 18px; display: inline-block; position: relative; top: 1px; }
+.alta-famsub { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 8px; }
+
+/* chip · escribile a Lisandro */
+.alta-lischip {
+  display: flex; align-items: center; gap: 14px; border-radius: 13px; padding: 12px 16px;
   text-decoration: none; background: var(--blue); border: 1.5px solid var(--blue);
 }
-.alta-nchat .t b { font-weight: 700; display: block; font-size: 15px; color: #fff; }
-.alta-nchat .t s { text-decoration: none; display: block; font-size: 12px; color: rgba(255,255,255,.82); }
-.alta-nchat .arr { margin-left: auto; color: #fff; font-weight: 700; font-size: 18px; }
+.alta-lischip .lav { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex: none; border: 2px solid rgba(255,255,255,.4); }
+.alta-lischip .lav img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.alta-lischip .lt b { font-weight: 700; display: block; font-size: 15px; color: #fff; }
+.alta-lischip .lt s { text-decoration: none; display: block; font-size: 12px; color: rgba(255,255,255,.82); }
+.alta-lischip .arr { margin-left: auto; color: #fff; font-weight: 700; font-size: 18px; }
 .alta-foot { margin-top: 16px; font-family: var(--mono); font-size: 9px; letter-spacing: .7px; text-transform: uppercase; color: var(--mute); }
 
 .alta-err { font-size: 13px; color: var(--pink-ink); background: #fff0f5; border-radius: 8px; padding: 10px 12px; line-height: 1.45; margin-top: 14px; }

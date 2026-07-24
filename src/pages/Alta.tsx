@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { useSesion } from '@/hooks/useAcceso';
-import { fechaCortaPulso, enlaceCalendarioPulso } from '@/lib/pulso';
+import { fechaCortaPulso, enlaceCalendarioPulso, DIA_LARGO } from '@/lib/pulso';
 import MagicLinkForm from '@/components/acceso/MagicLinkForm';
 import '@/styles/acceso.css';
 import '@/styles/alta.css';
@@ -11,6 +11,9 @@ import '@/styles/alta.css';
 type Suscripcion = Tables<'suscripciones'>;
 
 const WA_NARRA = 'https://wa.me/5493417545069';
+const WA_LISANDRO =
+  'https://wa.me/5491130731011?text=' +
+  encodeURIComponent('Hola Lisandro. Recién completé mi alta en narraglobal.');
 const PAISES = [
   'Argentina', 'México', 'Chile', 'Uruguay', 'Colombia', 'España', 'Estados Unidos', 'Otro',
 ];
@@ -53,6 +56,7 @@ const Alta = () => {
   });
   const [competidores, setCompetidores] = useState<string[]>([]);
   const [nuevoComp, setNuevoComp] = useState('');
+  const [topeAviso, setTopeAviso] = useState(false);
   const [conEquipo, setConEquipo] = useState(false);
   const [equipoN, setEquipoN] = useState(1);
   const [wa, setWa] = useState('');
@@ -79,9 +83,6 @@ const Alta = () => {
     };
   }, [sesion, codigo]);
 
-  const esPro = sus?.plan === 'pro';
-  const catLbl = categoria === 'Otro' ? categoriaOtro.trim() || 'tu sector' : categoria || 'tu categoría';
-
   const puedeAvanzar = useMemo(() => {
     switch (paso) {
       case 1:
@@ -107,7 +108,11 @@ const Alta = () => {
 
   const sumarComp = () => {
     const v = nuevoComp.trim();
-    if (!v || competidores.length >= 5) return;
+    if (competidores.length >= 5) {
+      setTopeAviso(true);
+      return;
+    }
+    if (!v) return;
     setCompetidores((c) => [...c, v]);
     setNuevoComp('');
   };
@@ -126,7 +131,7 @@ const Alta = () => {
       pais_para: paisPara,
       categoria: categoria === 'Otro' ? categoriaOtro.trim() : categoria,
       redes: redesPayload,
-      competidores: esPro ? competidores : [],
+      competidores,
       equipo_tamano: conEquipo ? equipoN : 0,
       equipo_telefono: conEquipo && soloDigitos(teamWa).length >= 6 ? '+549' + soloDigitos(teamWa) : null,
     };
@@ -380,106 +385,72 @@ const Alta = () => {
             </section>
           )}
 
-          {/* 5 · benchmark / competidores */}
+          {/* 5 · a quién mirar de cerca */}
           {paso === 5 && (
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
               <span className="alta-eyebrow">Paso 5 de 7</span>
-              {!esPro ? (
-                <>
-                  <div className="alta-q">Con quién te vamos a comparar.</div>
-                  <div className="alta-qs">
-                    El promedio de calidad narrativa de <b>tu sector</b> — {catLbl} de {paisPara}. Una
-                    sola línea, tu vara.
-                  </div>
-                  <div className="alta-viz">
-                    <div className="alta-vizhd">
-                      <span className="k">Tu calidad narrativa · 8 semanas</span>
-                      <span className="alta-tagx">ejemplo</span>
-                    </div>
-                    <svg className="alta-spark" viewBox="0 0 300 96" preserveAspectRatio="none">
-                      <line x1="0" y1="35.3" x2="300" y2="35.3" stroke="#b7bac2" strokeWidth="1.6" strokeDasharray="4 4" />
-                      <polyline
-                        points="6,73.3 46.6,60.7 87.1,67 127.7,48 168.3,54.3 208.9,41.7 249.4,29 290,22.7"
-                        fill="none" stroke="#3E1CFF" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round"
-                      />
-                      <circle cx="290" cy="22.7" r="4.2" fill="#3E1CFF" />
-                    </svg>
-                    <div className="alta-vizleg">
-                      <span><i className="li" />Vos · <b>56</b></span>
-                      <span><i className="li gray" />Promedio del sector · <b>54</b></span>
-                    </div>
-                  </div>
-                  <div className="alta-coupon" role="note">
-                    <div className="cl">
-                      <div className="k">Mejorá a PRO · −25% los primeros 2 meses</div>
-                      <div className="ct">
-                        Con PRO elegís y monitoreás hasta <b>cinco competidores</b> y conocés su calidad
-                        narrativa semana a semana: cómo diferenciarte y qué buenas prácticas copiar.
+              <div className="alta-q">¿A quién te gustaría mirar de cerca?</div>
+              <div className="alta-qs">
+                Elegí hasta <b>5 personas o marcas</b>: vas a ver su calidad narrativa semana a
+                semana, con tips prácticos para achicar o ampliar la distancia. Está incluido en tu{' '}
+                <b>Narra ID</b>.
+              </div>
+              {competidores.length > 0 && (
+                <div className="alta-minis">
+                  {competidores.map((c, idx) => (
+                    <div key={c + idx} className="alta-mcard">
+                      <div className="top">
+                        <span className="av">{c.slice(0, 1).toUpperCase()}</span>
+                        <span className="nm">{c}</span>
+                        <button
+                          className="x"
+                          aria-label={'Quitar ' + c}
+                          onClick={() => {
+                            setCompetidores((l) => l.filter((_, i) => i !== idx));
+                            setTopeAviso(false);
+                          }}
+                        >
+                          ×
+                        </button>
                       </div>
-                      <div className="cterms">
-                        Código promocional exclusivo por <b>24 h</b> · sólo para altas nuevas.
+                      <div className="bot">
+                        <span className="val">—</span>
+                        <span className="mlab">se mide desde tu alta</span>
                       </div>
                     </div>
-                    <div className="cr">
-                      <div className="off">−25%</div>
-                      <div className="code">PRO2</div>
-                      <div className="alta-cophint">contale a narrachat</div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="alta-q">¿A quién te gustaría mirar de cerca?</div>
-                  <div className="alta-qs">
-                    Con PRO elegís hasta <b>5 personas o marcas</b> para ver su calidad narrativa
-                    semanal y recibir tips prácticos para achicar o ampliar la distancia con ellas.
-                  </div>
-                  {competidores.length > 0 && (
-                    <div className="alta-minis">
-                      {competidores.map((c, idx) => (
-                        <div key={c + idx} className="alta-mcard">
-                          <div className="top">
-                            <span className="av">{c.slice(0, 1).toUpperCase()}</span>
-                            <span className="nm">{c}</span>
-                            <button
-                              className="x"
-                              aria-label={'Quitar ' + c}
-                              onClick={() => setCompetidores((l) => l.filter((_, i) => i !== idx))}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {competidores.length < 5 && (
-                    <div className="alta-field" style={{ display: 'flex', gap: 10, marginBottom: 0 }}>
-                      <input
-                        className="alta-tx"
-                        style={{ fontSize: 18 }}
-                        placeholder="Nombre de una persona o marca"
-                        value={nuevoComp}
-                        onChange={(e) => setNuevoComp(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            sumarComp();
-                          }
-                        }}
-                      />
-                      <button
-                        className="alta-btn"
-                        style={{ padding: '10px 18px' }}
-                        onClick={sumarComp}
-                        disabled={nuevoComp.trim() === ''}
-                      >
-                        Sumar
-                      </button>
-                    </div>
-                  )}
-                </>
+                  ))}
+                </div>
+              )}
+              {competidores.length < 5 && (
+                <div className="alta-field" style={{ display: 'flex', gap: 10, marginBottom: 0 }}>
+                  <input
+                    className="alta-tx"
+                    style={{ fontSize: 18 }}
+                    placeholder="Nombre de una persona o marca"
+                    value={nuevoComp}
+                    onChange={(e) => setNuevoComp(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        sumarComp();
+                      }
+                    }}
+                  />
+                  <button
+                    className="alta-btn"
+                    style={{ padding: '10px 18px' }}
+                    onClick={sumarComp}
+                    disabled={nuevoComp.trim() === ''}
+                  >
+                    Sumar
+                  </button>
+                </div>
+              )}
+              {topeAviso && competidores.length >= 5 && (
+                <div className="alta-mwarn" role="status">
+                  Cinco es el máximo. Para sumar una nueva, sacá primero una de la lista.
+                </div>
               )}
               <div className="alta-actions">
                 <button className="alta-btn" onClick={avanzar}>
@@ -555,7 +526,7 @@ const Alta = () => {
               <div className="alta-qs">
                 Con esto damos de alta a <b>narrachat</b>, tu asistente por WhatsApp: entrás a tus
                 datos fácil, le pedís ideas y análisis, y tu equipo también. Es también por donde te
-                avisamos cada semana.
+                avisamos cada lunes.
               </div>
               <div className="alta-phone">
                 <span className="cc">+54 9</span>
@@ -618,7 +589,7 @@ const Alta = () => {
               <div className="alta-agenda">
                 <div className="alta-agtop">
                   <div>
-                    <div className="k">Tu primera lectura</div>
+                    <div className="k">Tu próxima lectura</div>
                     <div className="dd">
                       {fechaCortaPulso(sus.pulso_dia, sus.pulso_hora.slice(0, 5))} ·{' '}
                       {sus.pulso_hora.slice(0, 5)} <span className="tz">hora local</span>
@@ -634,15 +605,32 @@ const Alta = () => {
                   </a>
                 </div>
                 <div className="alta-agnote">
-                  Te avisamos por WhatsApp cuando tu primera entrega esté publicada. A partir de ahí,
-                  una lectura nueva cada semana.
+                  <b>
+                    Cada {DIA_LARGO[sus.pulso_dia] ?? sus.pulso_dia} a las {sus.pulso_hora.slice(0, 5)}
+                  </b>{' '}
+                  vas a tener tu tablero actualizado. Agendalo ahora en tu calendario.
                 </div>
               </div>
-              <a className="alta-nchat" href={WA_NARRA} target="_blank" rel="noopener noreferrer">
-                <div className="t">
-                  <b>Conocé a narrachat, tu asistente por WhatsApp</b>
-                  <s>Mientras esperás tu tablero, hablale y pedile ideas.</s>
+
+              <div className="alta-famhead">
+                <div className="alta-famtitle">
+                  Ya sos parte de la familia
+                  <img className="alta-famwm" src="/land/wm-a.svg" alt="narraglobal" />
                 </div>
+                <div className="alta-famsub">
+                  Lisandro en las próximas horas te va a escribir para darte la bienvenida. Podés
+                  también escribirle ahora mismo, en caso que tengas consultas o quieras hacer algún
+                  comentario.
+                </div>
+              </div>
+              <a className="alta-lischip" href={WA_LISANDRO} target="_blank" rel="noopener noreferrer">
+                <span className="lav">
+                  <img src="/land/lisandro.jpg" alt="Lisandro" />
+                </span>
+                <span className="lt">
+                  <b>Escribile a Lisandro</b>
+                  <s>Consultas · pedidos</s>
+                </span>
                 <span className="arr">→</span>
               </a>
               <div className="alta-actions">
