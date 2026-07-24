@@ -1,1 +1,7 @@
 project_id = "aydtxqhtkcyytsamervs"
+
+# Webhook de Lemon Squeezy: lo llama LS, no el navegador, así que no trae un
+# JWT de Supabase. Sin esto el gateway lo rechazaría con 401 antes de correr.
+# La seguridad la da la verificación de firma HMAC dentro de la función.
+[functions.lemonsqueezy-webhook]
+verify_jwt = false

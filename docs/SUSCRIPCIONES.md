@@ -100,9 +100,10 @@ tirar el pull de Apify.
 
 Mapea a la sección 1 del `ALTA-checklist`:
 
-- **Lemon Squeezy**: productos + consentimiento + webhooks. `order_created` crea la fila
-  en `suscripciones` con `estado='borrador'` y su `token`; `subscription_cancelled` la
-  pasa a `pausado`. El esquema ya lo espera — el webhook no necesita migrar nada.
+- **Lemon Squeezy**: productos + consentimiento + webhooks. El webhook ya está
+  construido en `supabase/functions/lemonsqueezy-webhook/` (ver §5). `order_created` crea
+  la fila en `suscripciones` con `estado='borrador'` y su `token`; `subscription_cancelled`
+  la pasa a `pausado`. El esquema ya lo espera — el webhook no necesita migrar nada.
 - **Correo de bienvenida** (Resend/Postmark o el built-in de LS): 1 CTA a narrachat.
 - **narrachat / alta conversacional** (repo `narraglobal-narrachat`): matchea el `token`,
   captura teléfono + @, confirma horario → `estado='activo'`. Guarda campos, no el chat.
@@ -111,3 +112,27 @@ Mapea a la sección 1 del `ALTA-checklist`:
 - **Apify / backfill** → `estado='con_historico'` → primera semana publicada → `live`.
 - **Multi-usuario por cliente**: pregunta abierta del checklist; hoy el modelo es un email
   por suscripción.
+
+## 5 · Encender el webhook de Lemon Squeezy
+
+La función `supabase/functions/lemonsqueezy-webhook/` reemplaza el alta manual del
+§3: cuando alguien paga, LS le pega y crea la fila en `suscripciones` sola.
+
+1. **Desplegar la función**: `supabase functions deploy lemonsqueezy-webhook`.
+   Queda en `https://aydtxqhtkcyytsamervs.functions.supabase.co/lemonsqueezy-webhook`.
+   El `config.toml` ya la marca `verify_jwt = false` (la llama LS, no el navegador;
+   la seguridad la da la firma HMAC dentro de la función).
+2. **Secrets** (dashboard → Edge Functions → Secrets, o `supabase secrets set`):
+   - `LEMONSQUEEZY_WEBHOOK_SECRET` — el signing secret del webhook en LS **(obligatorio)**.
+   - `LS_VARIANT_PRO` / `LS_VARIANT_BASE` — los `variant_id` de cada plan (opcional; si
+     faltan, mapea por nombre de producto: contiene "pro" → `pro`, si no → `base`).
+   - `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` los inyecta la plataforma sola.
+3. **En Lemon Squeezy** (Settings → Webhooks → +): pegar la URL de arriba, generar el
+   **signing secret** (el mismo que el paso 2) y suscribir los eventos `order_created` y
+   `subscription_cancelled`. Con "Send test" se valida la firma end-to-end.
+
+Qué hace: verifica la firma `X-Signature` (HMAC-SHA256 del body) → `order_created` inserta
+un `borrador` (nombre + email + plan; el `codigo` y el `token` se generan solos) →
+`subscription_cancelled` pasa esa fila (match por email) a `pausado`. Es idempotente: si el
+email ya existe no lo pisa y responde 200 (reactivar o cambiar de plan es decisión de
+operación, no del webhook). Los demás eventos se aceptan con 200 y se ignoran.
