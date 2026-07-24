@@ -27,7 +27,7 @@ const FORM_VACIO: Formulario = {
   telefono: '',
   plan: 'base',
   demo_expira: '',
-  estado: 'activo',
+  estado: 'borrador',
   pulso_dia: 'dom',
   pulso_hora: '09:00',
 };
