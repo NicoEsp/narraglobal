@@ -32,7 +32,9 @@
 // (así lo manda LS). Sin secret válido, cualquiera podría postear pagos falsos.
 // ============================================================================
 
-import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// Pineado a la misma versión que package.json: un bump de 2.x en esm.sh no
+// puede cambiar el comportamiento de esta pieza crítica de pagos por sí solo.
+import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.54.0';
 
 const SECRET = Deno.env.get('LEMONSQUEEZY_WEBHOOK_SECRET') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
@@ -74,6 +76,15 @@ type Attrs = Record<string, unknown>;
 const texto = (v: unknown): string | null => {
   const s = String(v ?? '').trim();
   return s === '' || s === 'null' || s === 'undefined' ? null : s;
+};
+
+/** n***@g*** — los logs van al agregador de la plataforma: nada de PII cruda
+    (CWE-532). Para operar alcanza el `codigo` de la fila; esto es solo para
+    eventos sin fila. */
+const enmascarar = (email: string): string => {
+  const [local, dominio] = email.split('@');
+  if (!local || !dominio) return '***';
+  return local.slice(0, 1) + '***@' + dominio.slice(0, 1) + '***';
 };
 
 /** variant_id del evento: subscription_* lo trae plano; order_created, en first_order_item. */
@@ -258,7 +269,7 @@ Deno.serve(async (req) => {
         return json({ error: 'db_error' }, 500);
       }
       console.log(
-        `${tipo}${marca} · ${email} ya existía (${existente.estado})` +
+        `${tipo}${marca} · ${existente.codigo} ya existía (${existente.estado})` +
           (reactivada ? ' → reactivada' : ' · sync ls_*'),
       );
       return json({ ok: true, dedup: !reactivada, reactivada, codigo: existente.codigo });
@@ -283,7 +294,7 @@ Deno.serve(async (req) => {
         .select('codigo')
         .single();
       if (!error) {
-        console.log(`${tipo}${marca} · alta ${email} plan=${plan} codigo=${fila.codigo}`);
+        console.log(`${tipo}${marca} · alta codigo=${fila.codigo} plan=${plan}`);
         return json({ ok: true, codigo: fila.codigo });
       }
       if (error.code !== '23505') {
@@ -312,7 +323,7 @@ Deno.serve(async (req) => {
           console.error(`${tipo} · sync tras 23505`, errSync);
           return json({ error: 'db_error' }, 500);
         }
-        console.log(`${tipo}${marca} · ${email} insertado por el evento gemelo, sync ls_*`);
+        console.log(`${tipo}${marca} · ${ganadora.codigo} insertado por el evento gemelo, sync ls_*`);
         return json({ ok: true, dedup: true, codigo: ganadora.codigo });
       }
     }
@@ -345,7 +356,9 @@ Deno.serve(async (req) => {
       // Suscripción de LS que no está en nuestro store (p.ej. anterior al
       // sistema, o borrada a mano). 200 para que LS no reintente; queda en el
       // log para revisarlo.
-      console.warn(`${tipo}${marca} · sin fila para ${email || subscriptionId}, ignorado`);
+      console.warn(
+        `${tipo}${marca} · sin fila para ${subscriptionId ?? (email ? enmascarar(email) : '?')}, ignorado`,
+      );
       return json({ ok: true, sin_fila: true });
     }
 
@@ -355,7 +368,7 @@ Deno.serve(async (req) => {
     // tocar al cliente vigente.
     if (subscriptionId && fila.ls_subscription_id && fila.ls_subscription_id !== subscriptionId) {
       console.warn(
-        `${tipo}${marca} · sub ${subscriptionId} no es la vigente (${fila.ls_subscription_id}) de ${email || fila.codigo}, ignorado`,
+        `${tipo}${marca} · sub ${subscriptionId} no es la vigente (${fila.ls_subscription_id}) de ${fila.codigo}, ignorado`,
       );
       return json({ ok: true, sub_no_vigente: true });
     }
@@ -394,7 +407,7 @@ Deno.serve(async (req) => {
       return json({ error: 'db_error' }, 500);
     }
     console.log(
-      `${tipo}${marca} · ${email || subscriptionId}` +
+      `${tipo}${marca} · ${fila.codigo}` +
         (cambios.estado ? ` → estado=${cambios.estado}` : ' · sync ls_*'),
     );
     return json({ ok: true, codigo: fila.codigo, estado: cambios.estado ?? fila.estado });

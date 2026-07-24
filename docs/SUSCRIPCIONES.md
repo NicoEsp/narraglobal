@@ -193,9 +193,11 @@ siempre sobre el body crudo):
 El CTA «Comenzar mi suscripción» de la landing abre el **checkout de Lemon Squeezy
 como overlay** (lemon.js), sin salir de narraglobal.com.
 
-1. En LS: producto → **Share → Copy link** (formato
-   `https://<store>.lemonsqueezy.com/buy/<uuid>` — es el UUID de la variante, no el id
-   numérico).
+1. En LS: producto → **Share → Copy link**. Sirve cualquiera de los dos formatos que
+   da LS — `https://<store>.lemonsqueezy.com/buy/<uuid>` o
+   `https://<store>.lemonsqueezy.com/checkout/buy/<uuid>` (es el UUID de la variante,
+   no el id numérico). No pegar nunca una URL con `/checkout/?cart=…`: esa es de un
+   solo uso, atada a una sesión de compra.
 2. Pegar esa URL en `VITE_LS_CHECKOUT_URL` (en `.env` del repo **y** en las Environment
    Variables de Vercel) y redeployar. Mientras esté vacía, el CTA cae a WhatsApp: la
    landing nunca queda rota.

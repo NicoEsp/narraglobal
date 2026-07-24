@@ -36,6 +36,17 @@ const segundosParaReenviar = (email: string): number => {
   }
 };
 
+/** ¿A este email ya le mandamos un código desde este navegador hace <1 h?
+    (la validez del OTP). Evita mandar a alguien a mirar una casilla vacía. */
+const hayEnvioPrevio = (email: string): boolean => {
+  try {
+    const t = Number(sessionStorage.getItem(claveEnvio(email)) ?? 0);
+    return t > 0 && Date.now() - t < 60 * 60 * 1000;
+  } catch {
+    return false;
+  }
+};
+
 /** Card de acceso por email: mandamos un código de 6 dígitos + link mágico.
     El código es el camino principal (funciona en cualquier dispositivo y no
     lo rompe el antivirus del correo); el link es el atajo. */
@@ -46,6 +57,7 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [ofrecerCodigo, setOfrecerCodigo] = useState(false);
   const [espera, setEspera] = useState(0);
   const codigoRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -90,15 +102,26 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
     setOcupado(false);
 
     if (err) {
-      if (err.code === 'over_email_send_rate_limit' || err.status === 429) {
-        // Al límite de envíos. El último código emitido sigue vigente (~1 h):
-        // dejamos entrar con ese en lugar de cerrar la puerta.
-        setPaso('codigo');
-        setEspera(ESPERA_REENVIO_S);
-        registrarEnvio(mail);
-        setAviso(
-          'Estamos al límite de envíos por unos minutos. Si ya tenés un email nuestro, ese código sigue sirviendo — ponelo acá abajo.',
+      // Solo el código específico de límite de emails: un 429 genérico (p.ej.
+      // over_request_rate_limit) no significa que haya un código esperando.
+      if (err.code === 'over_email_send_rate_limit') {
+        if (hayEnvioPrevio(mail)) {
+          // Ya le mandamos uno hace <1 h: sigue vigente, dejamos entrar con ese.
+          setPaso('codigo');
+          setEspera(ESPERA_REENVIO_S);
+          registrarEnvio(mail);
+          setAviso(
+            'Estamos al límite de envíos por unos minutos. El código que ya te mandamos sigue sirviendo — ponelo acá abajo.',
+          );
+          return;
+        }
+        // Sin envío previo desde este navegador: no lo mandamos a mirar una
+        // casilla vacía. Puede esperar — o entrar directo si le llegó un
+        // código pedido desde otro dispositivo.
+        setError(
+          'Estamos al límite de envíos de email por unos minutos. Esperá un poco y probá de nuevo.',
         );
+        setOfrecerCodigo(true);
         return;
       }
       if (err.message === 'Signups not allowed for otp') {
@@ -143,6 +166,7 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
     setCodigo('');
     setError(null);
     setAviso(null);
+    setOfrecerCodigo(false);
   };
 
   return (
@@ -170,6 +194,21 @@ const MagicLinkForm = ({ kick = 'Acceso', titulo, detalle, redirectTo }: Props) 
             <button className="acc-btn" type="submit" disabled={ocupado}>
               {ocupado ? 'Enviando…' : 'Enviarme el código de acceso'}
             </button>
+            {ofrecerCodigo && (
+              <button
+                className="acc-btn sec"
+                type="button"
+                onClick={() => {
+                  setPaso('codigo');
+                  setError(null);
+                  setAviso(
+                    'Si te llegó un código nuestro (pedido desde este u otro dispositivo), ponelo acá abajo.',
+                  );
+                }}
+              >
+                Ya tengo un código
+              </button>
+            )}
           </form>
           <p className="acc-nota">Sin contraseñas: te llega un código de 6 dígitos y un link.</p>
         </>

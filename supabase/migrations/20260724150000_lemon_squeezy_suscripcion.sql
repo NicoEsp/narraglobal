@@ -20,6 +20,9 @@ alter table public.suscripciones
   add column if not exists ls_test_mode boolean;      -- true = compra en test mode de LS
 
 -- El webhook matchea subscription_* por el id de la suscripción en LS.
+-- Sin CONCURRENTLY a propósito: la tabla tiene decenas de filas (una por
+-- cliente), el lock dura milisegundos, y CONCURRENTLY no puede correr dentro
+-- de la transacción con la que `supabase db push` envuelve la migración.
 create index if not exists suscripciones_ls_subscription_idx
   on public.suscripciones (ls_subscription_id)
   where ls_subscription_id is not null;
