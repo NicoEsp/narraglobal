@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-/** Sesión de Supabase, con estado de carga inicial. */
+/**
+ * Sesión de Supabase, con estado de carga inicial.
+ *
+ * `sesion` es un objeto nuevo en cada evento de auth (refresh de token, volver
+ * a la pestaña), aunque sea la misma persona. Al usarla en un `useEffect`,
+ * dependé del `sesion?.user.id` — como acá abajo — y no del objeto, o el efecto
+ * se vuelve a disparar solo cada tanto.
+ */
 export function useSesion() {
   const [sesion, setSesion] = useState<Session | null>(null);
   const [cargando, setCargando] = useState(true);

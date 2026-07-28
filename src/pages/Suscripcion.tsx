@@ -26,8 +26,14 @@ const Suscripcion = () => {
   const { sesion, cargando } = useSesion();
   const [estado, setEstado] = useState<Estado>({ paso: 'cargando' });
 
+  // Igual que en /alta: depende del id de usuario y no del objeto `sesion`, que
+  // cambia de identidad en cada evento de auth de Supabase. Con el objeto, un
+  // refresh de token o volver a la pestaña volvía a leer todo y le tapaba el
+  // tablero con «Cargando tu tablero…» a alguien que lo estaba leyendo.
+  const userId = sesion?.user.id;
+
   useEffect(() => {
-    if (!sesion || !codigo) return;
+    if (!userId || !codigo) return;
     let vivo = true;
     setEstado({ paso: 'cargando' });
 
@@ -73,7 +79,7 @@ const Suscripcion = () => {
     return () => {
       vivo = false;
     };
-  }, [sesion, codigo]);
+  }, [userId, codigo]);
 
   const salir = () => supabase.auth.signOut();
 
