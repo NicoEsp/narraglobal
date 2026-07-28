@@ -110,6 +110,15 @@ pausada, sin importar el estado) lo lleva a completar su alta (`/alta/{código}`
 sin tablero publicado le dice **la fecha concreta** de su primera entrega (según su pulso);
 pausado ve cómo reactivar por WhatsApp.
 
+Y una regla de no-retroceso: quien **termina el alta se queda en su confirmación**. Al
+tablero va cuando lo pide («Ir a mi tablero»), nunca empujado por la app. Antes lo
+empujaba: `/alta` releía la suscripción con cada evento de auth de Supabase (refresh de
+token, volver a la pestaña — p. ej. al agendar el pulso o escribirle a Lisandro, que
+abren otra pestaña), veía el `alta_completada_en` recién escrito y redirigía a
+`/suscripcion`, donde sin tablero publicado aparecía «tu tablero se está preparando».
+En medio del wizard, esa misma relectura pisaba el nombre y el WhatsApp ya tipeados.
+Las pantallas con sesión dependen del **id de usuario**, no del objeto `sesion`.
+
 ### El alta post-login (`/alta/{código}`)
 
 Migraciones `20260718120000_alta_onboarding.sql` → `20260724130000_alta_pendiente_sin_borrador.sql`.

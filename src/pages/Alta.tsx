@@ -41,6 +41,9 @@ const Alta = () => {
   const [paso, setPaso] = useState(0);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // El alta se completó en esta pantalla, recién. Mientras sea true nadie la
+  // saca de acá: ya terminó y esta es su confirmación.
+  const [completadaAca, setCompletadaAca] = useState(false);
 
   // campos del alta
   const [nombre, setNombre] = useState('');
@@ -61,8 +64,16 @@ const Alta = () => {
   const [wa, setWa] = useState('');
   const [teamWa, setTeamWa] = useState('');
 
+  // Ojo con la dependencia: es el id de usuario, no el objeto `sesion`.
+  // Supabase emite eventos de auth con una sesión nueva cada vez (refresh de
+  // token, volver a la pestaña), y dependiendo del objeto este efecto releía
+  // la suscripción en medio del wizard: pisaba el nombre y el WhatsApp ya
+  // tipeados, y al terminar el alta devolvía la fila con `alta_completada_en`
+  // cargada, que es lo que empujaba a la persona a la pantalla de espera.
+  const userId = sesion?.user.id;
+
   useEffect(() => {
-    if (!sesion || !codigo) return;
+    if (!userId || !codigo) return;
     let vivo = true;
     (async () => {
       const { data } = await supabase
@@ -80,7 +91,7 @@ const Alta = () => {
     return () => {
       vivo = false;
     };
-  }, [sesion, codigo]);
+  }, [userId, codigo]);
 
   const puedeAvanzar = useMemo(() => {
     switch (paso) {
@@ -136,6 +147,7 @@ const Alta = () => {
       setError('No pudimos guardar tu alta (' + err.message + '). Probá de nuevo en un minuto.');
       return;
     }
+    setCompletadaAca(true);
     setPaso(ULTIMO);
   };
 
@@ -189,8 +201,13 @@ const Alta = () => {
   // El onboarding está disponible mientras el alta siga pendiente
   // (alta_completada_en null) y la suscripción no esté pausada — aunque ya
   // figure 'activo'. Si el alta ya se completó o está pausada, manda el tablero.
+  //
+  // Salvo que el alta se haya completado acá recién: en ese caso la persona se
+  // queda en su confirmación. Mandarla al tablero la deja frente a la pantalla
+  // de espera («tu tablero se está preparando»), que es un paso atrás después
+  // de haber terminado el alta. Al tablero va cuando lo pide, con el botón.
   const altaPendiente = sus.alta_completada_en === null && sus.estado !== 'pausado';
-  if (!altaPendiente) {
+  if (!altaPendiente && !completadaAca) {
     return <Navigate to={'/suscripcion/' + sus.codigo} replace />;
   }
 
