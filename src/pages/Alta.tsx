@@ -14,11 +14,26 @@ const WA_NARRA = 'https://wa.me/5493417545069';
 const WA_LISANDRO =
   'https://wa.me/5491130731011?text=' +
   encodeURIComponent('Hola Lisandro. Recién completé mi alta en narraglobal.');
+/** Carpeta compartida donde el cliente deja su material para analizar. */
+const DRIVE_MATERIAL =
+  'https://drive.google.com/drive/folders/1574BvXiyJd4hf_tcAYdgleKQIV5kFyiY?usp=sharing';
 const PAISES = [
   'Argentina', 'México', 'Chile', 'Uruguay', 'Colombia', 'España', 'Estados Unidos', 'Otro',
 ];
-const REDES = ['X', 'Instagram', 'TikTok', 'Otra'] as const;
+const REDES = ['X', 'Instagram', 'TikTok', 'LinkedIn', 'YouTube', 'Otra'] as const;
 type Red = (typeof REDES)[number];
+
+/** Qué se espera en cada red: en LinkedIn y YouTube el link es tan válido como el @. */
+const RED_PLACEHOLDER: Record<Red, string> = {
+  X: '@usuario',
+  Instagram: '@usuario',
+  TikTok: '@usuario',
+  LinkedIn: '@usuario o link',
+  YouTube: '@canal o link',
+  Otra: '@usuario o link',
+};
+
+const TOPE_MIRA = 5;
 
 const CATEGORIAS = [
   { key: 'Política', ds: 'Campaña, gestión, opinión pública' },
@@ -51,14 +66,20 @@ const Alta = () => {
   const [paisPara, setPaisPara] = useState('Argentina');
   const [categoria, setCategoria] = useState('');
   const [categoriaOtro, setCategoriaOtro] = useState('');
-  const [redes, setRedes] = useState<Record<Red, { on: boolean; usuario: string }>>({
-    X: { on: false, usuario: '' },
-    Instagram: { on: false, usuario: '' },
-    TikTok: { on: false, usuario: '' },
-    Otra: { on: false, usuario: '' },
-  });
+  const [redes, setRedes] = useState<Record<Red, { on: boolean; usuario: string }>>(
+    () =>
+      Object.fromEntries(REDES.map((r) => [r, { on: false, usuario: '' }])) as Record<
+        Red,
+        { on: boolean; usuario: string }
+      >,
+  );
   const [competidores, setCompetidores] = useState<string[]>([]);
-  const [nuevoComp, setNuevoComp] = useState('');
+  // Tarjeta en blanco que se está tipeando al final de la grilla, si la hay.
+  const [nuevoComp, setNuevoComp] = useState<string | null>(null);
+  // Aviso del tope, transitorio: aparece al intentar la sexta y se va solo. Es
+  // un contador y no un booleano para que al reintentar se remonte el cartel y
+  // la animación vuelva a arrancar.
+  const [avisoTope, setAvisoTope] = useState(0);
   const [conEquipo, setConEquipo] = useState(false);
   const [equipoN, setEquipoN] = useState(1);
   const [wa, setWa] = useState('');
@@ -116,11 +137,28 @@ const Alta = () => {
   const setUsuario = (r: Red, usuario: string) =>
     setRedes((prev) => ({ ...prev, [r]: { ...prev[r], usuario } }));
 
-  const sumarComp = () => {
-    const v = nuevoComp.trim();
-    if (competidores.length >= 5 || !v) return;
-    setCompetidores((c) => [...c, v]);
+  // El aviso del tope se borra solo: es un empujón, no un estado del paso.
+  useEffect(() => {
+    if (!avisoTope) return;
+    const t = setTimeout(() => setAvisoTope(0), 3600);
+    return () => clearTimeout(t);
+  }, [avisoTope]);
+
+  const abrirComp = () => {
+    if (nuevoComp !== null) return; // ya hay una tarjeta en blanco esperando
+    if (competidores.length >= TOPE_MIRA) {
+      setAvisoTope((n) => n + 1);
+      return;
+    }
     setNuevoComp('');
+  };
+
+  /** Fija la tarjeta en blanco. Si quedó vacía, se descarta. */
+  const fijarComp = () => {
+    const v = (nuevoComp ?? '').trim();
+    setNuevoComp(null);
+    if (!v || competidores.length >= TOPE_MIRA) return;
+    setCompetidores((c) => [...c, v]);
   };
 
   const finalizar = async () => {
@@ -221,7 +259,10 @@ const Alta = () => {
           <div className="alta-promise">
             <span className="dotp" />
             <span>
-              No leemos ni guardamos tus conversaciones — solo lo <b>público</b>
+              Tu informe ·{' '}
+              <b>
+                {DIA_LARGO[sus.pulso_dia] ?? sus.pulso_dia} · {sus.pulso_hora.slice(0, 5)}
+              </b>
             </span>
           </div>
         </div>
@@ -373,7 +414,7 @@ const Alta = () => {
                         className="at"
                         autoFocus
                         aria-label={'Tu usuario en ' + r}
-                        placeholder={r === 'Otra' ? '@usuario o link' : '@usuario'}
+                        placeholder={RED_PLACEHOLDER[r]}
                         value={redes[r].usuario}
                         onChange={(e) => setUsuario(r, e.target.value)}
                       />
@@ -411,7 +452,7 @@ const Alta = () => {
                 semana, con tips prácticos para achicar o ampliar la distancia. Está incluido en tu{' '}
                 <b>Narra ID</b>.
               </div>
-              {competidores.length > 0 && (
+              {(competidores.length > 0 || nuevoComp !== null) && (
                 <div className="alta-minis">
                   {competidores.map((c, idx) => (
                     <div key={c + idx} className="alta-mcard">
@@ -432,35 +473,58 @@ const Alta = () => {
                       </div>
                     </div>
                   ))}
+                  {nuevoComp !== null && (
+                    <div className="alta-mcard">
+                      <div className="top">
+                        <span className="av">
+                          {nuevoComp.trim().slice(0, 1).toUpperCase() || '?'}
+                        </span>
+                        <span className="nm" style={{ flex: 1 }}>
+                          <input
+                            className="mtx"
+                            autoFocus
+                            aria-label="Nombre de la persona o marca a mirar de cerca"
+                            placeholder="Nombre o marca"
+                            value={nuevoComp}
+                            onChange={(e) => setNuevoComp(e.target.value)}
+                            onBlur={fijarComp}
+                            onKeyDown={(e) => {
+                              // Enter no avanza el paso acá: sólo cierra la tarjeta,
+                              // y el blur la fija.
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.currentTarget.blur();
+                              }
+                              if (e.key === 'Escape') {
+                                e.stopPropagation();
+                                setNuevoComp(null);
+                              }
+                            }}
+                          />
+                        </span>
+                        <button
+                          className="x"
+                          aria-label="Descartar"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => setNuevoComp(null)}
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="bot">
+                        <span className="val">—</span>
+                        <span className="mlab">se mide desde tu alta</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-              {competidores.length < 5 && (
-                <div className="alta-field" style={{ display: 'flex', gap: 10, marginBottom: 0 }}>
-                  <input
-                    className="alta-tx"
-                    style={{ fontSize: 18 }}
-                    placeholder="Nombre de una persona o marca"
-                    value={nuevoComp}
-                    onChange={(e) => setNuevoComp(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        sumarComp();
-                      }
-                    }}
-                  />
-                  <button
-                    className="alta-btn"
-                    style={{ padding: '10px 18px' }}
-                    onClick={sumarComp}
-                    disabled={nuevoComp.trim() === ''}
-                  >
-                    Sumar
-                  </button>
-                </div>
-              )}
-              {competidores.length >= 5 && (
-                <div className="alta-mwarn" role="status">
+              <button type="button" className="alta-addp" onClick={abrirComp}>
+                + Sumar una persona o marca
+              </button>
+              {avisoTope > 0 && (
+                <div key={avisoTope} className="alta-mwarn" role="status">
                   Cinco es el máximo. Para sumar una nueva, sacá primero una de la lista.
                 </div>
               )}
@@ -535,10 +599,14 @@ const Alta = () => {
               <button className="alta-back" onClick={atras}>‹ atrás</button>
               <span className="alta-eyebrow">Paso 7 de 7</span>
               <div className="alta-q">¿Tu WhatsApp?</div>
+              <div className="alta-astchip">
+                <img className="avsvg" src="/land/asistente.svg" alt="" />
+                <b>Asistente IA</b>
+              </div>
               <div className="alta-qs">
-                Con esto damos de alta a <b>narrachat</b>, tu asistente por WhatsApp: entrás a tus
-                datos fácil, le pedís ideas y análisis, y tu equipo también. Es también por donde te
-                avisamos cada lunes.
+                Con esto damos de alta a tu <b>Asistente IA</b> por WhatsApp: entrás a tus datos
+                fácil, le pedís ideas y análisis, y tu equipo también. Es también por donde te
+                avisamos cada {DIA_LARGO[sus.pulso_dia] ?? sus.pulso_dia}.
               </div>
               <div className="alta-phone">
                 <span className="cc">+54 9</span>
@@ -563,7 +631,9 @@ const Alta = () => {
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
               <span className="alta-eyebrow">Opcional · sumá a tu equipo</span>
-              <div className="alta-q">¿Le damos narrachat a tu equipo?</div>
+              <div className="alta-q">
+                ¿Le damos el <b>Asistente IA</b> a tu equipo?
+              </div>
               <div className="alta-qs">
                 Pasale el WhatsApp de tu community así entra a los mismos datos y recibe la lectura
                 con vos. Le escribe él, nunca al revés.
@@ -592,7 +662,36 @@ const Alta = () => {
           {/* 9 · listo */}
           {esListo && (
             <section className="alta-step">
-              <div className="alta-seal">✓</div>
+              <div className="alta-donetop">
+                <div className="alta-seal">✓</div>
+                <a
+                  className="alta-dropfz"
+                  href={DRIVE_MATERIAL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="fi">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="19"
+                      height="19"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                      <path d="M12 11.5v5M9.5 14h5" />
+                    </svg>
+                  </span>
+                  <span className="ft">
+                    <b>Subí tu material ↗</b>
+                    <s>Docs, spots o campañas para analizar, además de tus perfiles</s>
+                  </span>
+                </a>
+              </div>
               <span className="alta-eyebrow">Alta completa</span>
               <div className="alta-q">Listo, {nombre.trim() || 'ya está'}. Tu tablero te espera.</div>
               <div className="alta-qs">
@@ -638,6 +737,7 @@ const Alta = () => {
               <a className="alta-lischip" href={WA_LISANDRO} target="_blank" rel="noopener noreferrer">
                 <span className="lav">
                   <img src="/land/lisandro.jpg" alt="Lisandro" />
+                  <i />
                 </span>
                 <span className="lt">
                   <b>Escribile a Lisandro</b>

@@ -150,9 +150,17 @@
   cursor: pointer; border: 1px dashed var(--line-2); border-radius: 10px; background: #fff; width: 100%;
 }
 .alta-addp:hover { border-color: var(--blue); }
+/* input de la tarjeta en blanco: se tipea el nombre ahí mismo */
+.alta-mcard .mtx {
+  border: 0; outline: 0; background: transparent; font: inherit; font-size: 12px;
+  font-weight: 600; width: 100%; padding: 0; color: var(--ink);
+}
+.alta-mcard .mtx::placeholder { color: var(--mute); font-weight: 500; }
+/* aviso del tope: transitorio, aparece al intentar la sexta */
 .alta-mwarn {
-  margin-top: 12px; font-size: 12.5px; color: var(--pink-ink); background: var(--pink-soft);
-  border-radius: 8px; padding: 10px 12px; line-height: 1.45;
+  margin-top: 10px; border: 1.5px solid var(--pink); background: #fff0f5; color: var(--pink-ink);
+  border-radius: 10px; padding: 10px 14px; font-size: 12.5px; font-weight: 600; line-height: 1.45;
+  animation: alta-in .3s cubic-bezier(.2,.7,.2,1);
 }
 
 /* toggle equipo + stepper */
@@ -192,11 +200,34 @@
 .alta-btn.ghost { background: transparent; color: var(--ink-soft); padding: 14px 6px; }
 .alta-btn .k { opacity: .7; font-size: 12px; }
 
+/* chip del Asistente IA (paso del WhatsApp) */
+.alta-astchip {
+  display: inline-flex; align-items: center; gap: 9px; background: var(--paper-2);
+  border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px 5px 5px; margin-bottom: 18px;
+}
+.alta-astchip .avsvg { width: 30px; height: 30px; display: block; border-radius: 50%; }
+.alta-astchip b { font-size: 13px; color: var(--ink); font-weight: 700; }
+
 /* listo */
 .alta-seal {
   width: 56px; height: 56px; border-radius: 50%; background: var(--green); color: #fff; display: grid;
   place-items: center; font-size: 26px; margin-bottom: 18px;
 }
+/* sello + drop de material, hombro con hombro */
+.alta-donetop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.alta-donetop .alta-seal { margin-bottom: 0; }
+.alta-dropfz {
+  flex: none; max-width: 236px; display: flex; gap: 11px; align-items: center; text-decoration: none;
+  border: 1.5px dashed var(--line-2); border-radius: 14px; padding: 11px 13px; background: var(--paper-2);
+  transition: .15s;
+}
+.alta-dropfz:hover { border-color: var(--blue); background: var(--blue-soft); }
+.alta-dropfz .fi {
+  flex: none; width: 34px; height: 34px; border-radius: 9px; background: #fff;
+  border: 1px solid var(--line); display: grid; place-items: center; color: var(--blue);
+}
+.alta-dropfz .ft b { display: block; font-size: 12.5px; color: var(--ink); font-weight: 700; line-height: 1.25; }
+.alta-dropfz .ft s { text-decoration: none; display: block; font-size: 11px; color: var(--ink-soft); margin-top: 3px; line-height: 1.3; }
 .alta-agenda { border: 1px solid var(--line); border-radius: 14px; padding: 15px 18px; margin: 18px 0 12px; background: var(--paper-2); }
 .alta-agtop { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .alta-agtop .k { font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--mute); }
@@ -210,24 +241,36 @@
 .alta-agnote { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); line-height: 1.5; }
 .alta-agnote b { color: var(--ink); }
 /* ya sos parte de la familia */
-.alta-famhead { margin: 22px 0 12px; }
+.alta-famhead { margin-top: 34px; padding-top: 30px; border-top: 1px solid var(--line); text-align: center; }
 .alta-famtitle {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
-  font-family: var(--serif); font-weight: 500; font-size: 19px; letter-spacing: -.4px; color: var(--ink);
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px;
+  font-family: var(--serif); font-weight: 500; font-size: 25px; line-height: 1.28;
+  letter-spacing: -.5px; color: var(--ink);
 }
-.alta-famwm { height: 18px; display: inline-block; position: relative; top: 1px; }
-.alta-famsub { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 8px; }
+.alta-famwm { height: 23px; display: inline-block; position: relative; top: 2px; }
+.alta-famsub {
+  color: var(--ink-soft); font-size: 14px; line-height: 1.6; margin: 12px auto 0; max-width: 48ch;
+}
 
 /* chip · escribile a Lisandro */
 .alta-lischip {
-  display: flex; align-items: center; gap: 14px; border-radius: 13px; padding: 12px 16px;
-  text-decoration: none; background: var(--blue); border: 1.5px solid var(--blue);
+  display: flex; align-items: center; gap: 14px; border: 1.5px solid var(--line-2); background: #fff;
+  border-radius: 14px; padding: 14px 16px; text-decoration: none; margin-top: 22px; transition: .15s;
 }
-.alta-lischip .lav { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex: none; border: 2px solid rgba(255,255,255,.4); }
-.alta-lischip .lav img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.alta-lischip .lt b { font-weight: 700; display: block; font-size: 15px; color: #fff; }
-.alta-lischip .lt s { text-decoration: none; display: block; font-size: 12px; color: rgba(255,255,255,.82); }
-.alta-lischip .arr { margin-left: auto; color: #fff; font-weight: 700; font-size: 18px; }
+.alta-lischip:hover { border-color: var(--blue); }
+.alta-lischip .lav { position: relative; flex: none; width: 40px; height: 40px; }
+.alta-lischip .lav img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: block; }
+/* punto verde: Lisandro está del otro lado */
+.alta-lischip .lav i {
+  position: absolute; right: 0; bottom: 0; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff;
+}
+.alta-lischip .lt b { display: block; font-size: 15px; color: var(--ink); font-weight: 700; }
+.alta-lischip .lt s {
+  text-decoration: none; display: block; font-family: var(--mono); font-size: 9px; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--mute); margin-top: 3px;
+}
+.alta-lischip .arr { margin-left: auto; color: var(--blue); font-weight: 700; font-size: 18px; }
 .alta-foot { margin-top: 16px; font-family: var(--mono); font-size: 9px; letter-spacing: .7px; text-transform: uppercase; color: var(--mute); }
 
 .alta-err { font-size: 13px; color: var(--pink-ink); background: #fff0f5; border-radius: 8px; padding: 10px 12px; line-height: 1.45; margin-top: 14px; }
@@ -236,4 +279,6 @@
   .alta-q { font-size: 26px; }
   .alta-selline .lbl { min-width: unset; }
   .alta-minis { grid-template-columns: 1fr 1fr; }
+  .alta-donetop { flex-direction: column; }
+  .alta-dropfz { max-width: none; width: 100%; }
 }
