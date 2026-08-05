@@ -121,14 +121,41 @@ export function validarNarra(d: DatosNarra): ResultadoValidacion {
     errores.push('series.llegaron debe tener 8 valores (null = historia que no existe).');
   }
 
-  for (const [periodo, largo] of [['week', 8], ['month', 4]] as const) {
+  /* La QC no tiene un largo fijo: el producto hace n=vos.length y reparte el
+     ancho entre los puntos que haya (X(i)=L+i*((W-L-R)/(n-1))), así que 4, 5 o
+     6 meses dibujan igual de bien. Lo que sí lo rompe es la desprolijidad —
+     con techo/piso/labels más cortos que vos quedan Y(undefined)=NaN en el
+     path y un D.labels[i] que revienta la sección entera. Por eso el largo
+     habitual (8 semanas, 4 meses) es un aviso y la inconsistencia entre las
+     series es el error. */
+  for (const [periodo, habitual] of [['week', 8], ['month', 4]] as const) {
     const q = d.qc?.[periodo];
     if (!q) continue;
-    for (const serie of ['labels', 'vos', 'techo', 'piso'] as const) {
+
+    const vos = q.vos;
+    if (!Array.isArray(vos)) {
+      errores.push(`qc.${periodo}.vos debe ser una lista.`);
+      continue;
+    }
+    /* con vos vacío el producto limpia el SVG y sigue: se ignora, no se rompe */
+    if (vos.length === 0) {
+      avisos.push(`qc.${periodo}.vos está vacío: la gráfica queda en blanco.`);
+      continue;
+    }
+
+    for (const serie of ['labels', 'techo', 'piso'] as const) {
       const arr = q[serie];
-      if (!Array.isArray(arr) || arr.length !== largo) {
-        errores.push(`qc.${periodo}.${serie} debe tener ${largo} valores.`);
+      if (!Array.isArray(arr)) {
+        errores.push(`qc.${periodo}.${serie} debe ser una lista de ${vos.length} valores.`);
+      } else if (arr.length !== vos.length) {
+        errores.push(
+          `qc.${periodo}.${serie} tiene ${arr.length} valores y qc.${periodo}.vos tiene ${vos.length}: tienen que ir parejos.`,
+        );
       }
+    }
+
+    if (vos.length !== habitual) {
+      avisos.push(`qc.${periodo} tiene ${vos.length} puntos (lo habitual son ${habitual}).`);
     }
   }
 
