@@ -9,16 +9,31 @@ declare global {
 
 // WhatsApp (código país + número, sin + ni espacios)
 const WA = '5491130731011';
+const wa = (msg: string) => 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
 
-// Suscripción → checkout de Lemon Squeezy (overlay). La URL viene de
-// VITE_LS_CHECKOUT_URL (.env y Vercel): el "Share → Copy link" del producto.
-// embed=1 hace que lemon.js la abra como overlay sobre la landing.
-// Sin la URL configurada, el CTA cae a WhatsApp (la landing nunca se rompe).
+// ===== Narra ID: checkout por región =====
+// Internacional cobra en USD con Lemon Squeezy (overlay con lemon.js) y
+// Argentina en ARS con Mercado Pago. Las URLs vienen de VITE_LS_CHECKOUT_URL y
+// VITE_MP_CHECKOUT_URL (.env y Vercel). Sin URL configurada el CTA cae a
+// WhatsApp: la landing nunca se rompe.
 const LS_CHECKOUT = (import.meta.env.VITE_LS_CHECKOUT_URL ?? '').trim();
-const CHECKOUT = LS_CHECKOUT
-  ? LS_CHECKOUT + (LS_CHECKOUT.includes('?') ? '&' : '?') + 'embed=1'
-  : 'https://wa.me/5491130731011?text=Hola%2C%20quiero%20comenzar%20mi%20suscripci%C3%B3n%20al%20tablero%20narraglobal.';
-const CHECKOUT_CTA_CLASS = LS_CHECKOUT ? ' lemonsqueezy-button' : '';
+const MP_CHECKOUT = (import.meta.env.VITE_MP_CHECKOUT_URL ?? '').trim();
+
+type Region = 'ar' | 'int';
+
+// embed=1 hace que lemon.js abra el checkout como overlay sobre la landing
+const PAGOS: Record<Region, { href: string; lemon: boolean }> = {
+  ar: {
+    href: MP_CHECKOUT || wa('Hola, quiero mi Narra ID. Pago con Mercado Pago (Argentina).'),
+    lemon: false,
+  },
+  int: {
+    href: LS_CHECKOUT
+      ? LS_CHECKOUT + (LS_CHECKOUT.includes('?') ? '&' : '?') + 'embed=1'
+      : wa('Hola, quiero mi Narra ID. Pago con Lemon Squeezy (internacional).'),
+    lemon: !!LS_CHECKOUT,
+  },
+};
 
 // Logos de clientes del carrusel (marquee)
 interface ClientDef { file: string; alt: string; fallback: string; size?: 'md' | 'lg'; }
@@ -72,10 +87,31 @@ const WaIcon = () => (
   <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.82 9.82 0 001.523 5.215l-.999 3.648 3.965-.962zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" /></svg>
 );
 
+// Glifos de medio de pago: heredan el color del texto que los rodea
+const MpIcon = ({ w, h }: { w: number; h: number }) => (
+  <svg className="g" viewBox="0 0 26 17" width={w} height={h} aria-hidden="true">
+    <ellipse cx="13" cy="8.5" rx="11.8" ry="7.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path d="M7 9.2c1.6-2.4 3.1-3 4.4-1.9l2 1.6c1 .8 2.2.7 3.2-.2l1.9-1.7" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+);
+const IntIcon = ({ w, h }: { w: number; h: number }) => (
+  <svg className="g" viewBox="0 0 22 14" width={w} height={h} aria-hidden="true">
+    <path d="M3 7c0-3.2 2.9-5.2 8-5.2S19 3.8 19 7s-2.9 5.2-8 5.2S3 10.2 3 7Z" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path d="M1 7h2.2M18.8 7H21" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+  </svg>
+);
+
 const ClientLogo = ({ c, hidden }: { c: ClientDef; hidden?: boolean }) => (
   <span className="mq-it" {...(hidden ? { 'aria-hidden': true } : {})}>
     <img className={c.size} src={`/land/${c.file}.png`} alt={hidden ? '' : c.alt} onError={imgError} />
     <i className="lf">{c.fallback}</i>
+  </span>
+);
+
+const MediaLogo = ({ m, hidden }: { m: MediaDef; hidden?: boolean }) => (
+  <span className="mq-it" {...(hidden ? { 'aria-hidden': true } : {})}>
+    <img src={`/land/${m.file}.${m.ext}`} alt={hidden ? '' : m.alt} onError={imgError} />
+    <i className="lf">{m.alt}</i>
   </span>
 );
 
@@ -84,13 +120,20 @@ const Index = () => {
   const shotRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
 
+  const [region, setRegion] = useState<Region>('ar');
   const [icSel, setIcSel] = useState<Set<string>>(new Set());
   const [otraOn, setOtraOn] = useState(false);
   const [otra, setOtra] = useState('');
 
+  const pago = PAGOS[region];
+  // lemon.js engancha el overlay por clase; solo el CTA internacional la lleva
+  const ctaLemon = pago.lemon ? ' lemonsqueezy-button' : '';
+
   // ===== lemon.js: abre el checkout como overlay sobre la landing =====
   // Se carga solo si hay checkout configurado. Si el script no llega a cargar
   // (bloqueadores), el <a> navega igual al checkout hosteado: nada se rompe.
+  // Se repite al cambiar de región porque lemon.js engancha los botones que
+  // encuentra en el DOM al momento de llamarlo.
   useEffect(() => {
     if (!LS_CHECKOUT) return;
     const YA = 'script[data-lemon]';
@@ -104,7 +147,7 @@ const Index = () => {
     s.dataset.lemon = '1';
     s.onload = () => window.createLemonSqueezy?.();
     document.head.appendChild(s);
-  }, []);
+  }, [region]);
 
   // ===== escala de la captura del tablero (se comporta como una foto) =====
   useEffect(() => {
@@ -159,22 +202,30 @@ const Index = () => {
         <div className="grid-lines" />
         <div className="hero-in">
           <nav className="hnav">
-            <img className="wm-img" src="/land/wm-a.svg" alt="narraglobal" />
+            <img className="wm-img" src="/land/wm-blanco.svg" alt="narraglobal" />
             <div className="nav-links">
-              <a href="#tablero">El tablero</a>
+              <a href="#tablero">Narra ID</a>
               <a href="#reportes">Reportes</a>
-              <a href="/entrar">Entrar</a>
+              <a href="/entrar" title="Acceso de clientes">Acceso clientes</a>
             </div>
-            <a className="nav-cta" href="#incompany">Workshops in-company</a>
+            <a className="nav-cta" href="#incompany">Workshops</a>
           </nav>
 
           <div className="hero-copy">
-            <div className="kick">Suscripción mensual · Datos NarraNoise®</div>
+            <div className="kick">NARRA ID · Suscripción mensual</div>
             <h1 className="hh">El sistema de control de tu narrativa pública</h1>
-            <p className="hsub">Cada lunes, un tablero actualizado con datos NarraNoise®: qué mensajes llegaron, cómo rendís frente a tu competencia y qué hacen tus públicos. Sin jerga, con un plan de acción para la semana.</p>
-            <div className="hctas">
-              <a className={'btn-p' + CHECKOUT_CTA_CLASS} href={CHECKOUT} target="_blank" rel="noopener">Quiero comenzar mi suscripción</a>
-              <span className="cta-price">Desde<b>USD 299/mes</b></span>
+            <p className="hsub">Cada lunes te enterás de qué mensajes llegaron, qué públicos están sintonizando y cómo le fue a tu competencia. En un tablero detallado o conversando con nuestro asistente IA por WhatsApp.</p>
+            <div className="hctas hctas-sel">
+              <div className="selcard">
+                <div className="seg" role="group" aria-label="Región de pago">
+                  <button className={'seg-b' + (region === 'ar' ? ' on' : '')} type="button" aria-pressed={region === 'ar'} onClick={() => setRegion('ar')}>Argentina</button>
+                  <button className={'seg-b' + (region === 'int' ? ' on' : '')} type="button" aria-pressed={region === 'int'} onClick={() => setRegion('int')}>Internacional</button>
+                </div>
+                <a className={'sel-btn' + ctaLemon} href={pago.href} target="_blank" rel="noopener">Quiero mi Narra ID</a>
+                <div className={'sel-note' + (region === 'ar' ? '' : ' hide')}><MpIcon w={17} h={11} /> Pagás con <b>Mercado Pago</b> · ARS</div>
+                <div className={'sel-note' + (region === 'int' ? '' : ' hide')}><IntIcon w={15} h={10} /> Pagás con <b>Lemon Squeezy</b> · USD</div>
+              </div>
+              <span className="cta-price"><b>USD 999/mes</b></span>
             </div>
           </div>
         </div>
@@ -186,15 +237,14 @@ const Index = () => {
           <div className="shotwrap" ref={shotWrapRef}>
             <div className="shot" ref={shotRef}>
               <div className="sh-top">
-                <img className="shwm-img" src="/land/wm-a.svg" alt="narraglobal" />
-                <span className="sh-ann"><i className="dt" /><span className="tx"><b>Suscripción Pro</b> <em>· activa</em></span><span className="chip">Pausa estratégica · incluida</span></span>
+                <img className="shwm-img" src="/land/wm-tinta.svg" alt="narraglobal" />
+                <span className="sh-ann"><i className="dt" /><span className="tx"><b>Suscripción Narra ID</b> <em>· activa</em></span><span className="chip">Pausa estratégica · incluida</span></span>
                 <span className="sh-who"><b>Hola, tu equipo</b><span className="sh-ava">TM</span></span>
               </div>
 
               <div className="sh-tabs">
                 <span className="t on"><em>01</em> Tu semana</span>
-                <span className="t"><em>02</em> Pausa estratégica <span className="prot">Pro</span></span>
-                <span className="t"><em>03</em> Sprints · Llamados <span className="prot">Pro</span></span>
+                <span className="t"><em>02</em> La pausa estratégica</span>
               </div>
 
               <div className="sh-hero">
@@ -205,9 +255,8 @@ const Index = () => {
                     <div className="mrow2"><span className="at">Los mensajes que llegaron <span className="nuevo">Nuevo</span></span><span className="col">▸</span></div>
                     <div className="mrow2"><span className="at">Calidad de tus mensajes</span><span className="col">▸</span></div>
                     <div className="mrow2"><span className="at">Conclusiones y acciones para el equipo</span><span className="col">▸</span></div>
-                    <div className="mrow2"><span className="at">Comportamiento de tu competencia <span className="prot">Pro</span></span><span className="col">▸</span></div>
-                    <div className="mrow2"><span className="at">Comportamiento de tus públicos <span className="prot">Pro</span><span className="sched">Mensual · 4 ago</span></span><span className="col">▸</span></div>
-                    <div className="mrow2"><span className="at">Mesa chica de estrategia <span className="prot">Pro</span><span className="sched">Quincenal · 21 jul</span></span><span className="col">▸</span></div>
+                    <div className="mrow2"><span className="at">Comportamiento de tu competencia</span><span className="col">▸</span></div>
+                    <div className="mrow2"><span className="at">Comportamiento de tus públicos <span className="sched">Mensual · 4 ago</span></span><span className="col">▸</span></div>
                   </div>
                 </div>
                 <div className="cbg">
@@ -232,7 +281,7 @@ const Index = () => {
                     <span className="s">La pieza institucional: un informe sin conflicto ni rostro.</span>
                   </div>
                   <div className="cb">
-                    <span className="t">Tu puesto entre competidores <span className="nuevo" style={{ background: 'var(--ink)', borderColor: 'var(--ink)', color: '#fff' }}>Pro</span></span>
+                    <span className="t">Tu puesto entre competidores</span>
                     <span className="vf">Superaste al Actor 1.</span>
                     <span className="cbviz">
                       <svg viewBox="0 0 220 52" aria-hidden="true">
@@ -255,7 +304,7 @@ const Index = () => {
               </div>
 
               <div className="sh-floor">
-                <span className="seal"><svg viewBox="0 0 120 120" width="17" height="17" aria-hidden="true"><path d="M24.0,69.6 A36.0,36.0 0 0 1 96.0,69.6 L81.0,69.6 A21.0,21.0 0 0 0 39.0,69.6 Z" fill="#111319" /><rect x="24.0" y="69.1" width="15.0" height="34.1" fill="#111319" /><rect x="81.0" y="69.1" width="15.0" height="34.1" fill="#111319" /></svg></span>
+                <img className="seal" src="/land/sello-n.svg" alt="" />
               </div>
             </div>
           </div>
@@ -292,7 +341,7 @@ const Index = () => {
                   <div className="sw"><span className="k">Tu calidad</span><span className="n">52 <small>/100</small></span><span className="dl">▲ +2</span></div>
                   <div className="sw mint"><span className="k">El techo de la semana</span><span className="n">67%</span><span className="dl">Para replicar</span></div>
                   <div className="sw rosa"><span className="k">El piso de la semana</span><span className="n">41%</span><span className="dl" style={{ background: '#fbdde7', color: 'var(--pink-ink)' }}>Para evitar</span></div>
-                  <div className="sw"><span className="k">Tu puesto</span><span className="n">3º <small>de 6</small></span><span className="dl" style={{ background: 'var(--ink)', color: '#fff' }}>Pro</span></div>
+                  <div className="sw"><span className="k">Tu puesto</span><span className="n">3º <small>de 6</small></span></div>
                   <div className="sw azul"><span className="k">La conclusión</span><span className="nf">Volviste a tu tema y volvió a funcionar.</span></div>
                   <div className="sw"><span className="k">Mensajes que llegaron</span><span className="n">2 <small>de 5</small></span><span className="dl">▲ +1</span></div>
                 </div></div>
@@ -366,7 +415,7 @@ const Index = () => {
               </div>
             </div>
             <div className="ftxt">
-              <div className="f-kick"><span>03 · Tu competencia</span><span className="pro-chip">PRO</span></div>
+              <div className="f-kick"><span>03 · Tu competencia</span></div>
               <div className="f-t">Análisis de competencia</div>
               <p className="f-d">Tu performance semanal versus la de los actores que elijas, y tu puesto entre competidores. Para aprender de la narrativa que otros están instalando con éxito.</p>
             </div>
@@ -396,7 +445,7 @@ const Index = () => {
               </div>
             </div>
             <div className="ftxt">
-              <div className="f-kick"><span>04 · Tus públicos</span><span className="pro-chip">PRO</span></div>
+              <div className="f-kick"><span>04 · Tus públicos</span></div>
               <div className="f-t">Comportamiento de tus públicos</div>
               <p className="f-d">Conocé qué tipos de públicos interactúan con vos y qué comportamientos se pueden predecir a partir del patrón de conducta que medimos.</p>
             </div>
@@ -407,11 +456,18 @@ const Index = () => {
       {/* ===================== CTA · COMENZAR ===================== */}
       <section className="midcta">
         <div className="mc-in">
-          <div>
-            <div className="mc-t">Tu primer tablero llega el próximo lunes.</div>
-            <div className="mc-s">Suscripción mensual · desde USD 299/mes</div>
+          <div className="mc-t">Tu primer tablero llega el próximo lunes.</div>
+          <div className="mc-s">Suscripción mensual · USD 999/mes</div>
+          {/* mismo selector que la placa del hero: comparten el estado de región */}
+          <div className="pillseg" role="group" aria-label="Región de pago">
+            <button className={'ps-b' + (region === 'ar' ? ' on' : '')} type="button" aria-pressed={region === 'ar'} onClick={() => setRegion('ar')}>
+              Argentina<span className="det">· <MpIcon w={16} h={10.5} /> Mercado Pago</span>
+            </button>
+            <button className={'ps-b' + (region === 'int' ? ' on' : '')} type="button" aria-pressed={region === 'int'} onClick={() => setRegion('int')}>
+              Internacional<span className="det">· <IntIcon w={14} h={9} /> Lemon Squeezy</span>
+            </button>
           </div>
-          <a className={'mc-btn' + CHECKOUT_CTA_CLASS} href={CHECKOUT} target="_blank" rel="noopener">Comenzar mi suscripción</a>
+          <a className={'mo-btn' + ctaLemon} href={pago.href} target="_blank" rel="noopener">Quiero mi Narra ID</a>
         </div>
       </section>
 
@@ -491,11 +547,13 @@ const Index = () => {
         </div>
 
         <div className="rp-media">
-          <div className="rp-media-lab">Nuestros datos son publicados por</div>
-          <div className="rp-media-logos">
-            {MEDIA.map((m) => (
-              <img key={m.file} src={`/land/${m.file}.${m.ext}`} alt={m.alt} onError={imgHide} />
-            ))}
+          <div className="cl-eyebrow">En los medios</div>
+          <div className="cl-title">Nuestros datos son publicados por los principales medios.</div>
+          <div className="mq mq-media">
+            <div className="mq-track">
+              {MEDIA.map((m) => <MediaLogo key={m.file} m={m} />)}
+              {MEDIA.map((m) => <MediaLogo key={m.file + '-2'} m={m} hidden />)}
+            </div>
           </div>
         </div>
       </section>
@@ -544,6 +602,8 @@ const Index = () => {
       {/* ===================== FOOTER ===================== */}
       <div className="site-foot">
         <img className="foot-img" src="/land/wm-a.svg" alt="narraglobal" />
+        {/* el "Acceso clientes" del nav se oculta en mobile (<760px): este queda
+            como única puerta al login en teléfonos */}
         <span className="r">Entrenado con el modelo NarraNoise® · narraglobal.com · <a href="/entrar" style={{ color: 'inherit' }}>Acceso clientes</a></span>
       </div>
     </>
