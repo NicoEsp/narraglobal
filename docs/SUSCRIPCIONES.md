@@ -28,7 +28,7 @@ Los datos viven en Supabase (proyecto `aydtxqhtkcyytsamervs`):
   (`base|demo|pro`), `estado` (`borrador|activo|con_historico|live|pausado`), `token`
   one-time (el pegamento pago ↔ WhatsApp ↔ tablero, para la fase LS/narrachat), el
   `codigo` opaco de la URL y el **pulso** (día + hora + tz del aviso semanal).
-- `tableros` — una fila por semana: el JSON NARRA completo (`schema_version: 1`),
+- `tableros` — una fila por semana: el JSON NARRA completo (`schema_version: 1` o `2`),
   etiqueta, `estado` (`borrador|programado|publicado`), `programado_para` y `avisado_en`
   (idempotencia del aviso, para la fase narrachat). El cliente ve **el último publicado**.
 - `admin_emails` — los emails del equipo. Al primer login, el rol admin se asigna solo.
@@ -103,6 +103,13 @@ exactamente el mismo circuito para el cliente (código por email → `/alta` →
 
 El plan de la suscripción reemplaza al `?plan=` de la URL de antes: `base`, `pro`, o
 `demo` con su vencimiento (el contador de cortesía del tablero sale de ahí).
+
+**Versiones del datos.js.** El producto acepta `schema_version` 1 y 2, y el validador
+también. La v2 es la v1 más dos bloques **opcionales**: `semana` (la escena de la
+semana vigente; sin ella el tablero cae a la escena del período) y `publicos.labs`
+(proyección rotulada; sin ella los públicos salen de `publicos` tal cual). Los dos se
+chequean cuando aparecen, sin importar la versión declarada, así que un `datos.js` v1
+sigue validando exactamente igual que antes.
 
 Reglas de experiencia que ya se cumplen: el cliente **nunca ve una pantalla muerta** —
 sin login le pide el email; con el **alta pendiente** (`alta_completada_en` vacío y no

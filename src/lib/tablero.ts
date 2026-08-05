@@ -31,5 +31,6 @@ export function prepararTablero(
     .replaceAll('src="marca/', 'src="/tablero/marca/')
     .replaceAll('src="logos/', 'src="/tablero/logos/')
     .replaceAll('src="medios/', 'src="/tablero/medios/')
+    .replaceAll('src="fotos/', 'src="/tablero/fotos/')
     .replaceAll('href="marca/', 'href="/tablero/marca/');
 }

@@ -244,13 +244,13 @@ const AdminSuscripcion = () => {
               onChange={(e) =>
                 setBorrador({ ...borrador, texto: e.target.value, validacion: null })
               }
-              placeholder={'window.NARRA={\n  schema_version: 1,\n  meta: { ... },\n  ...\n};'}
+              placeholder={'window.NARRA={\n  schema_version: 2,\n  meta: { ... },\n  ...\n};'}
               spellCheck={false}
             />
           </div>
           <div className="bo-nota">
             El mismo archivo que hoy subís al repo del cliente. Se valida antes de guardar
-            (schema_version 1, piezas, series, pool con un solo you:1…). Queda como{' '}
+            (schema_version 1 o 2, piezas, series, pool con un solo you:1…). Queda como{' '}
             <b>borrador</b>: el cliente lo ve recién cuando se publica — el ritual es sábado
             programás, el domingo se publica solo.
           </div>
