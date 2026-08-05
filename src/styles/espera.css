@@ -146,16 +146,24 @@
 }
 .es-btn:hover { opacity: .92; }
 
-/* ---- qué vas a ver ---- */
-.es-lecturas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.es-lecturas li {
-  display: flex; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+/* ---- qué vas a ver · los dos bloques del producto ---- */
+.es-lecturas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.es-bloque { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px; }
+.es-bloque .bh {
+  display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 700;
+  padding-bottom: 12px; border-bottom: 1px solid var(--line);
 }
-.es-lecturas .n {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--blue); flex: none; margin-top: 3px;
+.es-bloque .bh .n { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--blue); font-weight: 500; }
+.es-bloque ul { list-style: none; margin: 0; padding: 0; }
+.es-bloque li { padding: 12px 0; border-bottom: 1px solid var(--grid); }
+.es-bloque li:last-child { border-bottom: 0; padding-bottom: 2px; }
+.es-bloque b { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.es-bloque s { text-decoration: none; display: block; font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; line-height: 1.45; }
+/* el mismo sello que el producto le pone a la escena de la semana (schema v2) */
+.es-bloque .nv {
+  margin-left: 7px; font-family: var(--mono); font-size: 8.5px; letter-spacing: 1.1px; text-transform: uppercase;
+  color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 3px 8px; vertical-align: 1.5px;
 }
-.es-lecturas b { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
-.es-lecturas s { text-decoration: none; display: block; font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; line-height: 1.45; }
 
 /* ---- acciones ---- */
 .es-acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

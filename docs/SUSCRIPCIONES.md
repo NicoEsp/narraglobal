@@ -132,13 +132,27 @@ hacer. Ahora entra al **shell del tablero** (la misma barra con su email y Salir
 - **La línea de tiempo**: alta completa ✓ → NarraNoise® midiendo su línea de base (en
   curso) → su primera lectura, con fecha.
 - **Su Narra ID**: los @ que medimos por red, su cancha (categoría + de dónde comunica y
-  para dónde), a quiénes mira de cerca, su pulso, su plan, su email de acceso y su
+  para dónde), a quiénes mira de cerca, su pulso, su suscripción, su email de acceso y su
   WhatsApp. Todo read-only —el cliente no puede escribir su fila (RLS)— con un link de
   WhatsApp que abre el mensaje ya tipeado para que el equipo corrija lo que esté mal.
   **Este es el punto**: la ventana entre el alta y la primera entrega es cuando conviene
   descubrir un @ mal escrito, no después de tirar el pull de Apify.
-- **Qué va a ver** el día de su pulso (las cuatro lecturas) y qué puede hacer mientras
-  tanto: subir material a la carpeta compartida y escribirle a Lisandro.
+- **Qué va a ver** el día de su pulso y qué puede hacer mientras tanto: subir material a
+  la carpeta compartida y escribirle a Lisandro.
+
+Dos cosas de esta pantalla salen del **producto**, no de la landing, y hay que moverlas
+cuando se reemplace la muda:
+
+- **Los nombres de las secciones** (`BLOQUES` en `Antesala.tsx`) espejan la navegación del
+  tablero: `01 Tu semana` (qué cambió esta semana · los mensajes que llegaron · calidad de
+  tus mensajes · conclusiones y acciones) y `02 La pausa estratégica` (competencia ·
+  públicos). «Los mensajes que llegaron» lleva el sello **Nuevo** igual que en el producto:
+  es la escena de la semana que trajo la v2 del `datos.js` (bloque `semana`).
+- **La suscripción no tiene escalones**: el producto es «Narra ID · un solo acceso, todo el
+  tablero abierto para todos» (el badge Pro y los candados se retiraron). En el store
+  sobreviven las etiquetas viejas, así que `base` y `pro` se muestran los dos como
+  **Narra ID**, y `demo` es la **cortesía** con su vencimiento. Nombrar un "Pro" acá sería
+  prometer un escalón que el tablero ya no tiene.
 
 Si el alta figura completa pero no hay ni @ ni categoría (una fila marcada a mano en el
 back office, un cliente viejo), en vez de una grilla de guiones muestra un solo pedido:

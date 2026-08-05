@@ -20,19 +20,40 @@ interface Props {
   onSalir: () => void;
 }
 
+/* El producto ya no tiene escalones: «Narra ID · un solo acceso: todo el tablero
+   abierto para todos» (public/tablero/index.html). En el store siguen las
+   etiquetas viejas: 'pro' es legado y se lee igual que 'base', y 'demo' es la
+   cortesía con vencimiento. Nombrar acá un "Pro" que el tablero ya no muestra
+   sería prometer un escalón que no existe. */
 const PLAN_NOMBRE: Record<string, string> = {
   base: 'Narra ID',
-  pro: 'Narra ID Pro',
-  demo: 'Demo de cortesía',
+  pro: 'Narra ID',
+  demo: 'Narra ID · cortesía',
 };
 
-/** Las cuatro lecturas del tablero, con los nombres de la landing. Acá no son
-    marketing: son la expectativa concreta de lo que va a aparecer el domingo. */
-const LECTURAS = [
-  { n: '01', t: 'Resumen semanal', d: 'Tu calidad narrativa, el techo y el piso de la semana, y la conclusión para accionar.' },
-  { n: '02', t: 'Llegada y calidad de mensajes', d: 'Cuáles de tus mensajes llegaron, cuáles se disolvieron y cómo retrabajarlos.' },
-  { n: '03', t: 'Análisis de competencia', d: 'Tu performance contra los actores que elegiste, y tu puesto entre ellos.' },
-  { n: '04', t: 'Comportamiento de tus públicos', d: 'Qué públicos interactúan con vos y qué conductas se pueden anticipar.' },
+/** Lo que va a encontrar adentro, con los nombres y el orden del producto
+    (los dos bloques de su navegación). No es marketing: es la expectativa
+    concreta de lo que abre el día de su pulso. Si se reemplaza la muda, esto
+    se actualiza con ella. */
+const BLOQUES = [
+  {
+    n: '01',
+    bloque: 'Tu semana',
+    items: [
+      { t: 'Qué cambió esta semana', d: 'La lectura de apertura: lo que se movió, y la conclusión para accionar.' },
+      { t: 'Los mensajes que llegaron', nuevo: true, d: 'Pieza por pieza: cuáles impactaron y cuáles se disolvieron.' },
+      { t: 'Calidad de tus mensajes', d: 'Tu calidad narrativa, con el techo y el piso de la semana.' },
+      { t: 'Conclusiones y acciones sugeridas', d: 'La corrección de la semana, en instrucciones para tu equipo.' },
+    ],
+  },
+  {
+    n: '02',
+    bloque: 'La pausa estratégica',
+    items: [
+      { t: 'Comportamiento de tu competencia', d: 'Tu performance y tu puesto entre los actores que elegiste mirar.' },
+      { t: 'Comportamiento de tus públicos', d: 'Qué públicos se mueven con vos y cómo migran entre segmentos.' },
+    ],
+  },
 ];
 
 const fFechaCorta = (iso: string) =>
@@ -240,14 +261,17 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                 </div>
 
                 <div className="es-card">
-                  <div className="k">Tu plan</div>
+                  <div className="k">Tu suscripción</div>
                   <div className="v">
                     {PLAN_NOMBRE[sus.plan] ?? sus.plan}
-                    <span className={'es-chip ' + sus.plan}>{sus.plan}</span>
+                    {/* el único estado que cambia lo que ve: la cortesía vence */}
+                    {sus.plan === 'demo' && <span className="es-chip demo">cortesía</span>}
                   </div>
-                  {sus.plan === 'demo' && sus.demo_expira && (
-                    <div className="es-nota">Vence el {fFechaCorta(sus.demo_expira)}</div>
-                  )}
+                  <div className="es-nota">
+                    {sus.plan === 'demo' && sus.demo_expira
+                      ? 'Tu cortesía vence el ' + fFechaCorta(sus.demo_expira)
+                      : 'Un solo acceso: el tablero entero es tuyo'}
+                  </div>
                 </div>
 
                 <div className="es-card">
@@ -277,19 +301,29 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
           <section className="es-sec">
             <div className="es-sechead">
               <h2 className="es-h2">Qué vas a ver el {dia}</h2>
-              <span className="es-secnote">Cuatro lecturas, actualizadas cada semana</span>
+              <span className="es-secnote">Tu tablero, actualizado semana a semana</span>
             </div>
-            <ol className="es-lecturas">
-              {LECTURAS.map((l) => (
-                <li key={l.n}>
-                  <span className="n">{l.n}</span>
-                  <div>
-                    <b>{l.t}</b>
-                    <s>{l.d}</s>
+            <div className="es-lecturas">
+              {BLOQUES.map((b) => (
+                <section key={b.n} className="es-bloque">
+                  <div className="bh">
+                    <span className="n">{b.n}</span>
+                    {b.bloque}
                   </div>
-                </li>
+                  <ul>
+                    {b.items.map((i) => (
+                      <li key={i.t}>
+                        <b>
+                          {i.t}
+                          {'nuevo' in i && i.nuevo && <span className="nv">Nuevo</span>}
+                        </b>
+                        <s>{i.d}</s>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
               ))}
-            </ol>
+            </div>
           </section>
 
           <section className="es-sec">
