@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { prepararTablero } from '@/lib/tablero';
 
 interface Props {
-  /** El objeto NARRA (schema_version 1) que ve este cliente. */
+  /** El objeto NARRA (schema_version 1 o 2) que ve este cliente. */
   datos: unknown;
   /** Plan de la suscripción: base | demo | pro. */
   plan: string;

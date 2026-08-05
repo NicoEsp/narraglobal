@@ -1,6 +1,16 @@
 /* Utilidades del ecosistema NARRA: parseo del datos.js que pega Lisandro,
-   validación estructural (schema_version 1) y generación de códigos de
-   suscripción. El producto tablero vive intacto en public/tablero/. */
+   validación estructural (schema_version 1 y 2) y generación de códigos de
+   suscripción. El producto tablero vive intacto en public/tablero/.
+
+   Sobre las versiones: la v2 es la v1 más dos bloques opcionales —`semana`
+   (la escena de la semana vigente) y `publicos.labs` (proyección rotulada).
+   El producto los lee si están y sigue igual si no, así que la validación es
+   retrocompatible en las dos direcciones: un datos.js v1 valida idéntico a
+   como validaba antes, y los bloques nuevos se chequean cuando aparecen sin
+   importar la versión declarada. */
+
+/** Las que acepta el guard del producto en public/tablero/index.html. */
+export const VERSIONES_SOPORTADAS = [1, 2] as const;
 
 export interface DatosNarra {
   schema_version: number;
@@ -21,8 +31,19 @@ export interface DatosNarra {
   };
   dist?: Array<Record<string, unknown>>;
   pool?: Array<Record<string, unknown>>;
-  publicos?: Record<string, unknown>;
+  publicos?: {
+    /* proyección rotulada: si viene, el producto saca segmentos+mig de acá */
+    labs?: Record<string, unknown>;
+    [k: string]: unknown;
+  };
   copy?: Record<string, unknown>;
+  /* v2 · escena de la semana vigente. Sin esto el producto cae al período. */
+  semana?: {
+    piezas?: Array<Record<string, unknown>>;
+    lanzadas?: number;
+    llegaron?: number;
+    [k: string]: unknown;
+  };
   [k: string]: unknown;
 }
 
@@ -67,9 +88,9 @@ export function validarNarra(d: DatosNarra): ResultadoValidacion {
   if (!d || typeof d !== 'object') {
     return { ok: false, errores: ['Los datos no son un objeto.'], avisos };
   }
-  if (d.schema_version !== 1) {
+  if (!VERSIONES_SOPORTADAS.includes(d.schema_version as 1 | 2)) {
     errores.push(
-      `schema_version debe ser 1 (llegó ${String(d.schema_version)}). El producto muestra el cartel de DATOS INCOMPATIBLES con otra versión.`,
+      `schema_version debe ser ${VERSIONES_SOPORTADAS.join(' o ')} (llegó ${String(d.schema_version)}). El producto muestra el cartel de DATOS INCOMPATIBLES con otra versión.`,
     );
   }
 
@@ -124,6 +145,64 @@ export function validarNarra(d: DatosNarra): ResultadoValidacion {
     if (d.meta.es_muda === true) avisos.push('meta.es_muda sigue en true: ¿es la plantilla sin vestir?');
     if (!d.meta.nombre) avisos.push('meta.nombre está vacío.');
     if (!d.meta.semana) avisos.push('meta.semana está vacío.');
+  }
+
+  /* ── bloques de la v2 ──────────────────────────────────────────────────
+     Los dos son opcionales y el producto los ignora en silencio si no están
+     bien formados. Por eso lo que sólo se ignora va como aviso, y va como
+     error nada más lo que el producto dibujaría roto (NaN / undefined a la
+     vista). Se chequean estén donde estén: un datos.js v1 que ya los traiga
+     se valida igual. */
+
+  if (d.semana != null) {
+    if (typeof d.semana !== 'object' || Array.isArray(d.semana)) {
+      errores.push('semana debe ser un objeto.');
+    } else {
+      const sp = d.semana.piezas;
+      if (!Array.isArray(sp) || sp.length === 0) {
+        avisos.push(
+          'semana viene sin piezas: el producto la ignora y cae a la escena del período.',
+        );
+      } else {
+        sp.forEach((p, i) => {
+          if (typeof p?.n !== 'string' || !p.n) {
+            errores.push(`semana.piezas[${i}]: falta el nombre (n).`);
+          }
+          /* "sin medir" es válido y se dibuja aparte: sello sin_censo, o hit/ret
+             en null. Sólo las medidas necesitan números para el scatter. */
+          const sinMedir = p?.sello === 'sin_censo' || p?.hit == null || p?.ret == null;
+          if (sinMedir) return;
+          if (typeof p.cal !== 'number' || !Number.isFinite(p.cal)) {
+            errores.push(`semana.piezas[${i}]: con hit y ret medidos, cal debe ser un número.`);
+          }
+          if (typeof p.ret !== 'number' || !Number.isFinite(p.ret)) {
+            errores.push(`semana.piezas[${i}]: ret debe ser un número (o null si no se midió).`);
+          }
+          if (p.hit !== 0 && p.hit !== 1) {
+            errores.push(`semana.piezas[${i}]: hit debe ser 0 o 1 (o null si no se midió).`);
+          }
+        });
+      }
+      for (const k of ['lanzadas', 'llegaron'] as const) {
+        const v = d.semana[k];
+        if (v != null && typeof v !== 'number') errores.push(`semana.${k} debe ser un número.`);
+      }
+    }
+  }
+
+  const labs = d.publicos?.labs;
+  if (labs != null) {
+    if (typeof labs !== 'object' || Array.isArray(labs)) {
+      avisos.push('publicos.labs no es un objeto: el producto lo ignora y usa publicos tal cual.');
+    } else {
+      const l = labs as Record<string, unknown>;
+      /* cuando labs está, segmentos y mig salen de ahí y tapan a los de publicos */
+      if (l.segmentos == null && l.mig == null) {
+        avisos.push(
+          'publicos.labs no trae segmentos ni mig: la sección de públicos queda en blanco.',
+        );
+      }
+    }
   }
 
   const texto = JSON.stringify(d);
