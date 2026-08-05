@@ -192,6 +192,32 @@ export function validarNarra(d: DatosNarra): ResultadoValidacion {
     }
   }
 
+  /* mig no se degrada: el producto hace (MIGSEG[seg]||[]).forEach y, para la
+     vista "todos", Object.values(MIGSEG).forEach(fs=>fs.forEach(...)). Un
+     segmento que no es lista —incluido null, que el ||[] no salva en esa
+     segunda pasada— o un flujo que no es la tupla [de, a, valor] tiran
+     TypeError y se lleva puesta la sección entera. Por eso van como error.
+     Vale para publicos.mig y para publicos.labs.mig, que lo tapa cuando está. */
+  const revisarMig = (mig: unknown, ruta: string) => {
+    if (mig == null) return;
+    if (typeof mig !== 'object' || Array.isArray(mig)) {
+      errores.push(`${ruta} debe ser un objeto con un segmento por clave (fan, seg, vis, nue).`);
+      return;
+    }
+    for (const [seg, flujos] of Object.entries(mig as Record<string, unknown>)) {
+      if (!Array.isArray(flujos)) {
+        errores.push(`${ruta}.${seg} debe ser una lista de flujos [de, a, valor].`);
+        continue;
+      }
+      flujos.forEach((f, i) => {
+        if (!Array.isArray(f)) {
+          errores.push(`${ruta}.${seg}[${i}] debe ser la tupla [de, a, valor].`);
+        }
+      });
+    }
+  };
+  revisarMig(d.publicos?.mig, 'publicos.mig');
+
   const labs = d.publicos?.labs;
   if (labs != null) {
     if (typeof labs !== 'object' || Array.isArray(labs)) {
@@ -204,6 +230,7 @@ export function validarNarra(d: DatosNarra): ResultadoValidacion {
           'publicos.labs no trae segmentos ni mig: la sección de públicos queda en blanco.',
         );
       }
+      revisarMig(l.mig, 'publicos.labs.mig');
     }
   }
 
