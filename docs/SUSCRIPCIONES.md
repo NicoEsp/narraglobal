@@ -119,16 +119,23 @@ concreta de su primera entrega; pausado ve cómo reactivar por WhatsApp.
 
 ### La antesala del tablero (sin semana publicada)
 
-`src/components/tablero/Antesala.tsx` + `src/styles/espera.css`. Es lo que ve quien ya
-completó su alta y todavía no tiene una semana publicada — o sea, todos los clientes
-entre el alta y el primer domingo, que es cuando más entran a mirar.
+`src/components/tablero/Antesala.tsx` + `src/styles/espera.css`. La condición es exacta,
+no una ventana de tiempo: **alta completa y ninguna semana publicada**. Normalmente es el
+tramo entre el alta y la primera entrega —cuando más entran a mirar—, pero también le toca
+a quien se quedó sin semana publicada porque la carga se demoró.
 
 Antes era una tarjeta con la fecha de entrega y un botón «Salir»: quien volvía el martes
 —y el miércoles— encontraba exactamente lo mismo, sin nada suyo adentro y sin nada para
 hacer. Ahora entra al **shell del tablero** (la misma barra con su email y Salir) y ve:
 
-- **La entrega**, con cuenta regresiva viva (`faltaParaPulso`, se recalcula sola) y el
-  botón para agendarla en su calendario.
+- **La entrega**, con cuenta regresiva viva (se recalcula sola cada 30 s) y el botón para
+  agendarla en su calendario. La cuenta va contra el **pulso prometido** —el primero
+  después del alta, `pulsoPrometido()`— y no contra el próximo pulso: si el equipo no llegó
+  a publicar a horario, la pantalla dice que la entrega está en cierre en vez de correr la
+  promesa a la semana que viene (a las 09:05 del domingo prometido decía «faltan 6 días»).
+  El pulso se resuelve en la **zona de la suscripción** (`tz`), no en la del navegador: el
+  cliente de viaje sigue viendo la hora de su país, y el link de calendario manda la misma
+  zona en `ctz`.
 - **La línea de tiempo**: alta completa ✓ → NarraNoise® midiendo su línea de base (en
   curso) → su primera lectura, con fecha.
 - **Su Narra ID**: los @ que medimos por red, su cancha (categoría + de dónde comunica y

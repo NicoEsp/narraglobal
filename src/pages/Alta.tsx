@@ -697,7 +697,7 @@ const Alta = () => {
                   <div>
                     <div className="k">Tu próxima lectura</div>
                     <div className="dd">
-                      {fechaCortaPulso(sus.pulso_dia, sus.pulso_hora.slice(0, 5))} ·{' '}
+                      {fechaCortaPulso(sus.pulso_dia, sus.pulso_hora.slice(0, 5), sus.tz)} ·{' '}
                       {sus.pulso_hora.slice(0, 5)} <span className="tz">hora local</span>
                     </div>
                   </div>

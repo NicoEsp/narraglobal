@@ -50,6 +50,9 @@
   font-family: var(--mono); font-size: 10.5px; letter-spacing: 1.1px; text-transform: uppercase;
   color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 6px 12px; white-space: nowrap;
 }
+/* pasó la hora prometida y todavía no publicamos: la entrega está en cierre */
+.es-falta.demora { color: #b26a00; background: #fff7e6; }
+.es-agnote a { color: var(--blue); font-weight: 600; text-decoration: underline; }
 .es-agbtn {
   margin-left: auto; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--blue);
   color: var(--blue); border-radius: 9px; padding: 9px 15px; font-size: 13px; font-weight: 600;

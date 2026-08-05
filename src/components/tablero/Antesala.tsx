@@ -3,9 +3,11 @@ import type { Tables } from '@/integrations/supabase/types';
 import {
   DIA_LARGO,
   enlaceCalendarioPulso,
-  faltaParaPulso,
-  fechaCortaPulso,
-  fraseProximoPulso,
+  faltaPara,
+  fechaCorta,
+  fraseFecha,
+  proximoPulso,
+  pulsoPrometido,
 } from '@/lib/pulso';
 import { DRIVE_MATERIAL, waLisandro, waNarra } from '@/lib/enlaces';
 import '@/styles/espera.css';
@@ -77,13 +79,25 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
   const hora = sus.pulso_hora.slice(0, 5);
   const dia = DIA_LARGO[sus.pulso_dia] ?? sus.pulso_dia;
 
-  // La cuenta regresiva se recalcula sola: esta pantalla se deja abierta, y un
-  // «faltan 3 días» congelado desde ayer miente.
-  const [falta, setFalta] = useState(() => faltaParaPulso(sus.pulso_dia, hora));
+  // El reloj se mueve solo: esta pantalla se deja abierta, y un «faltan 3 días»
+  // congelado desde ayer miente. Todo lo que depende del tiempo se deriva de
+  // este tic, así que el estado de la entrega también se actualiza.
+  const [ahora, setAhora] = useState(() => Date.now());
   useEffect(() => {
-    const t = setInterval(() => setFalta(faltaParaPulso(sus.pulso_dia, hora)), 30000);
+    const t = setInterval(() => setAhora(Date.now()), 30000);
     return () => clearInterval(t);
-  }, [sus.pulso_dia, hora]);
+  }, []);
+
+  // La entrega prometida es el primer pulso después del alta, y no se mueve:
+  // si el equipo no llegó a publicar a horario, la antesala lo dice en vez de
+  // correr la promesa a la semana siguiente. Sin fecha de alta (fila marcada a
+  // mano) no hay promesa que sostener y vale el próximo pulso.
+  const entrega = sus.alta_completada_en
+    ? pulsoPrometido(sus.alta_completada_en, sus.pulso_dia, hora, sus.tz)
+    : proximoPulso(sus.pulso_dia, hora, sus.tz);
+  const demorada = entrega.getTime() <= ahora;
+  // más de dos días sin publicar ya no es «en camino»
+  const muyDemorada = ahora - entrega.getTime() > 2 * 24 * 60 * 60 * 1000;
 
   // El alta pudo haberse marcado desde el back office (o venir de un cliente
   // viejo): en ese caso no hay @ ni categoría para mostrar y el panel del Narra
@@ -92,6 +106,9 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
 
   const waCorregir = waNarra(
     `Hola. Soy ${sus.nombre} (suscripción ${sus.codigo}). Quiero corregir datos de mi Narra ID: `,
+  );
+  const waDemora = waNarra(
+    `Hola. Soy ${sus.nombre} (suscripción ${sus.codigo}). Quería saber cómo viene mi primera entrega.`,
   );
 
   return (
@@ -109,7 +126,9 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
           <header className="es-head">
             <span className="es-eyebrow">
               <i className="dot" />
-              Suscripción activa · preparando tu primera entrega
+              {demorada
+                ? 'Suscripción activa · tu primera entrega está en cierre'
+                : 'Suscripción activa · preparando tu primera entrega'}
             </span>
             <h1 className="es-h">Hola, {sus.nombre}. Tu tablero se está preparando.</h1>
             <p className="es-p">
@@ -123,12 +142,12 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                 <div>
                   <div className="k">Tu primera entrega</div>
                   <div className="dd">
-                    {fechaCortaPulso(sus.pulso_dia, hora)} · {hora}{' '}
+                    {fechaCorta(entrega, sus.tz)} · {hora}{' '}
                     <span className="tz">hora local</span>
                   </div>
                 </div>
-                <span className="es-falta" aria-live="polite">
-                  {falta}
+                <span className={'es-falta' + (demorada ? ' demora' : '')} aria-live="polite">
+                  {demorada ? (muyDemorada ? 'demorada' : 'en camino') : faltaPara(entrega, ahora)}
                 </span>
                 <a
                   className="es-agbtn"
@@ -140,9 +159,22 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                 </a>
               </div>
               <div className="es-agnote">
-                Después llega <b>cada {dia} a las {hora}</b>, y te avisamos por WhatsApp cuando
-                está publicada. Esta pantalla se convierte en tu tablero apenas subimos la semana:
-                entrá con el mismo link.
+                {demorada ? (
+                  <>
+                    Todavía no la publicamos: la estamos cerrando y te avisamos apenas esté. Si
+                    querés saber cómo viene,{' '}
+                    <a href={waDemora} target="_blank" rel="noopener noreferrer">
+                      escribinos
+                    </a>
+                    . Después llega <b>cada {dia} a las {hora}</b>.
+                  </>
+                ) : (
+                  <>
+                    Después llega <b>cada {dia} a las {hora}</b>, y te avisamos por WhatsApp cuando
+                    está publicada. Esta pantalla se convierte en tu tablero apenas subimos la
+                    semana: entrá con el mismo link.
+                  </>
+                )}
               </div>
             </div>
           </header>
@@ -166,11 +198,14 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                 <s>En curso · tus últimas semanas y las de quienes mirás de cerca</s>
               </div>
             </li>
-            <li className="es-paso">
+            <li className={'es-paso' + (demorada ? ' curso' : '')}>
               <span className="mk" />
               <div>
                 <b>Tu primera lectura</b>
-                <s>{fraseProximoPulso(sus.pulso_dia, hora)}</s>
+                <s>
+                  {fraseFecha(entrega, hora, sus.tz)}
+                  {demorada && ' · la estamos cerrando'}
+                </s>
               </div>
             </li>
           </ol>
