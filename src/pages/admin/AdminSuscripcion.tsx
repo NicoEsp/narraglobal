@@ -144,7 +144,17 @@ const AdminSuscripcion = () => {
     if (!borrador || !id) return;
     const v = validar(borrador);
     setBorrador(v);
-    if (!v.validacion?.ok || !v.datos) return;
+    /* Sin esto el botón queda mudo: si ya se había apretado «Validar», volver a
+       validar repinta la misma lista y el click parece no hacer nada. */
+    if (!v.validacion?.ok || !v.datos) {
+      const n = v.validacion?.errores.length ?? 0;
+      setError(
+        n === 1
+          ? 'No se guardó: queda 1 error de estructura abajo. Corregilo y validá de nuevo.'
+          : `No se guardó: quedan ${n} errores de estructura abajo. Corregilos y validá de nuevo.`,
+      );
+      return;
+    }
     setGuardando(true);
     setError(null);
     const fila = {
@@ -266,8 +276,13 @@ const AdminSuscripcion = () => {
                   {a}
                 </div>
               ))}
-              {borrador.validacion.ok && (
+              {borrador.validacion.ok ? (
                 <div className="bo-ok">Estructura en verde. Listo para guardar.</div>
+              ) : (
+                <div className="bo-err">
+                  <b>Con errores no se guarda.</b> Los avisos sí dejan guardar; los errores no,
+                  porque el cliente vería el tablero roto. Corregilos y validá de nuevo.
+                </div>
               )}
             </div>
           )}
@@ -290,7 +305,12 @@ const AdminSuscripcion = () => {
             >
               Ver como cliente
             </button>
-            <button className="bo-btn" type="button" onClick={guardarBorrador} disabled={guardando}>
+            <button
+              className="bo-btn"
+              type="button"
+              onClick={guardarBorrador}
+              disabled={guardando || (borrador.validacion != null && !borrador.validacion.ok)}
+            >
               {guardando ? 'Guardando…' : borrador.tableroId ? 'Guardar cambios' : 'Guardar borrador'}
             </button>
             <button className="bo-btn sec" type="button" onClick={() => setBorrador(null)}>
