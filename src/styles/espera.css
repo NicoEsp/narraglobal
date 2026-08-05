@@ -1,0 +1,217 @@
+/* ============ Antesala del tablero (/suscripcion sin semana publicada) ============
+   Vive dentro del shell del tablero (.tb-shell / .tb-barra de acceso.css) y usa
+   las variables de marca de index.css. Todo namespaced bajo .es para no chocar
+   con la landing, el alta ni el producto tablero. */
+
+.es {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--paper-2);
+  color: var(--ink);
+  font-family: var(--sans);
+}
+.es-in { max-width: 780px; margin: 0 auto; padding: 38px 24px 56px; }
+
+/* ---- cabecera de estado ---- */
+.es-eyebrow {
+  display: inline-flex; align-items: flex-start; gap: 8px; font-family: var(--mono);
+  font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--blue);
+  margin-bottom: 14px; line-height: 1.5;
+}
+/* el punto se alinea con la primera línea: en pantallas angostas el texto pasa
+   a dos renglones y centrado quedaba flotando en el medio */
+.es-eyebrow .dot {
+  flex: none; margin-top: 5px; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--blue); animation: es-bl 1.6s infinite;
+}
+@keyframes es-bl { 0%, 100% { opacity: 1 } 50% { opacity: .2 } }
+.es-h {
+  font-family: var(--serif); font-weight: 500; font-size: 32px; line-height: 1.12;
+  letter-spacing: -.8px; margin-bottom: 10px;
+}
+.es-p { color: var(--ink-soft); font-size: 14.5px; line-height: 1.6; max-width: 62ch; }
+
+/* placa de la entrega + cuenta regresiva */
+.es-agenda {
+  border: 1px solid var(--line); border-radius: 14px; padding: 15px 18px; margin-top: 22px; background: #fff;
+}
+.es-agtop { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.es-agtop .k {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--mute);
+}
+.es-agtop .dd {
+  font-family: var(--serif); font-weight: 500; font-size: 22px; letter-spacing: -.5px;
+  margin-top: 2px; text-transform: capitalize;
+}
+.es-agtop .dd .tz {
+  font-size: 12px; color: var(--mute); font-family: var(--mono); letter-spacing: .5px; text-transform: none;
+}
+.es-falta {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 1.1px; text-transform: uppercase;
+  color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 6px 12px; white-space: nowrap;
+}
+/* pasó la hora prometida y todavía no publicamos: la entrega está en cierre */
+.es-falta.demora { color: #b26a00; background: #fff7e6; }
+.es-agnote a { color: var(--blue); font-weight: 600; text-decoration: underline; }
+.es-agbtn {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--blue);
+  color: var(--blue); border-radius: 9px; padding: 9px 15px; font-size: 13px; font-weight: 600;
+}
+.es-agbtn:hover { background: var(--blue-soft); }
+.es-agnote {
+  font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--line); line-height: 1.55;
+}
+.es-agnote b { color: var(--ink); }
+
+/* ---- línea de tiempo ---- */
+.es-pasos { list-style: none; margin: 26px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.es-paso { display: flex; align-items: flex-start; gap: 13px; padding: 9px 0; position: relative; }
+/* el hilo que une los tres pasos */
+.es-paso:not(:last-child)::before {
+  content: ""; position: absolute; left: 10px; top: 30px; bottom: -2px; width: 1.5px; background: var(--line-2);
+}
+.es-paso .mk {
+  flex: none; width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid var(--line-2);
+  background: #fff; display: grid; place-items: center; font-size: 11px; color: #fff; margin-top: 1px;
+}
+.es-paso.ok .mk { background: var(--green); border-color: var(--green); }
+.es-paso.curso .mk { border-color: var(--blue); box-shadow: inset 0 0 0 3.5px var(--blue); animation: es-bl 1.8s infinite; }
+.es-paso b { display: block; font-size: 14px; font-weight: 600; line-height: 1.35; }
+.es-paso s { text-decoration: none; display: block; font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+.es-paso:not(.ok):not(.curso) b { color: var(--mute); font-weight: 500; }
+
+/* ---- secciones ---- */
+.es-sec { margin-top: 38px; padding-top: 26px; border-top: 1px solid var(--line); }
+.es-sechead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.es-h2 { font-family: var(--serif); font-weight: 500; font-size: 21px; letter-spacing: -.4px; }
+.es-secnote { font-family: var(--mono); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--mute); }
+
+/* ---- grilla del Narra ID ---- */
+.es-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.es-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px; }
+.es-card.ancha { grid-column: 1 / -1; }
+.es-card .k {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.3px; text-transform: uppercase;
+  color: var(--mute); margin-bottom: 7px;
+}
+.es-card .v {
+  font-size: 16px; font-weight: 600; line-height: 1.35; display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+}
+.es-card .v.cap { text-transform: capitalize; }
+.es-card .v.chico { font-size: 13.5px; font-weight: 500; word-break: break-all; }
+.es-card .v.mute { color: var(--mute); font-weight: 500; font-size: 14px; }
+.es-nota { font-size: 12px; color: var(--ink-soft); line-height: 1.5; margin-top: 7px; }
+.es-nota a { color: var(--blue); font-weight: 600; text-decoration: underline; }
+
+/* @ por red */
+.es-redes { display: flex; flex-wrap: wrap; gap: 8px; }
+.es-red {
+  display: inline-flex; align-items: baseline; gap: 7px; background: var(--paper-2);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px;
+}
+.es-red b { font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.1px; text-transform: uppercase; color: var(--mute); }
+.es-red s { text-decoration: none; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+
+/* a quién mira de cerca */
+.es-mira { display: flex; flex-wrap: wrap; gap: 8px; }
+.es-chipm {
+  display: inline-flex; align-items: center; gap: 8px; background: var(--paper-2);
+  border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px 5px 5px;
+  font-size: 13.5px; font-weight: 600;
+}
+.es-chipm i {
+  width: 24px; height: 24px; border-radius: 50%; background: var(--blue); color: #fff;
+  display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 700;
+}
+
+/* chip del plan */
+.es-chip {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase;
+  border-radius: 999px; padding: 4px 9px; font-weight: 500;
+}
+.es-chip.base { background: var(--paper-2); color: var(--ink-soft); border: 1px solid var(--line-2); }
+.es-chip.pro { background: var(--blue-soft); color: var(--blue); }
+.es-chip.demo { background: #fff7e6; color: #b26a00; }
+
+.es-corregir { font-size: 12.5px; color: var(--ink-soft); margin-top: 14px; line-height: 1.55; }
+.es-corregir a { color: var(--blue); font-weight: 600; text-decoration: underline; }
+
+/* Narra ID sin datos: no mostramos una grilla de guiones, pedimos lo que falta */
+.es-vacio {
+  background: #fff; border: 1.5px dashed var(--line-2); border-radius: 14px; padding: 22px;
+}
+.es-vacio b { font-size: 15px; }
+.es-vacio p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; margin: 7px 0 16px; max-width: 56ch; }
+.es-btn {
+  display: inline-flex; align-items: center; background: var(--blue); color: #fff; border-radius: 10px;
+  padding: 12px 20px; font-size: 14px; font-weight: 600;
+}
+.es-btn:hover { opacity: .92; }
+
+/* ---- qué vas a ver · los dos bloques del producto ---- */
+.es-lecturas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.es-bloque { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px; }
+.es-bloque .bh {
+  display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 700;
+  padding-bottom: 12px; border-bottom: 1px solid var(--line);
+}
+.es-bloque .bh .n { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--blue); font-weight: 500; }
+.es-bloque ul { list-style: none; margin: 0; padding: 0; }
+.es-bloque li { padding: 12px 0; border-bottom: 1px solid var(--grid); }
+.es-bloque li:last-child { border-bottom: 0; padding-bottom: 2px; }
+.es-bloque b { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.es-bloque s { text-decoration: none; display: block; font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; line-height: 1.45; }
+/* el mismo sello que el producto le pone a la escena de la semana (schema v2) */
+.es-bloque .nv {
+  margin-left: 7px; font-family: var(--mono); font-size: 8.5px; letter-spacing: 1.1px; text-transform: uppercase;
+  color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 3px 8px; vertical-align: 1.5px;
+}
+
+/* ---- acciones ---- */
+.es-acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.es-accion {
+  display: flex; gap: 12px; align-items: center; background: #fff; border: 1.5px solid var(--line-2);
+  border-radius: 14px; padding: 14px 16px; transition: .15s;
+}
+.es-accion:hover { border-color: var(--blue); }
+.es-accion .fi {
+  flex: none; width: 36px; height: 36px; border-radius: 10px; background: var(--paper-2);
+  border: 1px solid var(--line); display: grid; place-items: center; color: var(--blue);
+}
+.es-accion .ft b { display: block; font-size: 14px; font-weight: 700; line-height: 1.25; color: var(--ink); }
+.es-accion .ft s {
+  text-decoration: none; display: block; font-size: 12px; color: var(--ink-soft); margin-top: 4px; line-height: 1.4;
+}
+.es-accion .lav { position: relative; flex: none; width: 36px; height: 36px; }
+.es-accion .lav img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block; }
+/* punto verde: Lisandro está del otro lado */
+.es-accion .lav i {
+  position: absolute; right: 0; bottom: 0; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff;
+}
+
+/* ---- pie ---- */
+.es-pie {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  margin-top: 38px; padding-top: 20px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--mute);
+}
+.es-salir {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--ink-soft); background: none; border: 1px solid var(--line-2); border-radius: 6px;
+  padding: 7px 14px; cursor: pointer;
+}
+.es-salir:hover { color: var(--blue); border-color: var(--blue); }
+
+.es-agbtn:focus-visible,
+.es-accion:focus-visible,
+.es-btn:focus-visible,
+.es-salir:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .es-in { padding: 26px 18px 44px; }
+  .es-h { font-size: 26px; }
+  .es-grid, .es-lecturas, .es-acciones { grid-template-columns: 1fr; }
+  .es-agbtn { margin-left: 0; }
+}

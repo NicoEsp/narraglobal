@@ -114,8 +114,59 @@ sigue validando exactamente igual que antes.
 Reglas de experiencia que ya se cumplen: el cliente **nunca ve una pantalla muerta** —
 sin login le pide el email; con el **alta pendiente** (`alta_completada_en` vacío y no
 pausada, sin importar el estado) lo lleva a completar su alta (`/alta/{código}`);
-sin tablero publicado le dice **la fecha concreta** de su primera entrega (según su pulso);
-pausado ve cómo reactivar por WhatsApp.
+sin tablero publicado entra a la **antesala** (§3.1), que le muestra sus datos y la fecha
+concreta de su primera entrega; pausado ve cómo reactivar por WhatsApp.
+
+### La antesala del tablero (sin semana publicada)
+
+`src/components/tablero/Antesala.tsx` + `src/styles/espera.css`. La condición es exacta,
+no una ventana de tiempo: **alta completa y ninguna semana publicada**. Normalmente es el
+tramo entre el alta y la primera entrega —cuando más entran a mirar—, pero también le toca
+a quien se quedó sin semana publicada porque la carga se demoró.
+
+Antes era una tarjeta con la fecha de entrega y un botón «Salir»: quien volvía el martes
+—y el miércoles— encontraba exactamente lo mismo, sin nada suyo adentro y sin nada para
+hacer. Ahora entra al **shell del tablero** (la misma barra con su email y Salir) y ve:
+
+- **La entrega**, con cuenta regresiva viva (se recalcula sola cada 30 s) y el botón para
+  agendarla en su calendario. La cuenta va contra el **pulso prometido** —el primero
+  después del alta, `pulsoPrometido()`— y no contra el próximo pulso: si el equipo no llegó
+  a publicar a horario, la pantalla dice que la entrega está en cierre en vez de correr la
+  promesa a la semana que viene (a las 09:05 del domingo prometido decía «faltan 6 días»).
+  El pulso se resuelve en la **zona de la suscripción** (`tz`), no en la del navegador: el
+  cliente de viaje sigue viendo la hora de su país, y el link de calendario manda la misma
+  zona en `ctz`.
+- **La línea de tiempo**: alta completa ✓ → NarraNoise® midiendo su línea de base (en
+  curso) → su primera lectura, con fecha.
+- **Su Narra ID**: los @ que medimos por red, su cancha (categoría + de dónde comunica y
+  para dónde), a quiénes mira de cerca, su pulso, su suscripción, su email de acceso y su
+  WhatsApp. Todo read-only —el cliente no puede escribir su fila (RLS)— con un link de
+  WhatsApp que abre el mensaje ya tipeado para que el equipo corrija lo que esté mal.
+  **Este es el punto**: la ventana entre el alta y la primera entrega es cuando conviene
+  descubrir un @ mal escrito, no después de tirar el pull de Apify.
+- **Qué va a ver** el día de su pulso y qué puede hacer mientras tanto: subir material a
+  la carpeta compartida y escribirle a Lisandro.
+
+Dos cosas de esta pantalla salen del **producto**, no de la landing, y hay que moverlas
+cuando se reemplace la muda:
+
+- **Los nombres de las secciones** (`BLOQUES` en `Antesala.tsx`) espejan la navegación del
+  tablero: `01 Tu semana` (qué cambió esta semana · los mensajes que llegaron · calidad de
+  tus mensajes · conclusiones y acciones) y `02 La pausa estratégica` (competencia ·
+  públicos). «Los mensajes que llegaron» lleva el sello **Nuevo** igual que en el producto:
+  es la escena de la semana que trajo la v2 del `datos.js` (bloque `semana`).
+- **La suscripción no tiene escalones**: el producto es «Narra ID · un solo acceso, todo el
+  tablero abierto para todos» (el badge Pro y los candados se retiraron). En el store
+  sobreviven las etiquetas viejas, así que `base` y `pro` se muestran los dos como
+  **Narra ID**, y `demo` es la **cortesía** con su vencimiento. Nombrar un "Pro" acá sería
+  prometer un escalón que el tablero ya no tiene.
+
+Si el alta figura completa pero no hay ni @ ni categoría (una fila marcada a mano en el
+back office, un cliente viejo), en vez de una grilla de guiones muestra un solo pedido:
+«todavía no tenemos tus perfiles públicos» + WhatsApp para pasarlos.
+
+Los enlaces de contacto (WhatsApp del equipo, WhatsApp de Lisandro, carpeta de material)
+viven en `src/lib/enlaces.ts`, compartidos con `/alta`.
 
 Y una regla de no-retroceso: quien **termina el alta se queda en su confirmación**. Al
 tablero va cuando lo pide («Ir a mi tablero»), nunca empujado por la app. Antes lo

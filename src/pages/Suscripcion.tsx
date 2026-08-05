@@ -3,9 +3,10 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { useSesion } from '@/hooks/useAcceso';
-import { fraseProximoPulso } from '@/lib/pulso';
+import { WA_NARRA } from '@/lib/enlaces';
 import MagicLinkForm from '@/components/acceso/MagicLinkForm';
 import TableroFrame from '@/components/tablero/TableroFrame';
+import Antesala from '@/components/tablero/Antesala';
 import '@/styles/acceso.css';
 
 type Suscripcion = Tables<'suscripciones'>;
@@ -18,8 +19,6 @@ type Estado =
   | { paso: 'pausada'; suscripcion: Suscripcion }
   | { paso: 'sin-tablero'; suscripcion: Suscripcion }
   | { paso: 'listo'; suscripcion: Suscripcion; tablero: Tablero };
-
-const WA_NARRA = 'https://wa.me/5493417545069';
 
 const Suscripcion = () => {
   const { codigo } = useParams<{ codigo: string }>();
@@ -169,25 +168,16 @@ const Suscripcion = () => {
     );
   }
 
+  // Sin semana publicada no hay pantalla muerta: entra a la antesala, que le
+  // muestra su Narra ID (lo que medimos de él) y la cuenta regresiva de su
+  // primera entrega. Ver components/tablero/Antesala.tsx.
   if (estado.paso === 'sin-tablero') {
     return (
-      <div className="acc-pantalla">
-        <div className="acc-card">
-          <img className="acc-wm" src="/land/wm-b.svg" alt="narraglobal" />
-          <div className="acc-kick">Tablero de suscripción</div>
-          <h1 className="acc-h">Tu tablero se está preparando</h1>
-          <p className="acc-p">
-            Hola, <b>{estado.suscripcion.nombre}</b>. Tu primera semana de datos NarraNoise® está
-            en la mesa de trabajo. Tu entrega llega{' '}
-            <b>{fraseProximoPulso(estado.suscripcion.pulso_dia, estado.suscripcion.pulso_hora)}</b>.
-          </p>
-          <div className="acc-form">
-            <button className="acc-btn sec" onClick={salir}>
-              Salir
-            </button>
-          </div>
-        </div>
-      </div>
+      <Antesala
+        suscripcion={estado.suscripcion}
+        email={sesion.user.email ?? ''}
+        onSalir={salir}
+      />
     );
   }
 
