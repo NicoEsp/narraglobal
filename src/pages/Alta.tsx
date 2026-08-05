@@ -4,19 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { useSesion } from '@/hooks/useAcceso';
 import { fechaCortaPulso, enlaceCalendarioPulso, DIA_LARGO } from '@/lib/pulso';
+import { DRIVE_MATERIAL, WA_NARRA, waLisandro } from '@/lib/enlaces';
 import MagicLinkForm from '@/components/acceso/MagicLinkForm';
 import '@/styles/acceso.css';
 import '@/styles/alta.css';
 
 type Suscripcion = Tables<'suscripciones'>;
 
-const WA_NARRA = 'https://wa.me/5493417545069';
-const WA_LISANDRO =
-  'https://wa.me/5491130731011?text=' +
-  encodeURIComponent('Hola Lisandro. Recién completé mi alta en narraglobal.');
-/** Carpeta compartida donde el cliente deja su material para analizar. */
-const DRIVE_MATERIAL =
-  'https://drive.google.com/drive/folders/1574BvXiyJd4hf_tcAYdgleKQIV5kFyiY?usp=sharing';
+const WA_LISANDRO = waLisandro('Hola Lisandro. Recién completé mi alta en narraglobal.');
 const PAISES = [
   'Argentina', 'México', 'Chile', 'Uruguay', 'Colombia', 'España', 'Estados Unidos', 'Otro',
 ];

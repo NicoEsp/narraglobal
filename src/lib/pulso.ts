@@ -39,6 +39,19 @@ export function fechaCortaPulso(pulsoDia: string, pulsoHora: string): string {
   return fecha.toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: '2-digit' });
 }
 
+/** "faltan 3 días · 4 h" — la espera en unidades que se sienten, no una fecha
+    más. La usa la antesala del tablero, que alguien puede dejar abierta. */
+export function faltaParaPulso(pulsoDia: string, pulsoHora: string): string {
+  const ms = proximoPulso(pulsoDia, pulsoHora).getTime() - Date.now();
+  if (ms <= 0) return 'llega en minutos';
+  const minutos = Math.floor(ms / 60000);
+  const horas = Math.floor(minutos / 60);
+  const dias = Math.floor(horas / 24);
+  if (dias >= 1) return `faltan ${dias} ${dias === 1 ? 'día' : 'días'} · ${horas % 24} h`;
+  if (horas >= 1) return `faltan ${horas} h · ${minutos % 60} min`;
+  return `faltan ${Math.max(1, minutos)} min`;
+}
+
 const DIA_A_BYDAY: Record<string, string> = {
   dom: 'SU',
   lun: 'MO',

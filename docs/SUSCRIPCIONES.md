@@ -107,8 +107,38 @@ El plan de la suscripción reemplaza al `?plan=` de la URL de antes: `base`, `pr
 Reglas de experiencia que ya se cumplen: el cliente **nunca ve una pantalla muerta** —
 sin login le pide el email; con el **alta pendiente** (`alta_completada_en` vacío y no
 pausada, sin importar el estado) lo lleva a completar su alta (`/alta/{código}`);
-sin tablero publicado le dice **la fecha concreta** de su primera entrega (según su pulso);
-pausado ve cómo reactivar por WhatsApp.
+sin tablero publicado entra a la **antesala** (§3.1), que le muestra sus datos y la fecha
+concreta de su primera entrega; pausado ve cómo reactivar por WhatsApp.
+
+### La antesala del tablero (sin semana publicada)
+
+`src/components/tablero/Antesala.tsx` + `src/styles/espera.css`. Es lo que ve quien ya
+completó su alta y todavía no tiene una semana publicada — o sea, todos los clientes
+entre el alta y el primer domingo, que es cuando más entran a mirar.
+
+Antes era una tarjeta con la fecha de entrega y un botón «Salir»: quien volvía el martes
+—y el miércoles— encontraba exactamente lo mismo, sin nada suyo adentro y sin nada para
+hacer. Ahora entra al **shell del tablero** (la misma barra con su email y Salir) y ve:
+
+- **La entrega**, con cuenta regresiva viva (`faltaParaPulso`, se recalcula sola) y el
+  botón para agendarla en su calendario.
+- **La línea de tiempo**: alta completa ✓ → NarraNoise® midiendo su línea de base (en
+  curso) → su primera lectura, con fecha.
+- **Su Narra ID**: los @ que medimos por red, su cancha (categoría + de dónde comunica y
+  para dónde), a quiénes mira de cerca, su pulso, su plan, su email de acceso y su
+  WhatsApp. Todo read-only —el cliente no puede escribir su fila (RLS)— con un link de
+  WhatsApp que abre el mensaje ya tipeado para que el equipo corrija lo que esté mal.
+  **Este es el punto**: la ventana entre el alta y la primera entrega es cuando conviene
+  descubrir un @ mal escrito, no después de tirar el pull de Apify.
+- **Qué va a ver** el día de su pulso (las cuatro lecturas) y qué puede hacer mientras
+  tanto: subir material a la carpeta compartida y escribirle a Lisandro.
+
+Si el alta figura completa pero no hay ni @ ni categoría (una fila marcada a mano en el
+back office, un cliente viejo), en vez de una grilla de guiones muestra un solo pedido:
+«todavía no tenemos tus perfiles públicos» + WhatsApp para pasarlos.
+
+Los enlaces de contacto (WhatsApp del equipo, WhatsApp de Lisandro, carpeta de material)
+viven en `src/lib/enlaces.ts`, compartidos con `/alta`.
 
 Y una regla de no-retroceso: quien **termina el alta se queda en su confirmación**. Al
 tablero va cuando lo pide («Ir a mi tablero»), nunca empujado por la app. Antes lo
