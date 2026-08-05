@@ -32,8 +32,8 @@
   .nav-links a{color:rgba(255,255,255,.82);font-size:13.5px;font-weight:500;transition:color .15s}
   .nav-links a:hover{color:#fff}
   @media(max-width:760px){.nav-links{display:none}}
-  .wm-img{height:32px;display:block}
-  .shwm-img{height:28px;display:block}
+  .wm-img{height:24.2px;display:block}
+  .shwm-img{height:21px;display:block}
   .foot-img{height:28px;display:block}
   .ccwm-img{height:20px;display:block}
   .nav-cta{font-weight:600;font-size:13.5px;color:var(--blue);background:#fff;padding:10px 20px;border-radius:7px;white-space:nowrap}
@@ -48,6 +48,21 @@
   .btn-p:hover{transform:translateY(-1px)}
   .cta-price{font-family:var(--mono);font-size:11.5px;letter-spacing:.9px;text-transform:uppercase;color:rgba(255,255,255,.72);line-height:1.35;text-align:left}
   .cta-price b{display:block;font-weight:500;color:#fff}
+
+  /* --- selector de región (Narra ID · Mercado Pago / Lemon Squeezy) --- */
+  .hctas-sel{flex-direction:column;gap:14px}
+  .hctas-sel .cta-price{text-align:center}
+  .selcard{position:relative;z-index:2;background:rgba(255,255,255,.1);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:13px 14px 14px;display:flex;flex-direction:column;gap:10px;width:min(322px,100%);box-shadow:0 18px 44px rgba(10,6,60,.18);text-align:center}
+  .seg{display:flex;justify-content:center;align-items:baseline;gap:22px}
+  .seg-b{font-family:var(--mono);font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;padding:2px 1px 5px;color:rgba(255,255,255,.55);background:transparent;border:0;border-bottom:2px solid transparent;cursor:pointer;transition:color .15s,border-color .15s}
+  .seg-b:hover{color:#fff}
+  .seg-b.on,.seg-b.on:hover{color:#fff;border-bottom-color:rgba(255,255,255,.92)}
+  .sel-btn{display:block;background:#fff;color:var(--blue);font-weight:600;font-size:15px;padding:14px 22px;border-radius:7px;transition:transform .15s}
+  .sel-btn:hover{transform:translateY(-1px)}
+  .sel-note{display:flex;align-items:center;justify-content:center;gap:7px;font-family:var(--mono);font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.62);white-space:nowrap}
+  .sel-note b{color:#fff;font-weight:600}
+  .sel-note .g{flex:0 0 auto}
+  .sel-note.hide{display:none}
 
   /* ===================== FOTO DEL DASHBOARD — mitad azul, mitad papel ===================== */
   .shot-zone{position:relative;padding:26px 5vw 0}
@@ -116,7 +131,7 @@
   .mrow2 .sched{font-family:var(--mono);font-size:6.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute);border:1px solid var(--line-2);border-radius:99px;padding:2.5px 7px;white-space:nowrap}
   .mrow2 .col{width:22px;height:22px;border-radius:50%;border:1px solid var(--line-2);background:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-soft);flex:0 0 auto}
   .sh-floor{position:relative;height:38px;background:#0b0c11}
-  .sh-floor .seal{position:absolute;left:50%;top:-17px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+  .sh-floor .seal{position:absolute;left:50%;top:-17px;transform:translateX(-50%);width:34px;height:34px;display:block}
 
   /* ===================== CLIENTES — carrusel ===================== */
   .clients{padding:84px 0 60px;text-align:center}
@@ -250,15 +265,27 @@
 
   /* ===================== CTA · COMENZAR (antes de reportes) ===================== */
   .midcta{max-width:1180px;margin:0 auto;padding:0 5vw}
-  .mc-in{position:relative;overflow:hidden;background:var(--blue);border-radius:16px;display:flex;justify-content:space-between;align-items:center;gap:22px;padding:32px 36px;flex-wrap:wrap}
+  .mc-in{position:relative;overflow:hidden;background:var(--blue);border-radius:16px;padding:40px 36px 38px;
+    display:flex;flex-direction:column;align-items:center;text-align:center}
   .mc-in::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
     background-image:linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:48px 48px}
   .mc-in::after{content:"";position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(90% 140% at 85% 50%, rgba(255,255,255,.16), transparent 60%)}
-  .mc-t{font-weight:800;font-size:clamp(20px,2.2vw,26px);letter-spacing:-.03em;line-height:1.15;color:#fff;position:relative;z-index:2}
-  .mc-s{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:9px;position:relative;z-index:2}
-  .mc-btn{position:relative;z-index:2;background:#fff;color:var(--blue);font-weight:600;font-size:15px;padding:14px 26px;border-radius:8px;white-space:nowrap;transition:transform .15s}
-  .mc-btn:hover{transform:translateY(-1px)}
+    background:radial-gradient(90% 130% at 50% -20%, rgba(255,255,255,.17), transparent 62%)}
+  .mc-in>*{position:relative;z-index:2}
+  .mc-t{font-weight:800;font-size:clamp(22px,2.6vw,31px);letter-spacing:-.035em;line-height:1.12;color:#fff}
+  .mc-s{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:10px}
+  /* selector-pastilla de región (convención billing-toggle) */
+  .pillseg{display:inline-flex;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.26);border-radius:99px;padding:2.5px;gap:2px;margin-top:18px}
+  .ps-b{display:inline-flex;align-items:center;font-family:var(--mono);font-size:8px;letter-spacing:1.1px;text-transform:uppercase;
+    padding:7px 13px;border-radius:99px;border:0;background:transparent;color:rgba(255,255,255,.7);cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
+  .ps-b:hover{color:#fff}
+  .ps-b.on,.ps-b.on:hover{background:rgba(255,255,255,.2);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.38)}
+  .ps-b .g{flex:0 0 auto}
+  .ps-b .det{display:inline-flex;align-items:center;gap:6px;max-width:0;margin-left:0;overflow:hidden;opacity:0;transition:max-width .28s ease,opacity .2s,margin-left .28s ease}
+  .ps-b.on .det{max-width:170px;margin-left:7px;opacity:1}
+  .mo-btn{background:#fff;color:var(--blue);font-weight:600;font-size:15px;padding:14px 30px;border-radius:8px;white-space:nowrap;transition:transform .15s;margin-top:18px}
+  .mo-btn:hover{transform:translateY(-1px)}
+  @media(max-width:640px){.pillseg{flex-direction:column;border-radius:14px}.ps-b{border-radius:10px;justify-content:center}}
 
   /* ===================== IN-COMPANY ===================== */
   .ic-head{max-width:1180px;margin:34px auto 0;padding:0 20px;text-align:center}
@@ -336,10 +363,8 @@
   .cover-next{background:var(--blue)}
   .cover-next .cc-dato2{color:rgba(255,255,255,.9)}
   .cc-xmark{position:absolute;right:-12px;bottom:-10px;width:128px;height:128px;opacity:.12;z-index:1;fill:#fff}
+  /* los logos de medios ahora corren en el mismo carrusel que los clientes (.mq) */
   .rp-media{margin-top:38px;padding:36px 40px 0;text-align:center;border-top:1px solid var(--line);max-width:980px;margin-left:auto;margin-right:auto}
-  .rp-media-lab{font-family:var(--mono);font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mute);margin-bottom:26px}
-  .rp-media-logos{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(14px,2.2vw,26px)}
-  .rp-media-logos img{height:26px;max-width:84px;object-fit:contain;flex:0 0 auto;min-width:0}
 
   /* ===================== FOOTER ===================== */
   .site-foot{max-width:1180px;margin:30px auto 0;padding:32px 40px 26px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);flex-wrap:wrap;gap:12px}
