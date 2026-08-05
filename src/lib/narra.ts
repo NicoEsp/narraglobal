@@ -37,7 +37,9 @@ export interface DatosNarra {
     [k: string]: unknown;
   };
   copy?: Record<string, unknown>;
-  /* v2 · escena de la semana vigente. Sin esto el producto cae al período. */
+  /* v2 · escena de la semana vigente (scatter cal×ret). Sin esto el producto
+     cae a la escena del período. Ojo: no confundir con meta.semana, que es la
+     etiqueta ("W32") y sigue siendo un string. */
   semana?: {
     piezas?: Array<Record<string, unknown>>;
     lanzadas?: number;
@@ -88,7 +90,7 @@ export function validarNarra(d: DatosNarra): ResultadoValidacion {
   if (!d || typeof d !== 'object') {
     return { ok: false, errores: ['Los datos no son un objeto.'], avisos };
   }
-  if (!VERSIONES_SOPORTADAS.includes(d.schema_version as 1 | 2)) {
+  if (!(VERSIONES_SOPORTADAS as readonly number[]).includes(d.schema_version)) {
     errores.push(
       `schema_version debe ser ${VERSIONES_SOPORTADAS.join(' o ')} (llegó ${String(d.schema_version)}). El producto muestra el cartel de DATOS INCOMPATIBLES con otra versión.`,
     );
