@@ -187,6 +187,21 @@ Guarda los **campos confirmados** (no la conversación) en columnas de `suscripc
 planes), `equipo_tamano`, `equipo_telefono`, `alta_completada_en`. Pedimos **solo los @
 públicos** — nunca login a las redes.
 
+Tres cosas del wizard que conviene tener presentes:
+
+- **Enter avanza.** Los botones muestran «↵» desde siempre, pero los campos no viven
+  dentro de un `<form>` y la tecla no hacía nada. El listener va en el `document` y no en
+  el div del wizard: en los pasos sin input (país, mirar de cerca, equipo) el foco queda
+  en el `<body>`, fuera del árbol de React. Con el foco en un botón o un link, Enter
+  aprieta ese botón y no salta el paso.
+- **El código de país del WhatsApp se elige** (paso 7) y arranca en el país del paso 2.
+  Estaba clavado en `+54 9`: un cliente de México o España terminaba con el teléfono
+  guardado mal — y por ahí es por donde le habla el Asistente IA y le llega el aviso
+  semanal. «Otro país» deja escribir el número completo con su código.
+- **El WhatsApp del compañero vale solo.** El paso 8 lo pide sin volver a preguntar si
+  trabaja con equipo, así que el número de quien había marcado «trabajo solo» en el paso 6
+  se descartaba en silencio. Ahora, si carga un número, se guarda y el equipo queda en 1.
+
 Al terminar, el wizard llama a la función **`completar_alta(p_codigo, p_datos)`** —
 `SECURITY DEFINER`, valida el email del login y que el **alta esté pendiente**
 (`alta_completada_en` vacío y no pausada), escribe solo los campos del alta, y si venía
@@ -272,6 +287,15 @@ como overlay** (lemon.js), sin salir de narraglobal.com.
    `https://narraglobal.com/entrar` (texto sugerido: «Entrar a mi tablero»). Así el loop
    queda cerrado: paga → «Entrar a mi tablero» → pide su código por email → onboarding
    `/alta` → «tu primera entrega llega el …».
+
+**La ventana entre el pago y la fila.** El webhook crea la suscripción unos segundos
+después del pago, y el cliente que viene del recibo puede llegar a `/entrar` antes que su
+fila. Por eso `/entrar` no dictamina de una: reintenta la búsqueda cinco veces
+(0 · 2 · 3 · 5 · 8 s) mostrando «Activando tu suscripción…» y recién ahí muestra «No
+encontramos tu suscripción», ahora con **Volver a intentar**. Y una consulta que falla
+(red, 500) ya no se lee como «esta cuenta no tiene nada»: `/entrar`, `/alta` y
+`/suscripcion` distinguen el error de la fila ausente y ofrecen reintentar, en vez de
+mandar a soporte a alguien por un corte de dos segundos.
 
 El circuito completo del cliente que paga solo:
 pago en LS → webhook crea el `borrador` → el cliente entra desde el recibo (o desde

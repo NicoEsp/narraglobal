@@ -77,6 +77,18 @@
   font-weight: 600; letter-spacing: .5px; background: transparent;
 }
 .alta-phone input:focus { outline: 0; }
+/* Código de país: se lee igual que el «+54 9» de antes, pero se puede cambiar. */
+.alta-phone .ccsel { position: relative; flex: none; }
+.alta-phone .ccsel select {
+  -webkit-appearance: none; appearance: none; border: 0; background: transparent;
+  font-family: var(--mono); font-size: 18px; color: var(--mute);
+  padding: 10px 16px 10px 0; cursor: pointer;
+}
+.alta-phone .ccsel select:focus { outline: 0; color: var(--ink); }
+.alta-phone .ccsel::after {
+  content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
+  font-size: 12px; color: var(--mute); pointer-events: none;
+}
 
 /* selects país */
 .alta-selrow { display: flex; flex-direction: column; gap: 14px; }

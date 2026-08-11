@@ -14,6 +14,7 @@ type Tablero = Tables<'tableros'>;
 
 type Estado =
   | { paso: 'cargando' }
+  | { paso: 'error' }
   | { paso: 'sin-acceso' }
   | { paso: 'alta-pendiente'; suscripcion: Suscripcion }
   | { paso: 'pausada'; suscripcion: Suscripcion }
@@ -24,6 +25,8 @@ const Suscripcion = () => {
   const { codigo } = useParams<{ codigo: string }>();
   const { sesion, cargando } = useSesion();
   const [estado, setEstado] = useState<Estado>({ paso: 'cargando' });
+  // Sube con «Volver a intentar» y vuelve a correr la lectura.
+  const [ronda, setRonda] = useState(0);
 
   // Igual que en /alta: depende del id de usuario y no del objeto `sesion`, que
   // cambia de identidad en cada evento de auth de Supabase. Con el objeto, un
@@ -37,12 +40,19 @@ const Suscripcion = () => {
     setEstado({ paso: 'cargando' });
 
     (async () => {
-      const { data: sus } = await supabase
+      const { data: sus, error } = await supabase
         .from('suscripciones')
         .select('*')
         .eq('codigo', codigo)
         .maybeSingle();
       if (!vivo) return;
+      // Una consulta que falló no es una cuenta sin acceso: sin esta rama, un
+      // corte de red de dos segundos le decía al cliente que su tablero no era
+      // suyo. El cartel de «sin acceso» es solo para la fila que no está.
+      if (error) {
+        setEstado({ paso: 'error' });
+        return;
+      }
       if (!sus) {
         setEstado({ paso: 'sin-acceso' });
         return;
@@ -78,7 +88,7 @@ const Suscripcion = () => {
     return () => {
       vivo = false;
     };
-  }, [userId, codigo]);
+  }, [userId, codigo, ronda]);
 
   const salir = () => supabase.auth.signOut();
 
@@ -114,6 +124,30 @@ const Suscripcion = () => {
 
   if (estado.paso === 'alta-pendiente') {
     return <Navigate to={'/alta/' + estado.suscripcion.codigo} replace />;
+  }
+
+  if (estado.paso === 'error') {
+    return (
+      <div className="acc-pantalla">
+        <div className="acc-card">
+          <img className="acc-wm" src="/land/wm-b.svg" alt="narraglobal" />
+          <div className="acc-kick">Tablero de suscripción</div>
+          <h1 className="acc-h">No pudimos cargar tu tablero</h1>
+          <p className="acc-p">
+            Tu sesión está abierta, pero no llegamos a leer tus datos. Suele ser la conexión:
+            probá de nuevo.
+          </p>
+          <div className="acc-form">
+            <button className="acc-btn" onClick={() => setRonda((n) => n + 1)}>
+              Volver a intentar
+            </button>
+            <a className="acc-btn sec" href={WA_NARRA} target="_blank" rel="noopener noreferrer">
+              Escribirnos por WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (estado.paso === 'sin-acceso') {
