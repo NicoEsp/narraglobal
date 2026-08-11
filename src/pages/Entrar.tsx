@@ -11,12 +11,21 @@ const WA_NARRA = 'https://wa.me/5493417545069';
    al tablero del cliente (o al back office si la cuenta es admin). */
 const Entrar = () => {
   const { sesion, cargando } = useSesion();
-  const esAdmin = useEsAdmin(sesion);
+  const { esAdmin, error: errorRol } = useEsAdmin(sesion);
   const navigate = useNavigate();
   const [sinSuscripcion, setSinSuscripcion] = useState(false);
+  const email = sesion?.user.email;
+
+  // Cambió la cuenta: el veredicto de la anterior no vale más. Sin esto, quien
+  // sale y entra con otro email se queda mirando el cartel del email viejo.
+  useEffect(() => {
+    setSinSuscripcion(false);
+  }, [email]);
 
   useEffect(() => {
-    if (!sesion || esAdmin === null) return;
+    // Si no pudimos leer el rol, seguimos como cliente: la pantalla de «sin
+    // suscripción» tiene la puerta al back office para el equipo.
+    if (!sesion || (esAdmin === null && !errorRol)) return;
     if (esAdmin) {
       navigate('/admin', { replace: true });
       return;
@@ -39,7 +48,7 @@ const Entrar = () => {
     return () => {
       vivo = false;
     };
-  }, [sesion, esAdmin, navigate]);
+  }, [sesion, esAdmin, errorRol, navigate]);
 
   if (cargando) {
     return (
@@ -82,6 +91,11 @@ const Entrar = () => {
               Entrar con otro email
             </button>
           </div>
+          {/* Salida para el equipo: sin esto, una cuenta narraglobal termina acá
+              sin ningún camino hacia la mesa de trabajo. */}
+          <p className="acc-nota">
+            ¿Sos del equipo? <a href="/admin">Entrá al back office</a>.
+          </p>
         </div>
       </div>
     );

@@ -8,7 +8,7 @@ import '@/styles/acceso.css';
    Los admins se dan de alta agregando su email a la tabla admin_emails. */
 const AdminMarco = ({ children }: { children: ReactNode }) => {
   const { sesion, cargando } = useSesion();
-  const esAdmin = useEsAdmin(sesion);
+  const { esAdmin, error, reintentar } = useEsAdmin(sesion);
 
   if (cargando) {
     return (
@@ -28,6 +28,27 @@ const AdminMarco = ({ children }: { children: ReactNode }) => {
           redirectTo={window.location.origin + window.location.pathname}
         />
         <div className="acc-pie">narraglobal · back office</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="acc-pantalla">
+        <div className="acc-card">
+          <img className="acc-wm" src="/land/wm-b.svg" alt="narraglobal" />
+          <div className="acc-kick">Back office</div>
+          <h1 className="acc-h">No pudimos verificar tus permisos</h1>
+          <p className="acc-p">
+            La sesión de <b>{sesion.user.email}</b> está bien; lo que no contestó es la base. Suele
+            ser la conexión: probá de nuevo.
+          </p>
+          <div className="acc-form">
+            <button className="acc-btn" onClick={reintentar}>
+              Reintentar
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
