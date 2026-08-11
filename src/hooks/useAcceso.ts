@@ -31,31 +31,61 @@ export function useSesion() {
   return { sesion, cargando };
 }
 
-/** ¿La sesión tiene el rol admin? null = todavía no se sabe. */
+/**
+ * ¿La sesión tiene el rol admin?
+ *
+ * `esAdmin: null` = todavía no se sabe. Un `false` acá cierra la puerta del back
+ * office, así que solo lo devolvemos cuando la base contestó: si la consulta
+ * falla (red, 500), reintentamos y recién ahí marcamos `error` — nunca un
+ * "no tenés permisos" que en realidad era una consulta que no llegó.
+ */
+const INTENTOS = 3;
+
 export function useEsAdmin(sesion: Session | null) {
   const [esAdmin, setEsAdmin] = useState<boolean | null>(null);
+  const [error, setError] = useState(false);
+  const [intento, setIntento] = useState(0);
   const userId = sesion?.user.id;
 
   useEffect(() => {
     if (!userId) {
       setEsAdmin(null);
+      setError(false);
       return;
     }
     let vivo = true;
+    let reloj: ReturnType<typeof setTimeout>;
     setEsAdmin(null);
-    supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle()
-      .then(({ data }) => {
-        if (vivo) setEsAdmin(Boolean(data));
-      });
+    setError(false);
+
+    const consultar = async (vuelta: number) => {
+      const { data, error: err } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+      if (!vivo) return;
+      if (!err) {
+        setEsAdmin(Boolean(data));
+        return;
+      }
+      if (vuelta + 1 < INTENTOS) {
+        reloj = setTimeout(() => consultar(vuelta + 1), 400 * 2 ** vuelta);
+        return;
+      }
+      setError(true);
+    };
+
+    consultar(0);
     return () => {
       vivo = false;
+      clearTimeout(reloj);
     };
-  }, [userId]);
+  }, [userId, intento]);
 
-  return esAdmin;
+  /** Vuelve a preguntar desde cero (botón «Reintentar»). */
+  const reintentar = () => setIntento((n) => n + 1);
+
+  return { esAdmin, error, reintentar };
 }
