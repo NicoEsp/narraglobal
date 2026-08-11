@@ -28,6 +28,24 @@ const RED_PLACEHOLDER: Record<Red, string> = {
   Otra: '@usuario o link',
 };
 
+/* El código de país del WhatsApp. Antes estaba clavado en «+54 9»: el paso 2
+   ofrece México, Chile, España o Estados Unidos y el paso 7 le pegaba el
+   prefijo argentino igual, así que el teléfono de un cliente de afuera quedaba
+   guardado mal — y por ahí es por donde le habla el Asistente IA y le llega el
+   aviso semanal. Arranca en el país que eligió y lo puede cambiar. */
+const CODIGOS: Record<string, string> = {
+  Argentina: '+54 9',
+  México: '+52',
+  Chile: '+56',
+  Uruguay: '+598',
+  Colombia: '+57',
+  España: '+34',
+  'Estados Unidos': '+1',
+};
+/** Lo elige quien no está en la lista: escribe el número con su código. */
+const CC_OTRO = 'otro';
+const CC_OPCIONES = [...Object.values(CODIGOS), CC_OTRO];
+
 const TOPE_MIRA = 5;
 
 const CATEGORIAS = [
@@ -42,12 +60,24 @@ const ULTIMO = PROGRESO.length - 1; // pantalla "listo"
 
 const soloDigitos = (s: string) => s.replace(/[^\d]/g, '');
 
+/** El teléfono en formato internacional, o null si no hay número. */
+const armarTelefono = (cc: string, numero: string): string | null => {
+  const d = soloDigitos(numero);
+  if (!d) return null;
+  // Con «otro», el código de país va escrito en el propio campo.
+  return cc === CC_OTRO ? '+' + d : '+' + soloDigitos(cc) + d;
+};
+
 const Alta = () => {
   const { codigo } = useParams<{ codigo: string }>();
   const { sesion, cargando } = useSesion();
   const navigate = useNavigate();
 
   const [sus, setSus] = useState<Suscripcion | null | undefined>(undefined); // undefined = cargando
+  // La lectura falló (red, 500). No es lo mismo que «no existe»: eso último le
+  // dice al cliente que su alta no es suya, y sería mentira.
+  const [errorCarga, setErrorCarga] = useState(false);
+  const [ronda, setRonda] = useState(0);
   const [paso, setPaso] = useState(0);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +108,10 @@ const Alta = () => {
   const [conEquipo, setConEquipo] = useState(false);
   const [equipoN, setEquipoN] = useState(1);
   const [wa, setWa] = useState('');
+  const [cc, setCc] = useState(CODIGOS.Argentina);
+  // Una vez que lo tocó (o que vino del teléfono ya guardado), el país del
+  // paso 2 no se lo vuelve a pisar.
+  const [ccTocado, setCcTocado] = useState(false);
   const [teamWa, setTeamWa] = useState('');
 
   // Ojo con la dependencia: es el id de usuario, no el objeto `sesion`.
@@ -91,23 +125,47 @@ const Alta = () => {
   useEffect(() => {
     if (!userId || !codigo) return;
     let vivo = true;
+    setErrorCarga(false);
     (async () => {
-      const { data } = await supabase
+      const { data, error: err } = await supabase
         .from('suscripciones')
         .select('*')
         .eq('codigo', codigo)
         .maybeSingle();
       if (!vivo) return;
+      if (err) {
+        setErrorCarga(true);
+        return;
+      }
+      setErrorCarga(false);
       setSus(data ?? null);
       if (data) {
         setNombre(data.nombre ?? '');
-        if (data.telefono) setWa(soloDigitos(data.telefono).replace(/^549/, ''));
+        if (data.telefono) {
+          // Separamos el código de país del número: el teléfono guardado puede
+          // venir de cualquier país (lo carga el equipo desde el back office).
+          const d = soloDigitos(data.telefono);
+          const hit = CC_OPCIONES.find((c) => c !== CC_OTRO && d.startsWith(soloDigitos(c)));
+          if (hit) {
+            setCc(hit);
+            setCcTocado(true);
+            setWa(d.slice(soloDigitos(hit).length));
+          } else {
+            setWa(d);
+          }
+        }
       }
     })();
     return () => {
       vivo = false;
     };
-  }, [userId, codigo]);
+  }, [userId, codigo, ronda]);
+
+  // El código de país sigue al país del paso 2 mientras nadie lo toque.
+  useEffect(() => {
+    if (ccTocado) return;
+    setCc(CODIGOS[paisDe] ?? CC_OTRO);
+  }, [paisDe, ccTocado]);
 
   const puedeAvanzar = useMemo(() => {
     switch (paso) {
@@ -118,11 +176,12 @@ const Alta = () => {
       case 4:
         return REDES.some((r) => redes[r].on && redes[r].usuario.trim() !== '');
       case 7:
-        return soloDigitos(wa).length >= 6;
+        // Con «otro» el número incluye el código de país: pedimos un dígito más.
+        return soloDigitos(wa).length >= (cc === CC_OTRO ? 8 : 6);
       default:
         return true;
     }
-  }, [paso, nombre, categoria, categoriaOtro, redes, wa]);
+  }, [paso, nombre, categoria, categoriaOtro, redes, wa, cc]);
 
   const avanzar = () => setPaso((p) => Math.min(ULTIMO, p + 1));
   const atras = () => setPaso((p) => Math.max(0, p - 1));
@@ -163,16 +222,22 @@ const Alta = () => {
     const redesPayload = REDES.filter((r) => redes[r].on && redes[r].usuario.trim() !== '').map(
       (r) => ({ red: r, usuario: redes[r].usuario.trim() }),
     );
+    // El WhatsApp del compañero vale por sí solo: el paso 8 lo pide sin volver
+    // a preguntar si trabaja con equipo, así que antes el número de quien había
+    // dicho «trabajo solo» en el paso 6 se descartaba en silencio — cargaba el
+    // teléfono, tocaba «Sumar y terminar» y no llegaba nunca.
+    const telefonoEquipo = armarTelefono(cc, teamWa);
+    const conCompanero = telefonoEquipo !== null && soloDigitos(teamWa).length >= 6;
     const datos = {
       nombre: nombre.trim(),
-      telefono: '+549' + soloDigitos(wa),
+      telefono: armarTelefono(cc, wa),
       pais_de: paisDe,
       pais_para: paisPara,
       categoria: categoria === 'Otro' ? categoriaOtro.trim() : categoria,
       redes: redesPayload,
       competidores,
-      equipo_tamano: conEquipo ? equipoN : 0,
-      equipo_telefono: conEquipo && soloDigitos(teamWa).length >= 6 ? '+549' + soloDigitos(teamWa) : null,
+      equipo_tamano: conEquipo ? equipoN : conCompanero ? 1 : 0,
+      equipo_telefono: conCompanero ? telefonoEquipo : null,
     };
     const { error: err } = await supabase.rpc('completar_alta', { p_codigo: codigo, p_datos: datos });
     setEnviando(false);
@@ -184,7 +249,66 @@ const Alta = () => {
     setPaso(ULTIMO);
   };
 
+  /* El «↵» que muestran los botones tiene que ser cierto. Era un adorno: los
+     campos no viven dentro de un <form>, así que quien tipeaba su nombre y
+     apretaba Enter no pasaba nada — y en un wizard de 2 minutos con un campo
+     por pantalla, Enter es el gesto natural.
+     Va en el documento y no en el div del wizard: en los pasos sin input
+     (país, mirar de cerca, equipo) el foco queda en el <body>, fuera del árbol
+     de React, y un onKeyDown del div no se enteraba nunca. Sin arreglo de
+     dependencias a propósito: se re-suscribe en cada render y así siempre lee
+     el paso y los campos de ahora. */
+  useEffect(() => {
+    const alEnter = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' || e.shiftKey || e.altKey || e.metaKey || e.ctrlKey) return;
+      // Con el foco en un botón o un link, Enter es «apretar esto», no
+      // «seguir»: si no, Enter sobre «+ Sumar una persona» saltaba el paso en
+      // vez de abrir la tarjeta.
+      const t = e.target;
+      if (t instanceof HTMLButtonElement || t instanceof HTMLAnchorElement) return;
+      // La tarjeta de «mirar de cerca» maneja su propio Enter (corta la
+      // propagación); sin sesión, el Enter es del formulario del código.
+      if (!sus || enviando) return;
+      e.preventDefault();
+      if (paso === ULTIMO) {
+        navigate('/suscripcion/' + sus.codigo);
+        return;
+      }
+      if (paso === 8) {
+        finalizar();
+        return;
+      }
+      if (puedeAvanzar) avanzar();
+    };
+    document.addEventListener('keydown', alEnter);
+    return () => document.removeEventListener('keydown', alEnter);
+  });
+
   // ---- gating de sesión / estado ----
+  if (sesion && errorCarga) {
+    return (
+      <div className="acc-pantalla">
+        <div className="acc-card">
+          <img className="acc-wm" src="/land/wm-b.svg" alt="narraglobal" />
+          <div className="acc-kick">Alta de tu suscripción</div>
+          <h1 className="acc-h">No pudimos cargar tu alta</h1>
+          <p className="acc-p">
+            Tu sesión está abierta, pero no llegamos a leer tus datos. Suele ser la conexión:
+            probá de nuevo.
+          </p>
+          <div className="acc-form">
+            <button className="acc-btn" onClick={() => setRonda((n) => n + 1)}>
+              Volver a intentar
+            </button>
+            <a className="acc-btn sec" href={WA_NARRA} target="_blank" rel="noopener noreferrer">
+              Escribirnos por WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (cargando || (sesion && sus === undefined)) {
     return (
       <div className="acc-pantalla">
@@ -604,10 +728,26 @@ const Alta = () => {
                 avisamos cada {DIA_LARGO[sus.pulso_dia] ?? sus.pulso_dia}.
               </div>
               <div className="alta-phone">
-                <span className="cc">+54 9</span>
+                <span className="ccsel">
+                  <select
+                    aria-label="Código de país"
+                    value={cc}
+                    onChange={(e) => {
+                      setCc(e.target.value);
+                      setCcTocado(true);
+                    }}
+                  >
+                    {CC_OPCIONES.map((c) => (
+                      <option key={c} value={c}>
+                        {c === CC_OTRO ? 'Otro país' : c}
+                      </option>
+                    ))}
+                  </select>
+                </span>
                 <input
                   autoFocus
-                  placeholder="351 555 1234"
+                  aria-label="Tu WhatsApp"
+                  placeholder={cc === CC_OTRO ? 'código de país + número' : '351 555 1234'}
                   inputMode="numeric"
                   value={wa}
                   onChange={(e) => setWa(e.target.value)}
@@ -634,9 +774,14 @@ const Alta = () => {
                 con vos. Le escribe él, nunca al revés.
               </div>
               <div className="alta-phone">
-                <span className="cc">+54 9</span>
+                {/* El mismo código de país que el suyo: el compañero es de su
+                    equipo. Si es de otro país, «Otro país» en el paso anterior. */}
+                <span className="cc">{cc === CC_OTRO ? '+' : cc}</span>
                 <input
-                  placeholder="WhatsApp de tu compañero"
+                  aria-label="WhatsApp de tu compañero"
+                  placeholder={
+                    cc === CC_OTRO ? 'código de país + número' : 'WhatsApp de tu compañero'
+                  }
                   inputMode="numeric"
                   value={teamWa}
                   onChange={(e) => setTeamWa(e.target.value)}
