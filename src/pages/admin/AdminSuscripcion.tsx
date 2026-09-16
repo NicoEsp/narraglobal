@@ -2,7 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
-import { parseDatosJs, validarNarra, type DatosNarra, type ResultadoValidacion } from '@/lib/narra';
+import {
+  etiquetaSemana,
+  parseDatosJs,
+  validarNarra,
+  type DatosNarra,
+  type ResultadoValidacion,
+} from '@/lib/narra';
 import { proximoPulso } from '@/lib/pulso';
 import TableroFrame from '@/components/tablero/TableroFrame';
 import AdminMarco from './AdminMarco';
@@ -158,7 +164,7 @@ const AdminSuscripcion = () => {
     setGuardando(true);
     setError(null);
     const fila = {
-      semana: typeof v.datos.meta?.semana === 'string' ? v.datos.meta.semana : '',
+      semana: etiquetaSemana(v.datos),
       datos: v.datos as never,
     };
     const { error: err } = v.tableroId
@@ -254,13 +260,16 @@ const AdminSuscripcion = () => {
               onChange={(e) =>
                 setBorrador({ ...borrador, texto: e.target.value, validacion: null })
               }
-              placeholder={'window.NARRA={\n  schema_version: 2,\n  meta: { ... },\n  ...\n};'}
+              placeholder={
+                'window.NARRA_RANKING = {\n  "schema_version": 2,\n  "emision": { ... },\n  "meta": { ... },\n  "TOPS": { ... },\n  "PIEZAS": { ... },\n  "SEMANA": { ... }\n};'
+              }
               spellCheck={false}
             />
           </div>
           <div className="bo-nota">
-            El mismo archivo que hoy subís al repo del cliente. Se valida antes de guardar
-            (schema_version 1 o 2, piezas, series, pool con un solo you:1…). Queda como{' '}
+            El datos.js de la emisión (TOPS · PIEZAS · SEMANA) con el bloque de Lisandro debajo:
+            meta del cliente, copys y siluetas. Se valida antes de guardar (schema_version 2, las
+            canchas con una sola fila you:1, las series de la semana…). Queda como{' '}
             <b>borrador</b>: el cliente lo ve recién cuando se publica — el ritual es sábado
             programás, el domingo se publica solo.
           </div>
@@ -444,18 +453,13 @@ const AdminSuscripcion = () => {
         <div className="bo-preview">
           <div className="barra">
             <span className="t">
-              Vista previa como cliente · {sus.nombre} · {preview.etiqueta} · plan {sus.plan}
+              Vista previa como cliente · {sus.nombre} · {preview.etiqueta}
             </span>
             <button className="cerrar" onClick={() => setPreview(null)}>
               Cerrar
             </button>
           </div>
-          <TableroFrame
-            datos={preview.datos}
-            plan={sus.plan}
-            exp={sus.plan === 'demo' && sus.demo_expira ? sus.demo_expira.slice(0, 16) : null}
-            titulo={'Vista previa · ' + sus.nombre}
-          />
+          <TableroFrame datos={preview.datos} titulo={'Vista previa · ' + sus.nombre} />
         </div>
       )}
     </AdminMarco>

@@ -23,6 +23,18 @@ El **producto tablero** (la muda) vive intacto en `public/tablero/index.html`.
 No se toca para operar: la app le inyecta los datos del cliente autenticado en runtime.
 Versión nueva de la muda = reemplazar ese archivo, nada más.
 
+La muda vigente es **Narra ID v2 «todo a la vista» (15-09-2026)**: una sola pantalla larga
+con tres secciones —Tu semana · Tu competencia · Tus packs—, sin desplegables. Lee sus datos
+de `window.NARRA_RANKING`, que es lo que `src/lib/tablero.ts` inyecta en el lugar del
+`<script src="datos.js">`. El contrato de datos y las reglas de código están en
+`docs/tablero/LEEME.md` y `docs/tablero/MONTAJE.md` (los del paquete del 15-09), y el
+`datos.js` completo de ejemplo —la emisión de Ciro W36 más el bloque de Lisandro— en
+`docs/tablero/ejemplos/datos_ciro_W36.js`. Dos ajustes de montaje sobre el paquete, y sólo
+esos: la cabecera del documento (charset, viewport, `noindex` y `no-referrer`, el favicon de
+`marca/`) que el archivo suelto no traía, y el bloque «lo que carga Lisandro» (meta de Ciro,
+ponderación, copys, siluetas) que venía pegado adentro de `index.html` y acá viaja adentro
+del `datos.js` del cliente, porque la plantilla es una sola para todos.
+
 Los datos viven en Supabase (proyecto `aydtxqhtkcyytsamervs`):
 
 - `suscripciones` — el **store de clientes**, una sola fuente de verdad: nombre como se
@@ -30,9 +42,11 @@ Los datos viven en Supabase (proyecto `aydtxqhtkcyytsamervs`):
   (`base|demo|pro`), `estado` (`borrador|activo|con_historico|live|pausado`), `token`
   one-time (el pegamento pago ↔ WhatsApp ↔ tablero, para la fase LS/narrachat), el
   `codigo` opaco de la URL y el **pulso** (día + hora + tz del aviso semanal).
-- `tableros` — una fila por semana: el JSON NARRA completo (`schema_version: 1` o `2`),
-  etiqueta, `estado` (`borrador|programado|publicado`), `programado_para` y `avisado_en`
-  (idempotencia del aviso, para la fase narrachat). El cliente ve **el último publicado**.
+- `tableros` — una fila por semana: el JSON `NARRA_RANKING` completo (la emisión
+  `schema_version: 2` —TOPS · PIEZAS · JUGADAS · SEMANA— más lo que carga Lisandro en `meta`),
+  etiqueta (`W36`), `estado` (`borrador|programado|publicado`), `programado_para` y
+  `avisado_en` (idempotencia del aviso, para la fase narrachat). El cliente ve **el último
+  publicado**.
 - `admin_emails` — los emails del equipo. Al primer login, el rol admin se asigna solo.
 - `pedidos` — lo que entra por la landing: demos (`demo_persona|demo_empresa`) y reportes
   (`reporte`), con el WhatsApp normalizado, el correo y el resto del formulario en `datos`.
@@ -84,10 +98,10 @@ cliente). El `codigo` de la URL es ruteo, no seguridad. Borradores y programados
 3. **Admins**: `nicolassespindola@gmail.com` ya queda sembrado en `admin_emails`. Para sumar a Lisandro:
    `insert into public.admin_emails (email) values ('email-de-lisandro@…');`
    (si ya se había logueado antes de agregarlo, repetir login y listo).
-4. **Marca del tablero**: faltan 4 archivos que están en el repo de la muda y acá no —
-   copiarlos a `public/tablero/marca/`: `narra-firma.svg`, `narraglobal-placa-azul.png`,
-   `narranoise-placa-azul.png`, `narrachat-placa-azul.png`. (Los logos y medios del zócalo
-   ya quedaron armados desde `public/land/`; el favicon usa el de la landing mientras tanto.)
+4. **Marca del tablero**: la muda del 15-09 lleva el wordmark como SVG inline y el zócalo
+   con los nombres en texto, así que de `public/tablero/` sólo usa `marca/favicon-azul.png`.
+   Las carpetas `logos/`, `medios/` y `fotos/` quedaron de la muda anterior y ya no las
+   referencia nada.
 
 ## 3 · El ritual (alta manual + semana a semana)
 
@@ -99,22 +113,30 @@ exactamente el mismo circuito para el cliente (código por email → `/alta` →
 2. **+ Nueva suscripción** → nombre como se muestra, email, teléfono, plan, estado y el
    **pulso** (día + hora del aviso; Ciro: dom 09:00). El código de URL y el token se
    generan solos. **Copiar link** para pasárselo al cliente.
-3. En **Tableros →**: **+ Nueva semana** y pegar el `datos.js` de siempre (el archivo
-   entero con `window.NARRA={…}`; también acepta JSON puro).
-4. **Validar** (schema_version, piezas, series, un solo `you:1`…) y **Ver como cliente**
-   (la vista previa renderiza el tablero real con el plan del cliente).
+3. En **Tableros →**: **+ Nueva semana** y pegar el `datos.js` entero: la emisión de
+   `emit_tablero.py` (`window.NARRA_RANKING = {…}`) con el bloque de Lisandro debajo (meta del
+   cliente, porqués, instrucción, siluetas). También acepta el JSON puro.
+4. **Validar** (`schema_version` 2, TOPS con una sola fila `you:1` por cancha, las series de
+   SEMANA, los textos de Lisandro…) y **Ver como cliente** (la vista previa renderiza el
+   tablero real).
 5. **Guardar borrador** → sábado: **Programar…** (sugiere el próximo pulso del cliente)
    → el domingo la base lo pasa a **publicado** sola. ¿Apuro? **Publicar ya**.
 
-El plan de la suscripción reemplaza al `?plan=` de la URL de antes: `base`, `pro`, o
-`demo` con su vencimiento (el contador de cortesía del tablero sale de ahí).
+El plan de la suscripción (`base`, `pro`, `demo` con su vencimiento) vive en el store y lo
+usa la antesala; **el producto ya no lo lee**: Narra ID es un solo acceso con todo el tablero
+abierto, y la muda del 15-09 no tiene contador de cortesía ni `?plan=`.
 
-**Versiones del datos.js.** El producto acepta `schema_version` 1 y 2, y el validador
-también. La v2 es la v1 más dos bloques **opcionales**: `semana` (la escena de la
-semana vigente; sin ella el tablero cae a la escena del período) y `publicos.labs`
-(proyección rotulada; sin ella los públicos salen de `publicos` tal cual). Los dos se
-chequean cuando aparecen, sin importar la versión declarada, así que un `datos.js` v1
-sigue validando exactamente igual que antes.
+**El formato del datos.js.** El validador acepta sólo la emisión `schema_version: 2` del
+10-09 (`TOPS`, `PIEZAS`, `SEMANA`…). Lo que el motor no produce va en `null` con su `origen` y
+la plantilla lo resuelve sola, así que es **error** sólo lo que saldría roto o vacío (sin
+TOPS, sin fila `you:1`, dos `you:1` en una cancha, una serie con texto, un GEO sin `vb`/`d`) y
+es **aviso** lo que sale con un guión o con el texto por defecto (los porqués y la instrucción
+de Lisandro vacíos, `meta.nota` cargada —el cliente ve la franja rosa—, `meta.desde` sin
+rótulo). Un `datos.js` del tablero anterior (`window.NARRA` con `piezas`, `censo`, `series`,
+`qc`, `pool`) se rechaza con un mensaje que lo dice: la muda nueva no lo lee. Las semanas que
+quedaron **publicadas** en ese formato no se convierten solas: hasta que se vuelvan a cargar
+con la emisión nueva, el cliente ve un aviso en el lugar del tablero
+(`prepararTablero` lo detecta) en vez de una pantalla vacía.
 
 Reglas de experiencia que ya se cumplen: el cliente **nunca ve una pantalla muerta** —
 sin login le pide el email; con el **alta pendiente** (`alta_completada_en` vacío y no
@@ -156,12 +178,12 @@ Dos cosas de esta pantalla salen del **producto**, no de la landing, y hay que m
 cuando se reemplace la muda:
 
 - **Los nombres de las secciones** (`BLOQUES` en `Antesala.tsx`) espejan la navegación del
-  tablero: `01 Tu semana` (qué cambió esta semana · los mensajes que llegaron · calidad de
-  tus mensajes · conclusiones y acciones) y `02 La pausa estratégica` (competencia ·
-  públicos). «Los mensajes que llegaron» lleva el sello **Nuevo** igual que en el producto:
-  es la escena de la semana que trajo la v2 del `datos.js` (bloque `semana`).
-- **La suscripción no tiene escalones**: el producto es «Narra ID · un solo acceso, todo el
-  tablero abierto para todos» (el badge Pro y los candados se retiraron). En el store
+  tablero del 15-09: `01 Tu semana` (la pieza que más gente movió · tu mejor pieza · ya
+  cargado en el asistente), `02 Tu competencia` (lo que funcionó en tu ciudad, provincia y
+  país · tu puesto en cada top 10) y `03 Tus packs` (tu llamado con Lisandro · taller y mesa
+  chica).
+- **La suscripción no tiene escalones**: el producto es Narra ID, un solo acceso con todo el
+  tablero abierto (la muda del 15-09 no lee ningún plan). En el store
   sobreviven las etiquetas viejas, así que `base` y `pro` se muestran los dos como
   **Narra ID**, y `demo` es la **cortesía** con su vencimiento. Nombrar un "Pro" acá sería
   prometer un escalón que el tablero ya no tiene.

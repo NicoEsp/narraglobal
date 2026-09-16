@@ -2,18 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { prepararTablero } from '@/lib/tablero';
 
 interface Props {
-  /** El objeto NARRA (schema_version 1 o 2) que ve este cliente. */
+  /** El objeto NARRA_RANKING (emisión schema_version 2) que ve este cliente. */
   datos: unknown;
-  /** Plan de la suscripción: base | demo | pro. */
-  plan: string;
-  /** Vencimiento de la demo (ISO), si aplica. */
-  exp?: string | null;
   titulo?: string;
 }
 
 /* Carga el producto de public/tablero/index.html, le inyecta los datos del
    cliente (ver src/lib/tablero.ts) y lo monta en un iframe. */
-const TableroFrame = ({ datos, plan, exp, titulo = 'Tablero de suscripción' }: Props) => {
+const TableroFrame = ({ datos, titulo = 'Tablero de suscripción' }: Props) => {
   const [producto, setProducto] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,11 +34,11 @@ const TableroFrame = ({ datos, plan, exp, titulo = 'Tablero de suscripción' }: 
   const preparado = useMemo(() => {
     if (!producto) return null;
     try {
-      return { srcDoc: prepararTablero(producto, datos, plan, exp) };
+      return { srcDoc: prepararTablero(producto, datos) };
     } catch (e) {
       return { falla: e instanceof Error ? e.message : String(e) };
     }
-  }, [producto, datos, plan, exp]);
+  }, [producto, datos]);
 
   if (error) return <div className="tb-cargando">{error}</div>;
   if (!preparado) return <div className="tb-cargando">Cargando tu tablero…</div>;
