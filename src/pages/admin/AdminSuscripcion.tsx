@@ -289,8 +289,9 @@ const AdminSuscripcion = () => {
                 <div className="bo-ok">Estructura en verde. Listo para guardar.</div>
               ) : (
                 <div className="bo-err">
-                  <b>Con errores no se guarda.</b> Los avisos sí dejan guardar; los errores no,
-                  porque el cliente vería el tablero roto. Corregilos y validá de nuevo.
+                  <b>Con errores no se guarda ni se previsualiza.</b> Los avisos sí dejan guardar;
+                  los errores no, porque el cliente vería el tablero roto. Corregilos y validá de
+                  nuevo.
                 </div>
               )}
             </div>
@@ -309,7 +310,11 @@ const AdminSuscripcion = () => {
               onClick={() => {
                 const v = validar(borrador);
                 setBorrador(v);
-                if (v.datos) setPreview({ datos: v.datos, etiqueta: 'Borrador sin guardar' });
+                /* la vista previa es «como cliente», y el cliente nunca ve una semana
+                   con errores: con la lista en rojo abajo, acá no se abre nada */
+                if (v.datos && v.validacion?.ok) {
+                  setPreview({ datos: v.datos, etiqueta: 'Borrador sin guardar' });
+                }
               }}
             >
               Ver como cliente
