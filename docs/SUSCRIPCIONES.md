@@ -14,6 +14,8 @@ Sigue el modelo de `ALTA-checklist`: el pago no es el alta, estados del cliente
 | `/suscripcion/{código}` | El tablero del cliente (también funciona `/suscripción/…` con tilde) | El cliente, con magic link a su email |
 | `/alta/{código}` | El **onboarding post-login**: wizard de ~2 min que completa el alta (nombre, de dónde comunica, categoría, sus @ públicos por red, hasta 5 a quiénes mirar de cerca, equipo y su WhatsApp) | El cliente con alta pendiente (`alta_completada_en` vacío) |
 | `/entrar` | Puerta desde la landing: pide el email y redirige al tablero (o al back office si el email es admin) | Cualquiera |
+| `/posicion?tipo=persona\|empresa` | El pedido de **demo del Narra ID** desde la landing: dos pasos (elenco + contacto), sin login (§7) | Cualquiera |
+| `/reporte` | El pedido del **reporte NarraNoise® Santa Fe 2026**, sin cargo (§7) | Cualquiera |
 | `/admin` | Back office: el store de clientes (altas, estados, pulso, pausas) | Equipo narraglobal (rol admin) |
 | `/admin/suscripcion/{id}` | Las semanas de un cliente: pegar datos.js, validar, ver como cliente, programar, publicar | Equipo narraglobal |
 
@@ -32,6 +34,9 @@ Los datos viven en Supabase (proyecto `aydtxqhtkcyytsamervs`):
   etiqueta, `estado` (`borrador|programado|publicado`), `programado_para` y `avisado_en`
   (idempotencia del aviso, para la fase narrachat). El cliente ve **el último publicado**.
 - `admin_emails` — los emails del equipo. Al primer login, el rol admin se asigna solo.
+- `pedidos` — lo que entra por la landing: demos (`demo_persona|demo_empresa`) y reportes
+  (`reporte`), con el WhatsApp normalizado, el correo y el resto del formulario en `datos`.
+  Escribe solo la RPC `enviar_pedido`; lee el rol admin (§7).
 
 La seguridad es RLS de Postgres: al navegador solo llega **el cliente logueado** y **solo
 semanas publicadas** (el equivalente del `/api/data` del checklist — nunca datos de otro
@@ -214,9 +219,9 @@ confirmar los @ antes de tirar el pull de Apify.
 
 Mapea a la sección 1 del `ALTA-checklist`:
 
-- **Lemon Squeezy**: LISTO — checkout en la landing (§6) + webhook de ciclo de vida
-  completo (§5). Lo que sigue de esta fase es solo cosmética de LS (branding del
-  checkout, email de recibo).
+- **Lemon Squeezy**: LISTO — webhook de ciclo de vida completo (§5). El checkout ya no
+  está en la landing (§6): el link se manda a mano cuando cierra la demo (§7). Lo que
+  sigue de esta fase es solo cosmética de LS (branding del checkout, email de recibo).
 - **Correo de bienvenida** (Resend/Postmark o el built-in de LS): 1 CTA a narrachat.
 - **narrachat / alta conversacional** (repo `narraglobal-narrachat`): matchea el `token`,
   captura teléfono + @, confirma horario → `estado='activo'`. Guarda campos, no el chat.
@@ -270,20 +275,24 @@ siempre sobre el body crudo):
 | `subscription_payment_*` | Solo identidad (el payload es la factura, no la suscripción). |
 | Resto | 200 e ignorado. |
 
-## 6 · El checkout en la landing
+## 6 · El checkout, fuera de la landing
 
-El CTA «Comenzar mi suscripción» de la landing abre el **checkout de Lemon Squeezy
-como overlay** (lemon.js), sin salir de narraglobal.com.
+Desde la landing de septiembre 2026 el Narra ID **no se compra desde la home**: el hero
+pide una **demo sin cargo** (`/posicion`, §7) y la placa del Narra ID muestra el precio
+sin botón de pago. El link de checkout de Lemon Squeezy se manda a mano (WhatsApp)
+cuando cierra la demo; el webhook (§5) crea el `borrador` igual que antes.
 
-1. En LS: producto → **Share → Copy link**. Sirve cualquiera de los dos formatos que
-   da LS — `https://<store>.lemonsqueezy.com/buy/<uuid>` o
+Por eso `VITE_LS_CHECKOUT_URL` y `VITE_MP_CHECKOUT_URL` ya no se leen en ningún lado:
+si siguen cargadas en Vercel no molestan, y se pueden borrar.
+
+Lo que sigue vigente en LS:
+
+1. El link que se manda es el **Share → Copy link** del producto. Sirve cualquiera de los
+   dos formatos — `https://<store>.lemonsqueezy.com/buy/<uuid>` o
    `https://<store>.lemonsqueezy.com/checkout/buy/<uuid>` (es el UUID de la variante,
-   no el id numérico). No pegar nunca una URL con `/checkout/?cart=…`: esa es de un
-   solo uso, atada a una sesión de compra.
-2. Pegar esa URL en `VITE_LS_CHECKOUT_URL` (en `.env` del repo **y** en las Environment
-   Variables de Vercel) y redeployar. Mientras esté vacía, el CTA cae a WhatsApp: la
-   landing nunca queda rota.
-3. En LS, en el producto → **Confirmation modal**, poner el botón del recibo apuntando a
+   no el id numérico). Nunca una URL con `/checkout/?cart=…`: esa es de un solo uso,
+   atada a una sesión de compra.
+2. En el producto → **Confirmation modal**, el botón del recibo apunta a
    `https://narraglobal.com/entrar` (texto sugerido: «Entrar a mi tablero»). Así el loop
    queda cerrado: paga → «Entrar a mi tablero» → pide su código por email → onboarding
    `/alta` → «tu primera entrega llega el …».
@@ -302,3 +311,26 @@ pago en LS → webhook crea el `borrador` → el cliente entra desde el recibo (
 `/entrar`) con el código de su email → la web lo lleva al wizard `/alta/{codigo}` →
 al terminar ve la fecha de su primera entrega → el equipo carga la semana en `/admin`
 → el domingo se publica y el cliente ve su tablero.
+
+## 7 · Los pedidos de la landing (demo y reporte)
+
+1. **Aplicar la migración** `supabase/migrations/20260916143725_pedidos_demo_y_reporte.sql`
+   (CLI `supabase db push` o el SQL Editor del dashboard). Crea `pedidos`, la RPC
+   `enviar_pedido` y la política de admins. Hasta que esté aplicada, los formularios
+   muestran el error y ofrecen mandar el pedido por WhatsApp: nadie queda colgado, pero
+   no queda registro.
+2. **`/posicion?tipo=persona|empresa`** — la demo del Narra ID. Paso 1, el elenco
+   (política: país, provincia, ciudad y cargo · negocios: país, sector, empresa y las
+   cuentas que se miden). Paso 2, la cuenta (solo en política: en negocios ya vino en el
+   paso 1), el WhatsApp, el correo y quién lo pide. La rama llega elegida desde el switch
+   del hero (Política / Negocios) y se puede cambiar arriba de la tarjeta.
+3. **`/reporte`** — el reporte Santa Fe 2026: nombre, correo, WhatsApp (obligatorio) y rol.
+4. **Qué guarda `enviar_pedido`**: `tipo`, `telefono` normalizado (`+<dígitos>`: con eso el
+   back office abre el chat directo), `email` y `datos` con el resto del formulario. Valida
+   en el servidor (WhatsApp en formato internacional explícito, con el «+» y el código de
+   país, correo en la demo, cuenta o empresa según la rama), corta al bot que llena el campo trampa y tolera **5 pedidos por teléfono cada
+   24 h**. No hay INSERT directo: la clave anon solo puede ejecutar la función.
+5. **Dónde se ven**: en `/admin`, abajo del store de clientes, la tabla «Pedidos de demo y
+   reporte» con fecha, tipo, WhatsApp (link al chat), correo y detalle. La demo promete
+   **48 horas hábiles** por WhatsApp y el alta del tablero al correo: esa alta se crea a
+   mano con «+ Nueva suscripción» (plan demo) y se manda el link como siempre.
