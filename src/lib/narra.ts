@@ -1,55 +1,103 @@
 /* Utilidades del ecosistema NARRA: parseo del datos.js que pega Lisandro,
-   validación estructural (schema_version 1 y 2) y generación de códigos de
-   suscripción. El producto tablero vive intacto en public/tablero/.
+   validación estructural de la emisión y generación de códigos de suscripción.
+   El producto tablero vive intacto en public/tablero/ (Narra ID v2, 15-09-2026).
 
-   Sobre las versiones: la v2 es la v1 más dos bloques opcionales —`semana`
-   (la escena de la semana vigente) y `publicos.labs` (proyección rotulada).
-   El producto los lee si están y sigue igual si no, así que la validación es
-   retrocompatible en las dos direcciones: un datos.js v1 valida idéntico a
-   como validaba antes, y los bloques nuevos se chequean cuando aparecen sin
-   importar la versión declarada. */
+   El contrato es el de docs/tablero/LEEME.md: `schema_version: 2` y la emisión
+   de emit_tablero.py del 10-09 —`TOPS` (las canchas con sus filas), `PIEZAS`
+   (la pieza más comentada por actor), `SEMANA` (la semana del cliente),
+   `JUGADAS`, `LIDER`, `ORD`, `GEO`— más lo que carga Lisandro en `meta`
+   (actor_id, funciono, ponderación, packs) y en `SEMANA.funciono` (los
+   porqués, la instrucción). Lo que el motor no produce va en null con su
+   `origen`, y la plantilla lo resuelve sola. Por eso acá va como ERROR sólo lo
+   que el producto dibujaría roto o vacío, y como AVISO lo que sale con un
+   guión o con el texto por defecto.
 
-/** Las que acepta el guard del producto en public/tablero/index.html. */
-export const VERSIONES_SOPORTADAS = [1, 2] as const;
+   El datos.js del tablero anterior (piezas / censo / series / qc / pool) ya no
+   sirve: la muda nueva no lo lee, y se rechaza con un mensaje que lo diga. */
+
+/** La que acepta la muda del 15-09 (misma versión que la entrega del 10-09). */
+export const VERSIONES_SOPORTADAS = [2] as const;
+
+export interface FilaTop {
+  n?: string;
+  nombre?: string;
+  actor_id?: string;
+  rol?: string;
+  i?: number | null;
+  d?: number | '=' | null;
+  lw?: number | null;
+  pk?: number | null;
+  sm?: number | null;
+  q?: number | null;
+  dv?: number | null;
+  /** la forma de ocho semanas: "fl,up,dn,…" o la lista ya partida */
+  f?: string | string[];
+  you?: 0 | 1;
+  foto?: string | null;
+  nota?: string;
+  [k: string]: unknown;
+}
+
+export interface Cancha {
+  nombre?: string;
+  ambito?: string;
+  total?: number;
+  cuentas?: number;
+  filas?: FilaTop[];
+  [k: string]: unknown;
+}
+
+export interface PiezaTop {
+  t?: string;
+  m?: string;
+  u?: string;
+  origen?: string;
+}
 
 export interface DatosNarra {
   schema_version: number;
+  emision?: {
+    reglas?: { ventana_semanas?: number; [k: string]: unknown };
+    ventana?: { semanas?: string[]; [k: string]: unknown };
+    [k: string]: unknown;
+  };
   meta?: {
     cliente?: string;
-    nombre?: string;
-    nombre_corto?: string;
-    semana?: string;
-    actualizado?: string;
+    iniciales?: string;
+    /* el número de semana (36). En el tablero anterior era la etiqueta "W32". */
+    semana?: number | string;
+    proxima?: string;
+    /* si viene, el cliente ve la franja rosa de «nota de emisión» */
+    nota?: string;
+    actor_id?: string;
+    desde?: string;
     [k: string]: unknown;
   };
-  piezas?: Array<Record<string, unknown>>;
-  censo?: { tipos?: Array<Record<string, unknown>>; [k: string]: unknown };
-  series?: { llegaron?: Array<number | null>; [k: string]: unknown };
-  qc?: {
-    week?: { labels?: unknown[]; vos?: unknown[]; techo?: unknown[]; piso?: unknown[] };
-    month?: { labels?: unknown[]; vos?: unknown[]; techo?: unknown[]; piso?: unknown[] };
-  };
-  dist?: Array<Record<string, unknown>>;
-  pool?: Array<Record<string, unknown>>;
-  publicos?: {
-    /* proyección rotulada: si viene, el producto saca segmentos+mig de acá */
-    labs?: Record<string, unknown>;
-    [k: string]: unknown;
-  };
-  copy?: Record<string, unknown>;
-  /* v2 · escena de la semana vigente (scatter cal×ret). Sin esto el producto
-     cae a la escena del período. Ojo: no confundir con meta.semana, que es la
-     etiqueta ("W32") y sigue siendo un string. */
-  semana?: {
-    piezas?: Array<Record<string, unknown>>;
-    lanzadas?: number;
-    llegaron?: number;
+  TOPS?: Record<string, Cancha>;
+  PIEZAS?: Record<string, Record<string, PiezaTop>>;
+  GEO?: Record<string, { vb?: string; d?: string }> | null;
+  SEMANA?: {
+    semana?: number;
+    piezas?: number;
+    piezas_medidas?: number;
+    proxima?: string;
+    calidad?: { serie?: unknown[]; [k: string]: unknown };
+    influencia?: { base?: number | null; serie?: unknown[]; [k: string]: unknown };
+    funciono?: {
+      uno?: Record<string, unknown> | null;
+      dos?: Record<string, unknown> | null;
+      repetir?: Record<string, unknown> | null;
+      [k: string]: unknown;
+    };
     [k: string]: unknown;
   };
   [k: string]: unknown;
 }
 
-/** Acepta el datos.js completo (window.NARRA={...};) o el objeto en JSON puro. */
+/** Acepta el datos.js completo (window.NARRA_RANKING = {...}; más el bloque
+    de Lisandro debajo) o el objeto en JSON puro. Un datos.js del tablero
+    anterior (window.NARRA) también se lee, para que el validador pueda decir
+    con claridad que es del formato viejo. */
 export function parseDatosJs(texto: string): DatosNarra {
   const t = texto.trim();
   if (!t) throw new Error('El contenido está vacío.');
@@ -60,7 +108,7 @@ export function parseDatosJs(texto: string): DatosNarra {
     /* no era JSON puro: probamos como datos.js */
   }
 
-  const win: { NARRA?: DatosNarra } = {};
+  const win: { NARRA_RANKING?: DatosNarra; NARRA?: DatosNarra } = {};
   try {
     new Function('window', `'use strict';${t}`)(win);
   } catch (e) {
@@ -69,10 +117,29 @@ export function parseDatosJs(texto: string): DatosNarra {
         (e instanceof Error ? e.message : String(e)),
     );
   }
-  if (!win.NARRA || typeof win.NARRA !== 'object') {
-    throw new Error('El contenido no define window.NARRA.');
+  const d = win.NARRA_RANKING ?? win.NARRA;
+  if (!d || typeof d !== 'object') {
+    throw new Error('El contenido no define window.NARRA_RANKING.');
   }
-  return win.NARRA;
+  return d;
+}
+
+/** La etiqueta de la semana para el back office: «W36». La emisión trae el
+    número en meta.semana (el tablero anterior traía la etiqueta como texto);
+    si falta, se toma la última semana ISO de la ventana ("2026-W36") y se
+    deja en el mismo formato («W36»). */
+export function etiquetaSemana(d: DatosNarra): string {
+  const s = d.meta?.semana;
+  if (typeof s === 'string' && s.trim()) return s.trim();
+  if (typeof s === 'number' && Number.isFinite(s)) return 'W' + s;
+  const ss = d.SEMANA?.semana;
+  if (typeof ss === 'number' && Number.isFinite(ss)) return 'W' + ss;
+  const semanas = d.emision?.ventana?.semanas;
+  if (Array.isArray(semanas) && semanas.length > 0) {
+    const ultima = semanas[semanas.length - 1];
+    if (typeof ultima === 'string' && ultima) return ultima.match(/W\d+$/)?.[0] ?? ultima;
+  }
+  return '';
 }
 
 export interface ResultadoValidacion {
@@ -81,183 +148,248 @@ export interface ResultadoValidacion {
   avisos: string[];
 }
 
-/** Validación estructural mínima: lo que el producto necesita para no romperse.
-    Espeja el espíritu de _tools/validar_tablero.js del repo de la muda. */
+const esObjeto = (v: unknown): v is Record<string, unknown> =>
+  v != null && typeof v === 'object' && !Array.isArray(v);
+
+const esNumero = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+
+/** número, o null/undefined (el motor emite null cuando no produce el dato) */
+const numeroONull = (v: unknown) => v == null || esNumero(v);
+
+const FORMAS = ['up', 'dn', 'fl'];
+
+/** Validación estructural: lo que el producto necesita para no salir roto ni
+    vacío. Espeja el espíritu del validador del repo de la muda. */
 export function validarNarra(d: DatosNarra): ResultadoValidacion {
   const errores: string[] = [];
   const avisos: string[] = [];
 
-  if (!d || typeof d !== 'object') {
+  if (!esObjeto(d)) {
     return { ok: false, errores: ['Los datos no son un objeto.'], avisos };
   }
+
+  /* ── el formato viejo se rechaza de una, con el porqué ── */
+  const bloquesViejos = ['pool', 'censo', 'qc', 'dist', 'publicos'].filter((k) => d[k] != null);
+  if (d.TOPS == null && (bloquesViejos.length > 0 || Array.isArray(d.piezas))) {
+    return {
+      ok: false,
+      errores: [
+        `Este datos.js es del tablero anterior (trae ${[...bloquesViejos, ...(Array.isArray(d.piezas) ? ['piezas'] : [])].join(', ')}). La muda del 15-09 lee la emisión de emit_tablero.py: TOPS, PIEZAS y SEMANA. Hay que pegar el datos.js nuevo.`,
+      ],
+      avisos,
+    };
+  }
+
   if (!(VERSIONES_SOPORTADAS as readonly number[]).includes(d.schema_version)) {
     errores.push(
-      `schema_version debe ser ${VERSIONES_SOPORTADAS.join(' o ')} (llegó ${String(d.schema_version)}). El producto muestra el cartel de DATOS INCOMPATIBLES con otra versión.`,
+      `schema_version debe ser ${VERSIONES_SOPORTADAS.join(' o ')} (llegó ${String(d.schema_version)}): es el contrato de la emisión del 10-09.`,
     );
   }
 
-  for (const bloque of ['meta', 'piezas', 'censo', 'series', 'qc', 'dist', 'pool', 'publicos', 'copy'] as const) {
-    if (d[bloque] == null) errores.push(`Falta el bloque "${bloque}".`);
-  }
-
-  if (Array.isArray(d.piezas)) {
-    if (d.piezas.length === 0) errores.push('piezas está vacío.');
-    d.piezas.forEach((p, i) => {
-      if (typeof p.n !== 'string' || !p.n) errores.push(`piezas[${i}]: falta el nombre (n).`);
-      if (p.hit !== 0 && p.hit !== 1) errores.push(`piezas[${i}]: hit debe ser 0 o 1.`);
-      if (p.hit === 1 && !(typeof p.ring === 'number' && p.ring >= 0 && p.ring <= 4)) {
-        errores.push(`piezas[${i}]: con hit:1 falta ring (0–4).`);
-      }
-      if (p.hit === 0 && (typeof p.cause !== 'string' || !p.cause)) {
-        errores.push(`piezas[${i}]: con hit:0 falta la cause canónica.`);
-      }
-    });
-  } else if (d.piezas != null) {
-    errores.push('piezas debe ser una lista.');
-  }
-
-  const llegaron = d.series?.llegaron;
-  if (llegaron != null && (!Array.isArray(llegaron) || llegaron.length !== 8)) {
-    errores.push('series.llegaron debe tener 8 valores (null = historia que no existe).');
-  }
-
-  /* La QC no tiene un largo fijo: el producto hace n=vos.length y reparte el
-     ancho entre los puntos que haya (X(i)=L+i*((W-L-R)/(n-1))), así que 4, 5 o
-     6 meses dibujan igual de bien. Lo que sí lo rompe es la desprolijidad —
-     con techo/piso/labels más cortos que vos quedan Y(undefined)=NaN en el
-     path y un D.labels[i] que revienta la sección entera. Por eso el largo
-     habitual (8 semanas, 4 meses) es un aviso y la inconsistencia entre las
-     series es el error. */
-  for (const [periodo, habitual] of [['week', 8], ['month', 4]] as const) {
-    const q = d.qc?.[periodo];
-    if (!q) continue;
-
-    const vos = q.vos;
-    if (!Array.isArray(vos)) {
-      errores.push(`qc.${periodo}.vos debe ser una lista.`);
-      continue;
-    }
-    /* con vos vacío el producto limpia el SVG y sigue: se ignora, no se rompe */
-    if (vos.length === 0) {
-      avisos.push(`qc.${periodo}.vos está vacío: la gráfica queda en blanco.`);
-      continue;
-    }
-
-    for (const serie of ['labels', 'techo', 'piso'] as const) {
-      const arr = q[serie];
-      if (!Array.isArray(arr)) {
-        errores.push(`qc.${periodo}.${serie} debe ser una lista de ${vos.length} valores.`);
-      } else if (arr.length !== vos.length) {
-        errores.push(
-          `qc.${periodo}.${serie} tiene ${arr.length} valores y qc.${periodo}.vos tiene ${vos.length}: tienen que ir parejos.`,
-        );
-      }
-    }
-
-    if (vos.length !== habitual) {
-      avisos.push(`qc.${periodo} tiene ${vos.length} puntos (lo habitual son ${habitual}).`);
+  /* ── meta: el nombre del cliente, la semana, el rótulo ── */
+  if (!esObjeto(d.meta)) {
+    errores.push('Falta el bloque "meta" (cliente, iniciales, semana, y lo que carga Lisandro).');
+  } else {
+    const m = d.meta;
+    if (!m.cliente) avisos.push('meta.cliente está vacío: la barra sale sin el nombre del cliente.');
+    if (m.semana == null) avisos.push('meta.semana está vacío: el título y el rótulo salen sin número de semana.');
+    if (!m.desde) avisos.push('meta.desde está vacío: el rótulo de la semana (S1SEP/36,26) sale en blanco.');
+    if (m.nota) {
+      avisos.push(
+        'meta.nota está cargada: el cliente ve la franja rosa de «nota de emisión» con ese texto. Si es una nota interna, vaciarla antes de publicar.',
+      );
     }
   }
 
-  if (Array.isArray(d.pool)) {
-    const vos = d.pool.filter((p) => p.you === 1).length;
-    if (vos !== 1) errores.push(`pool debe tener exactamente UN you:1 (hay ${vos}).`);
-  } else if (d.pool != null) {
-    errores.push('pool debe ser una lista.');
-  }
-
-  if (Array.isArray(d.dist) && d.dist.length !== 5) {
-    avisos.push(`dist tiene ${d.dist.length} posteos (lo habitual son 5).`);
-  }
-
-  if (d.meta) {
-    if (d.meta.es_muda === true) avisos.push('meta.es_muda sigue en true: ¿es la plantilla sin vestir?');
-    if (!d.meta.nombre) avisos.push('meta.nombre está vacío.');
-    if (!d.meta.semana) avisos.push('meta.semana está vacío.');
-  }
-
-  /* ── bloques de la v2 ──────────────────────────────────────────────────
-     Los dos son opcionales y el producto los ignora en silencio si no están
-     bien formados. Por eso lo que sólo se ignora va como aviso, y va como
-     error nada más lo que el producto dibujaría roto (NaN / undefined a la
-     vista). Se chequean estén donde estén: un datos.js v1 que ya los traiga
-     se valida igual. */
-
-  if (d.semana != null) {
-    if (typeof d.semana !== 'object' || Array.isArray(d.semana)) {
-      errores.push('semana debe ser un objeto.');
-    } else {
-      const sp = d.semana.piezas;
-      if (!Array.isArray(sp) || sp.length === 0) {
-        avisos.push(
-          'semana viene sin piezas: el producto la ignora y cae a la escena del período.',
-        );
-      } else {
-        sp.forEach((p, i) => {
-          if (typeof p?.n !== 'string' || !p.n) {
-            errores.push(`semana.piezas[${i}]: falta el nombre (n).`);
-          }
-          /* "sin medir" es válido y se dibuja aparte: sello sin_censo, o hit/ret
-             en null. Sólo las medidas necesitan números para el scatter. */
-          const sinMedir = p?.sello === 'sin_censo' || p?.hit == null || p?.ret == null;
-          if (sinMedir) return;
-          if (typeof p.cal !== 'number' || !Number.isFinite(p.cal)) {
-            errores.push(`semana.piezas[${i}]: con hit y ret medidos, cal debe ser un número.`);
-          }
-          if (typeof p.ret !== 'number' || !Number.isFinite(p.ret)) {
-            errores.push(`semana.piezas[${i}]: ret debe ser un número (o null si no se midió).`);
-          }
-          if (p.hit !== 0 && p.hit !== 1) {
-            errores.push(`semana.piezas[${i}]: hit debe ser 0 o 1 (o null si no se midió).`);
-          }
-        });
-      }
-      for (const k of ['lanzadas', 'llegaron'] as const) {
-        const v = d.semana[k];
-        if (v != null && typeof v !== 'number') errores.push(`semana.${k} debe ser un número.`);
-      }
-    }
-  }
-
-  /* mig no se degrada: el producto hace (MIGSEG[seg]||[]).forEach y, para la
-     vista "todos", Object.values(MIGSEG).forEach(fs=>fs.forEach(...)). Un
-     segmento que no es lista —incluido null, que el ||[] no salva en esa
-     segunda pasada— o un flujo que no es la tupla [de, a, valor] tiran
-     TypeError y se lleva puesta la sección entera. Por eso van como error.
-     Vale para publicos.mig y para publicos.labs.mig, que lo tapa cuando está. */
-  const revisarMig = (mig: unknown, ruta: string) => {
-    if (mig == null) return;
-    if (typeof mig !== 'object' || Array.isArray(mig)) {
-      errores.push(`${ruta} debe ser un objeto con un segmento por clave (fan, seg, vis, nue).`);
-      return;
-    }
-    for (const [seg, flujos] of Object.entries(mig as Record<string, unknown>)) {
-      if (!Array.isArray(flujos)) {
-        errores.push(`${ruta}.${seg} debe ser una lista de flujos [de, a, valor].`);
+  /* ── TOPS: las canchas. Sin esto no se dibuja ninguna card ── */
+  const yoIds = new Set<string>();
+  let yoTotal = 0;
+  if (d.TOPS == null) {
+    errores.push(
+      'Falta el bloque "TOPS" (las canchas con sus filas). Sin canchas el tablero sale vacío.',
+    );
+  } else if (!esObjeto(d.TOPS)) {
+    errores.push('TOPS debe ser un objeto con una cancha por clave (ciudad, provincial, nacional).');
+  } else {
+    const canchas = Object.entries(d.TOPS);
+    if (canchas.length === 0) errores.push('TOPS no trae ninguna cancha: no se dibuja ninguna card.');
+    for (const [k, cancha] of canchas) {
+      if (!esObjeto(cancha) || !Array.isArray(cancha.filas)) {
+        errores.push(`TOPS.${k}.filas debe ser una lista de filas.`);
         continue;
       }
-      flujos.forEach((f, i) => {
-        if (!Array.isArray(f)) {
-          errores.push(`${ruta}.${seg}[${i}] debe ser la tupla [de, a, valor].`);
+      const filas = cancha.filas as unknown[];
+      if (filas.length === 0) avisos.push(`TOPS.${k} no trae filas: la card sale sin tabla.`);
+      let yoEnCancha = 0;
+      filas.forEach((f, i) => {
+        const ruta = `TOPS.${k}.filas[${i}]`;
+        if (!esObjeto(f)) {
+          errores.push(`${ruta} debe ser un objeto.`);
+          return;
+        }
+        if (typeof f.actor_id !== 'string' || !f.actor_id) {
+          errores.push(`${ruta}: falta actor_id (por ahí se marcan tu fila, la ponderación y las piezas extra).`);
+        }
+        if (typeof f.nombre !== 'string' || !f.nombre) {
+          errores.push(`${ruta}: falta el nombre.`);
+        }
+        for (const c of ['i', 'q', 'dv'] as const) {
+          if (!numeroONull(f[c])) errores.push(`${ruta}.${c} debe ser un número o null (llegó ${JSON.stringify(f[c])}).`);
+        }
+        if (!(f.d == null || esNumero(f.d) || f.d === '=')) {
+          avisos.push(`${ruta}.d debe ser un número, "=" o null: se muestra un guión.`);
+        }
+        for (const c of ['lw', 'pk', 'sm'] as const) {
+          if (!numeroONull(f[c])) avisos.push(`${ruta}.${c} debe ser un número o null: se ignora.`);
+        }
+        if (f.f != null) {
+          const forma = typeof f.f === 'string' ? f.f.split(',') : f.f;
+          if (!Array.isArray(forma) || forma.some((c) => !FORMAS.includes(String(c).trim()))) {
+            avisos.push(`${ruta}.f debe ser la forma de ocho semanas con up/dn/fl (llegó ${JSON.stringify(f.f)}).`);
+          } else if (forma.length !== 8) {
+            avisos.push(`${ruta}.f tiene ${forma.length} semanas (la forma es de 8).`);
+          }
+        }
+        if (f.you === 1) {
+          yoEnCancha += 1;
+          yoTotal += 1;
+          if (typeof f.actor_id === 'string') yoIds.add(f.actor_id);
         }
       });
-    }
-  };
-  revisarMig(d.publicos?.mig, 'publicos.mig');
-
-  const labs = d.publicos?.labs;
-  if (labs != null) {
-    if (typeof labs !== 'object' || Array.isArray(labs)) {
-      avisos.push('publicos.labs no es un objeto: el producto lo ignora y usa publicos tal cual.');
-    } else {
-      const l = labs as Record<string, unknown>;
-      /* cuando labs está, segmentos y mig salen de ahí y tapan a los de publicos */
-      if (l.segmentos == null && l.mig == null) {
-        avisos.push(
-          'publicos.labs no trae segmentos ni mig: la sección de públicos queda en blanco.',
-        );
+      if (yoEnCancha > 1) {
+        errores.push(`TOPS.${k} tiene ${yoEnCancha} filas con you:1: tiene que haber una sola, la del cliente.`);
       }
-      revisarMig(l.mig, 'publicos.labs.mig');
+    }
+    if (canchas.length > 0 && yoTotal === 0) {
+      errores.push(
+        'Ninguna cancha trae la fila del cliente (you:1): sin ella no hay «Vos», ni puesto, ni fila azul.',
+      );
+    }
+    if (yoIds.size > 1) {
+      avisos.push(`La fila you:1 no es el mismo actor en todas las canchas (${[...yoIds].join(', ')}).`);
+    }
+    const actorMeta = esObjeto(d.meta) ? d.meta.actor_id : undefined;
+    if (typeof actorMeta === 'string' && actorMeta && yoIds.size > 0 && !yoIds.has(actorMeta)) {
+      avisos.push(
+        `meta.actor_id ("${actorMeta}") no coincide con la fila you:1 (${[...yoIds].join(', ')}): la fila del cliente se marca por actor_id.`,
+      );
+    }
+  }
+
+  /* ── PIEZAS: la más comentada por actor, por apellido. Si no cuadra, no se muestra ── */
+  if (d.PIEZAS != null) {
+    if (!esObjeto(d.PIEZAS)) {
+      avisos.push('PIEZAS debe ser un objeto por cancha: se ignora.');
+    } else {
+      for (const [k, porActor] of Object.entries(d.PIEZAS)) {
+        if (!esObjeto(porActor)) {
+          avisos.push(`PIEZAS.${k} debe ser un objeto por apellido: se ignora.`);
+          continue;
+        }
+        const filas = esObjeto(d.TOPS) && esObjeto(d.TOPS[k]) ? d.TOPS[k].filas : undefined;
+        const apellidos = new Set(
+          (Array.isArray(filas) ? filas : []).map((f) => (esObjeto(f) ? String(f.n ?? '') : '')),
+        );
+        if (!Array.isArray(filas)) {
+          avisos.push(`PIEZAS.${k} no tiene su cancha en TOPS: esas piezas no se muestran.`);
+          continue;
+        }
+        for (const [apellido, pieza] of Object.entries(porActor)) {
+          if (!esObjeto(pieza) || typeof pieza.t !== 'string' || !pieza.t) {
+            avisos.push(`PIEZAS.${k}.${apellido} viene sin texto (t): no se muestra el play.`);
+          } else if (!apellidos.has(apellido)) {
+            avisos.push(`PIEZAS.${k}.${apellido} no corresponde a ninguna fila de TOPS.${k}: no se muestra.`);
+          }
+        }
+      }
+    }
+  }
+
+  /* ── SEMANA: las tres cards de tu semana ── */
+  if (d.SEMANA == null) {
+    avisos.push('Falta el bloque "SEMANA": las tres cards de tu semana salen con «sin dato».');
+  } else if (!esObjeto(d.SEMANA)) {
+    errores.push('SEMANA debe ser un objeto.');
+  } else {
+    const S = d.SEMANA;
+    /* la fecha del próximo reporte viene dos veces: la del motor (SEMANA) y la
+       que carga Lisandro (meta). El tablero muestra meta.proxima; si difieren,
+       una de las dos quedó vieja */
+    const proximaMeta = esObjeto(d.meta) ? d.meta.proxima : undefined;
+    if (
+      typeof proximaMeta === 'string' && proximaMeta &&
+      typeof S.proxima === 'string' && S.proxima && S.proxima !== proximaMeta
+    ) {
+      avisos.push(
+        `meta.proxima («${proximaMeta}») y SEMANA.proxima («${S.proxima}») no coinciden: el tablero muestra meta.proxima.`,
+      );
+    }
+    for (const bloque of ['calidad', 'influencia'] as const) {
+      const b = S[bloque];
+      if (b == null) continue;
+      if (!esObjeto(b)) {
+        errores.push(`SEMANA.${bloque} debe ser un objeto.`);
+        continue;
+      }
+      const serie = b.serie;
+      if (serie == null) continue;
+      if (!Array.isArray(serie) || serie.some((v) => !esNumero(v))) {
+        errores.push(`SEMANA.${bloque}.serie debe ser una lista de números: con otra cosa la curva sale rota (NaN).`);
+      } else if (serie.length < 2) {
+        avisos.push(`SEMANA.${bloque}.serie tiene ${serie.length} punto(s): la curva necesita al menos dos semanas.`);
+      }
+    }
+    if (esObjeto(S.influencia) && !numeroONull(S.influencia.base)) {
+      errores.push('SEMANA.influencia.base debe ser un número o null.');
+    }
+
+    const F = S.funciono;
+    if (F != null && !esObjeto(F)) {
+      errores.push('SEMANA.funciono debe ser un objeto (uno, dos, repetir).');
+    } else if (esObjeto(F)) {
+      const uno = F.uno;
+      if (uno != null) {
+        if (!esObjeto(uno)) errores.push('SEMANA.funciono.uno debe ser un objeto o null.');
+        else {
+          for (const c of ['gente', 'comentarios', 'q'] as const) {
+            if (!numeroONull(uno[c])) errores.push(`SEMANA.funciono.uno.${c} debe ser un número o null.`);
+          }
+        }
+      }
+      const dos = F.dos;
+      if (dos != null) {
+        if (!esObjeto(dos)) errores.push('SEMANA.funciono.dos debe ser un objeto o null.');
+        else if (!numeroONull(dos.v)) errores.push('SEMANA.funciono.dos.v debe ser un número o null.');
+      }
+      const rep = F.repetir;
+      if (rep != null && !esObjeto(rep)) errores.push('SEMANA.funciono.repetir debe ser un objeto o null.');
+
+      /* los cuatro textos de Lisandro: sin ellos, la plantilla pone su texto por defecto */
+      const faltan: string[] = [];
+      if (esObjeto(uno) && uno.nombre && !uno.porque) faltan.push('uno.porque');
+      if (esObjeto(dos) && dos.nombre && !dos.porque) faltan.push('dos.porque');
+      if (!esObjeto(rep) || !rep.accion) faltan.push('repetir.accion (la instrucción de la semana)');
+      if (esObjeto(rep) && rep.accion && !(Array.isArray(rep.pasos) && rep.pasos.length > 0)) {
+        faltan.push('repetir.pasos (la secuencia; sale la de la plantilla)');
+      }
+      if (faltan.length > 0) {
+        avisos.push(`Faltan textos de Lisandro en SEMANA.funciono: ${faltan.join(' · ')}. Salen los textos por defecto.`);
+      }
+    } else {
+      avisos.push('SEMANA.funciono está vacío: las cards de tu semana salen con «sin dato».');
+    }
+  }
+
+  /* ── GEO: las siluetas. Opcional; si viene mal formada se dibuja un SVG roto ── */
+  if (d.GEO != null) {
+    if (!esObjeto(d.GEO)) {
+      avisos.push('GEO debe ser un objeto por cancha (vb, d): se ignora.');
+    } else {
+      for (const [k, g] of Object.entries(d.GEO)) {
+        if (!esObjeto(g) || typeof g.vb !== 'string' || typeof g.d !== 'string') {
+          errores.push(`GEO.${k} debe traer vb y d como texto: si no, la silueta sale como un SVG roto.`);
+        }
+      }
     }
   }
 

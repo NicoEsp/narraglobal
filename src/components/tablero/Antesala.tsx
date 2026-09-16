@@ -34,26 +34,34 @@ const PLAN_NOMBRE: Record<string, string> = {
 };
 
 /** Lo que va a encontrar adentro, con los nombres y el orden del producto
-    (los dos bloques de su navegación). No es marketing: es la expectativa
-    concreta de lo que abre el día de su pulso. Si se reemplaza la muda, esto
-    se actualiza con ella. */
+    (las tres secciones de su navegación: Tu semana · Tu competencia · Tus
+    packs; muda del 15-09, public/tablero/index.html). No es marketing: es la
+    expectativa concreta de lo que abre el día de su pulso. Si se reemplaza la
+    muda, esto se actualiza con ella. */
 const BLOQUES = [
   {
     n: '01',
     bloque: 'Tu semana',
     items: [
-      { t: 'Qué cambió esta semana', d: 'La lectura de apertura: lo que se movió, y la conclusión para accionar.' },
-      { t: 'Los mensajes que llegaron', nuevo: true, d: 'Pieza por pieza: cuáles impactaron y cuáles se disolvieron.' },
-      { t: 'Calidad de tus mensajes', d: 'Tu calidad narrativa, con el techo y el piso de la semana.' },
-      { t: 'Conclusiones y acciones sugeridas', d: 'La corrección de la semana, en instrucciones para tu equipo.' },
+      { t: 'La pieza que más gente movió', d: 'A cuántas personas influyó y qué parte de los comentarios de la semana se llevó.' },
+      { t: 'Tu mejor pieza', d: 'La de mejor factura, contra tu promedio de calidad narrativa de las últimas cuatro semanas.' },
+      { t: 'Ya cargado en el asistente', d: 'La instrucción de la semana y la secuencia para repetir lo que funcionó.' },
     ],
   },
   {
     n: '02',
-    bloque: 'La pausa estratégica',
+    bloque: 'Tu competencia',
     items: [
-      { t: 'Comportamiento de tu competencia', d: 'Tu performance y tu puesto entre los actores que elegiste mirar.' },
-      { t: 'Comportamiento de tus públicos', d: 'Qué públicos se mueven con vos y cómo migran entre segmentos.' },
+      { t: 'Lo que funcionó en tu ciudad, provincia y país', d: 'La pieza que más movió en cada cancha, con el play para verla.' },
+      { t: 'Tu puesto en cada top 10', d: 'Índice y puestos ganados o perdidos, frente a los actores de tu elenco.' },
+    ],
+  },
+  {
+    n: '03',
+    bloque: 'Tus packs',
+    items: [
+      { t: 'Tu llamado con Lisandro', d: 'Media hora por mes, incluida en Narra ID, para la mirada estratégica.' },
+      { t: 'Taller al equipo y Mesa chica', d: 'Los dos packs que se suman a la suscripción cuando hacen falta.' },
     ],
   },
 ];
@@ -348,10 +356,7 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                   <ul>
                     {b.items.map((i) => (
                       <li key={i.t}>
-                        <b>
-                          {i.t}
-                          {'nuevo' in i && i.nuevo && <span className="nv">Nuevo</span>}
-                        </b>
+                        <b>{i.t}</b>
                         <s>{i.d}</s>
                       </li>
                     ))}

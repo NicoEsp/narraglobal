@@ -149,8 +149,8 @@
 }
 .es-btn:hover { opacity: .92; }
 
-/* ---- qué vas a ver · los dos bloques del producto ---- */
-.es-lecturas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+/* ---- qué vas a ver · las tres secciones del producto ---- */
+.es-lecturas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .es-bloque { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px; }
 .es-bloque .bh {
   display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 700;
@@ -163,10 +163,6 @@
 .es-bloque b { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.3; }
 .es-bloque s { text-decoration: none; display: block; font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; line-height: 1.45; }
 /* el mismo sello que el producto le pone a la escena de la semana (schema v2) */
-.es-bloque .nv {
-  margin-left: 7px; font-family: var(--mono); font-size: 8.5px; letter-spacing: 1.1px; text-transform: uppercase;
-  color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 3px 8px; vertical-align: 1.5px;
-}
 
 /* ---- acciones ---- */
 .es-acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

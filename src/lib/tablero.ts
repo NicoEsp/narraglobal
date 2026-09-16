@@ -1,36 +1,41 @@
-/* El producto tablero vive INTACTO en public/tablero/index.html (la muda es la
-   madre: se actualiza reemplazando ese archivo, nunca editándolo acá). Estas
-   transformaciones quirúrgicas se aplican en runtime sobre ese HTML:
-   1. reemplaza <script src="datos.js"> por los datos del cliente autenticado,
-   2. le pasa el plan/vencimiento por window.__NARRA_QS (el producto lee
-      ?plan= de location.search, que en un iframe srcDoc está vacío),
-   3. apunta los assets relativos (marca/, logos/, medios/) a /tablero/. */
+/* El producto tablero (Narra ID v2, 15-09-2026) vive INTACTO en
+   public/tablero/index.html: la muda es la madre y se actualiza reemplazando ese
+   archivo, nunca editándolo acá. El contrato está en docs/tablero/LEEME.md y
+   MONTAJE.md. En runtime se le aplica una sola transformación quirúrgica:
+   reemplazar el <script src="datos.js"> por los datos del cliente autenticado,
+   que el producto lee de window.NARRA_RANKING. La suscripción ya no tiene
+   escalones y el producto no lee ningún ?plan=, así que el plan no viaja.
+   Los assets relativos que quedan (el favicon de marca/) se apuntan a /tablero/. */
 
 const TAG_DATOS = '<script src="datos.js"></script>';
-const LECTURA_QS = 'new URLSearchParams(location.search)';
 
-export function prepararTablero(
-  html: string,
-  datos: unknown,
-  plan: string,
-  exp?: string | null,
-): string {
-  if (!html.includes(TAG_DATOS) || !html.includes(LECTURA_QS)) {
+/** Lo mínimo que el producto necesita para dibujar algo: la emisión vigente
+    (schema_version 2, emit_tablero.py del 10-09) con sus canchas en `TOPS`.
+    Es el mismo contrato que exige el validador de /admin. Con cualquier otra
+    cosa el tablero sale vacío y sin error visible: eso es lo que se evita acá. */
+export function esEmisionNarraId(datos: unknown): boolean {
+  if (!datos || typeof datos !== 'object') return false;
+  const d = datos as Record<string, unknown>;
+  return (
+    d.schema_version === 2 && d.TOPS != null && typeof d.TOPS === 'object' && !Array.isArray(d.TOPS)
+  );
+}
+
+export function prepararTablero(html: string, datos: unknown): string {
+  if (!html.includes(TAG_DATOS)) {
     throw new Error(
-      'El producto en /tablero/index.html cambió y la inyección de datos ya no lo encuentra. Hay que actualizar prepararTablero junto con la muda.',
+      'El producto en /tablero/index.html cambió y la inyección de datos ya no encuentra <script src="datos.js">. Hay que actualizar prepararTablero junto con la muda.',
     );
   }
-  const qs = new URLSearchParams({ plan });
-  if (exp) qs.set('exp', exp);
+  if (!esEmisionNarraId(datos)) {
+    throw new Error(
+      'Esta semana está guardada en un formato que la muda del 15-09 no lee: hace falta la emisión nueva (schema_version 2 con TOPS · PIEZAS · SEMANA). Hay que volver a cargarla con ese datos.js.',
+    );
+  }
   const json = JSON.stringify(datos).replace(/</g, '\\u003c');
-  const inyeccion = `<script>window.NARRA=${json};window.__NARRA_QS=${JSON.stringify('?' + qs.toString())};</script>`;
+  const inyeccion = `<script>window.NARRA_RANKING=${json};</script>`;
 
   return html
     .replace(TAG_DATOS, inyeccion)
-    .replace(LECTURA_QS, 'new URLSearchParams(window.__NARRA_QS||location.search)')
-    .replaceAll('src="marca/', 'src="/tablero/marca/')
-    .replaceAll('src="logos/', 'src="/tablero/logos/')
-    .replaceAll('src="medios/', 'src="/tablero/medios/')
-    .replaceAll('src="fotos/', 'src="/tablero/fotos/')
     .replaceAll('href="marca/', 'href="/tablero/marca/');
 }

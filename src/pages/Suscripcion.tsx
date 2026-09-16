@@ -216,10 +216,6 @@ const Suscripcion = () => {
   }
 
   const { suscripcion, tablero } = estado;
-  const exp =
-    suscripcion.plan === 'demo' && suscripcion.demo_expira
-      ? suscripcion.demo_expira.slice(0, 16)
-      : null;
 
   return (
     <div className="tb-shell">
@@ -230,12 +226,7 @@ const Suscripcion = () => {
           Salir
         </button>
       </div>
-      <TableroFrame
-        datos={tablero.datos}
-        plan={suscripcion.plan}
-        exp={exp}
-        titulo={'Tablero · ' + suscripcion.nombre}
-      />
+      <TableroFrame datos={tablero.datos} titulo={'Tablero · ' + suscripcion.nombre} />
     </div>
   );
 };

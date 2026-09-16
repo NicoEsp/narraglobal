@@ -2,7 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
-import { parseDatosJs, validarNarra, type DatosNarra, type ResultadoValidacion } from '@/lib/narra';
+import {
+  etiquetaSemana,
+  parseDatosJs,
+  validarNarra,
+  type DatosNarra,
+  type ResultadoValidacion,
+} from '@/lib/narra';
 import { proximoPulso } from '@/lib/pulso';
 import TableroFrame from '@/components/tablero/TableroFrame';
 import AdminMarco from './AdminMarco';
@@ -158,7 +164,7 @@ const AdminSuscripcion = () => {
     setGuardando(true);
     setError(null);
     const fila = {
-      semana: typeof v.datos.meta?.semana === 'string' ? v.datos.meta.semana : '',
+      semana: etiquetaSemana(v.datos),
       datos: v.datos as never,
     };
     const { error: err } = v.tableroId
@@ -254,13 +260,16 @@ const AdminSuscripcion = () => {
               onChange={(e) =>
                 setBorrador({ ...borrador, texto: e.target.value, validacion: null })
               }
-              placeholder={'window.NARRA={\n  schema_version: 2,\n  meta: { ... },\n  ...\n};'}
+              placeholder={
+                'window.NARRA_RANKING = {\n  "schema_version": 2,\n  "emision": { ... },\n  "meta": { ... },\n  "TOPS": { ... },\n  "PIEZAS": { ... },\n  "SEMANA": { ... }\n};'
+              }
               spellCheck={false}
             />
           </div>
           <div className="bo-nota">
-            El mismo archivo que hoy subís al repo del cliente. Se valida antes de guardar
-            (schema_version 1 o 2, piezas, series, pool con un solo you:1…). Queda como{' '}
+            El datos.js de la emisión (TOPS · PIEZAS · SEMANA) con el bloque de Lisandro debajo:
+            meta del cliente, copys y siluetas. Se valida antes de guardar (schema_version 2, las
+            canchas con una sola fila you:1, las series de la semana…). Queda como{' '}
             <b>borrador</b>: el cliente lo ve recién cuando se publica — el ritual es sábado
             programás, el domingo se publica solo.
           </div>
@@ -280,8 +289,9 @@ const AdminSuscripcion = () => {
                 <div className="bo-ok">Estructura en verde. Listo para guardar.</div>
               ) : (
                 <div className="bo-err">
-                  <b>Con errores no se guarda.</b> Los avisos sí dejan guardar; los errores no,
-                  porque el cliente vería el tablero roto. Corregilos y validá de nuevo.
+                  <b>Con errores no se guarda ni se previsualiza.</b> Los avisos sí dejan guardar;
+                  los errores no, porque el cliente vería el tablero roto. Corregilos y validá de
+                  nuevo.
                 </div>
               )}
             </div>
@@ -300,7 +310,14 @@ const AdminSuscripcion = () => {
               onClick={() => {
                 const v = validar(borrador);
                 setBorrador(v);
-                if (v.datos) setPreview({ datos: v.datos, etiqueta: 'Borrador sin guardar' });
+                /* la vista previa es «como cliente», y el cliente nunca ve una semana
+                   con errores: con la lista en rojo abajo, acá no se abre nada */
+                if (v.datos && v.validacion?.ok) {
+                  setPreview({ datos: v.datos, etiqueta: 'Borrador sin guardar' });
+                } else {
+                  /* que no quede abierta la vista previa de otra semana debajo de la lista de errores */
+                  setPreview(null);
+                }
               }}
             >
               Ver como cliente
@@ -392,7 +409,20 @@ const AdminSuscripcion = () => {
                   <button
                     className="bo-btn mini sec"
                     style={{ marginRight: 6 }}
-                    onClick={() => setPreview({ datos: t.datos, etiqueta: t.semana || 'Tablero' })}
+                    onClick={() => {
+                      /* misma regla que «Ver como cliente»: una semana guardada en el
+                         formato anterior, o tocada por fuera de la app, no se abre; se
+                         dicen sus errores y se vuelve a cargar con la emisión nueva */
+                      const v = validarNarra(t.datos as DatosNarra);
+                      if (!v.ok) {
+                        setPreview(null);
+                        setError(`No se previsualiza «${t.semana || 'Tablero'}»: ${v.errores.join(' · ')}`);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                      }
+                      setError(null);
+                      setPreview({ datos: t.datos, etiqueta: t.semana || 'Tablero' });
+                    }}
                   >
                     Ver
                   </button>
@@ -444,18 +474,13 @@ const AdminSuscripcion = () => {
         <div className="bo-preview">
           <div className="barra">
             <span className="t">
-              Vista previa como cliente · {sus.nombre} · {preview.etiqueta} · plan {sus.plan}
+              Vista previa como cliente · {sus.nombre} · {preview.etiqueta}
             </span>
             <button className="cerrar" onClick={() => setPreview(null)}>
               Cerrar
             </button>
           </div>
-          <TableroFrame
-            datos={preview.datos}
-            plan={sus.plan}
-            exp={sus.plan === 'demo' && sus.demo_expira ? sus.demo_expira.slice(0, 16) : null}
-            titulo={'Vista previa · ' + sus.nombre}
-          />
+          <TableroFrame datos={preview.datos} titulo={'Vista previa · ' + sus.nombre} />
         </div>
       )}
     </AdminMarco>
