@@ -314,6 +314,9 @@ const AdminSuscripcion = () => {
                    con errores: con la lista en rojo abajo, acá no se abre nada */
                 if (v.datos && v.validacion?.ok) {
                   setPreview({ datos: v.datos, etiqueta: 'Borrador sin guardar' });
+                } else {
+                  /* que no quede abierta la vista previa de otra semana debajo de la lista de errores */
+                  setPreview(null);
                 }
               }}
             >
@@ -412,6 +415,7 @@ const AdminSuscripcion = () => {
                          dicen sus errores y se vuelve a cargar con la emisión nueva */
                       const v = validarNarra(t.datos as DatosNarra);
                       if (!v.ok) {
+                        setPreview(null);
                         setError(`No se previsualiza «${t.semana || 'Tablero'}»: ${v.errores.join(' · ')}`);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                         return;
