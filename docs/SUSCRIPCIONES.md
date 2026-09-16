@@ -327,8 +327,8 @@ al terminar ve la fecha de su primera entrega → el equipo carga la semana en `
 3. **`/reporte`** — el reporte Santa Fe 2026: nombre, correo, WhatsApp (obligatorio) y rol.
 4. **Qué guarda `enviar_pedido`**: `tipo`, `telefono` normalizado (`+<dígitos>`: con eso el
    back office abre el chat directo), `email` y `datos` con el resto del formulario. Valida
-   en el servidor (WhatsApp con código de país, correo en la demo, cuenta o empresa según
-   la rama), corta al bot que llena el campo trampa y tolera **5 pedidos por teléfono cada
+   en el servidor (WhatsApp en formato internacional explícito, con el «+» y el código de
+   país, correo en la demo, cuenta o empresa según la rama), corta al bot que llena el campo trampa y tolera **5 pedidos por teléfono cada
    24 h**. No hay INSERT directo: la clave anon solo puede ejecutar la función.
 5. **Dónde se ven**: en `/admin`, abajo del store de clientes, la tabla «Pedidos de demo y
    reporte» con fecha, tipo, WhatsApp (link al chat), correo y detalle. La demo promete

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PAISES, enviarPedido, telefonoValido, unir } from '@/lib/pedidos';
+import { AVISO_TELEFONO, PAISES, enviarPedido, telefonoValido, unir } from '@/lib/pedidos';
 import { waNarra } from '@/lib/enlaces';
 import '@/styles/posicion.css';
 
@@ -65,7 +65,7 @@ const Posicion = () => {
   const enviar = async (e: FormEvent) => {
     e.preventDefault();
     if (!telefonoValido(f.wsp)) {
-      setError({ texto: 'El WhatsApp necesita el código de país y el número completo: +54 9 341 …', fallo: false });
+      setError({ texto: AVISO_TELEFONO, fallo: false });
       return;
     }
     setEnviando(true);

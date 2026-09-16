@@ -16,8 +16,19 @@ export const PAISES = [
 
 export const soloDigitos = (s: string) => s.replace(/\D/g, '');
 
-/** Un WhatsApp con código de país tiene al menos 8 dígitos; con menos no llega nada. */
-export const telefonoValido = (s: string) => soloDigitos(s).length >= 8;
+/** El WhatsApp sin espacios, paréntesis ni guiones: «+54 9 341 555-1234» → «+5493415551234». */
+export const telefonoCanonico = (s: string) => s.trim().replace(/[\s().-]/g, '');
+
+/* El WhatsApp tiene que venir en formato internacional explícito: el «+», el
+   código de país y el número, 8 a 15 dígitos en total (E.164). Sin el «+» no
+   hay forma de distinguir «341 555 1234» (un número local, al que el equipo
+   no puede escribir) de un número con código; antes se aceptaba cualquier
+   cosa de 8 dígitos y quedaba guardado como si fuera internacional. */
+export const telefonoValido = (s: string) => /^\+[1-9]\d{7,14}$/.test(telefonoCanonico(s));
+
+/** Lo que se le dice a quien escribió el número sin el código. */
+export const AVISO_TELEFONO =
+  'Escribí tu WhatsApp con el código de país y el + adelante: +54 9 341 555 1234.';
 
 export interface Pedido {
   tipo: TipoPedido;
@@ -32,7 +43,7 @@ export interface Pedido {
 export async function enviarPedido(p: Pedido): Promise<string | null> {
   const { error } = await supabase.rpc('enviar_pedido', {
     p_tipo: p.tipo,
-    p_telefono: p.telefono.trim(),
+    p_telefono: telefonoCanonico(p.telefono),
     p_email: p.email?.trim() || undefined,
     p_datos: p.datos,
     p_honeypot: p.honeypot,
