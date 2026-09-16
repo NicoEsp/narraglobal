@@ -30,7 +30,8 @@ no cargó, el tablero queda vacío y sin error visible.
 ## Para ver la variación de otro cliente
 
 Se reemplaza `datos.js` por el del cliente y se recarga. Nada más.
-En el monorepo conviene una carpeta por cliente y que la ruta apunte ahí:
+En el paquete suelto conviene una carpeta por cliente y que la ruta apunte ahí
+(**en este monorepo no aplica**: los datos se inyectan en runtime, ver la nota de arriba):
 
     clientes/ciro/datos.js
     clientes/reyes/datos.js

@@ -126,7 +126,8 @@ export function parseDatosJs(texto: string): DatosNarra {
 
 /** La etiqueta de la semana para el back office: «W36». La emisión trae el
     número en meta.semana (el tablero anterior traía la etiqueta como texto);
-    si falta, se toma la última semana ISO de la ventana ("2026-W36"). */
+    si falta, se toma la última semana ISO de la ventana ("2026-W36") y se
+    deja en el mismo formato («W36»). */
 export function etiquetaSemana(d: DatosNarra): string {
   const s = d.meta?.semana;
   if (typeof s === 'string' && s.trim()) return s.trim();
@@ -136,7 +137,7 @@ export function etiquetaSemana(d: DatosNarra): string {
   const semanas = d.emision?.ventana?.semanas;
   if (Array.isArray(semanas) && semanas.length > 0) {
     const ultima = semanas[semanas.length - 1];
-    if (typeof ultima === 'string' && ultima) return ultima;
+    if (typeof ultima === 'string' && ultima) return ultima.match(/W\d+$/)?.[0] ?? ultima;
   }
   return '';
 }
@@ -311,6 +312,18 @@ export function validarNarra(d: DatosNarra): ResultadoValidacion {
     errores.push('SEMANA debe ser un objeto.');
   } else {
     const S = d.SEMANA;
+    /* la fecha del próximo reporte viene dos veces: la del motor (SEMANA) y la
+       que carga Lisandro (meta). El tablero muestra meta.proxima; si difieren,
+       una de las dos quedó vieja */
+    const proximaMeta = esObjeto(d.meta) ? d.meta.proxima : undefined;
+    if (
+      typeof proximaMeta === 'string' && proximaMeta &&
+      typeof S.proxima === 'string' && S.proxima && S.proxima !== proximaMeta
+    ) {
+      avisos.push(
+        `meta.proxima («${proximaMeta}») y SEMANA.proxima («${S.proxima}») no coinciden: el tablero muestra meta.proxima.`,
+      );
+    }
     for (const bloque of ['calidad', 'influencia'] as const) {
       const b = S[bloque];
       if (b == null) continue;

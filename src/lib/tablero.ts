@@ -9,15 +9,16 @@
 
 const TAG_DATOS = '<script src="datos.js"></script>';
 
-/** Lo mínimo que el producto necesita para dibujar algo: las canchas.
-    `TOPS` es la emisión vigente (emit_tablero.py, 10-09); `listas` es la
-    anterior, que el producto todavía traduce. Sin ninguna de las dos, el
-    tablero sale vacío y sin error visible: eso es lo que se evita acá. */
+/** Lo mínimo que el producto necesita para dibujar algo: la emisión vigente
+    (schema_version 2, emit_tablero.py del 10-09) con sus canchas en `TOPS`.
+    Es el mismo contrato que exige el validador de /admin. Con cualquier otra
+    cosa el tablero sale vacío y sin error visible: eso es lo que se evita acá. */
 export function esEmisionNarraId(datos: unknown): boolean {
   if (!datos || typeof datos !== 'object') return false;
   const d = datos as Record<string, unknown>;
-  const bloque = d.TOPS ?? d.listas;
-  return bloque != null && typeof bloque === 'object' && !Array.isArray(bloque);
+  return (
+    d.schema_version === 2 && d.TOPS != null && typeof d.TOPS === 'object' && !Array.isArray(d.TOPS)
+  );
 }
 
 export function prepararTablero(html: string, datos: unknown): string {
@@ -28,7 +29,7 @@ export function prepararTablero(html: string, datos: unknown): string {
   }
   if (!esEmisionNarraId(datos)) {
     throw new Error(
-      'Esta semana está guardada en el formato del tablero anterior y la muda del 15-09 no la lee. Hay que volver a cargarla con el datos.js de la emisión nueva (TOPS · PIEZAS · SEMANA).',
+      'Esta semana está guardada en un formato que la muda del 15-09 no lee: hace falta la emisión nueva (schema_version 2 con TOPS · PIEZAS · SEMANA). Hay que volver a cargarla con ese datos.js.',
     );
   }
   const json = JSON.stringify(datos).replace(/</g, '\\u003c');
