@@ -314,7 +314,7 @@ al terminar ve la fecha de su primera entrega → el equipo carga la semana en `
 
 ## 7 · Los pedidos de la landing (demo y reporte)
 
-1. **Aplicar la migración** `supabase/migrations/20260916120000_pedidos_demo_y_reporte.sql`
+1. **Aplicar la migración** `supabase/migrations/20260916143725_pedidos_demo_y_reporte.sql`
    (CLI `supabase db push` o el SQL Editor del dashboard). Crea `pedidos`, la RPC
    `enviar_pedido` y la política de admins. Hasta que esté aplicada, los formularios
    muestran el error y ofrecen mandar el pedido por WhatsApp: nadie queda colgado, pero
