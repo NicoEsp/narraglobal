@@ -4,9 +4,31 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { generarCodigo } from '@/lib/narra';
 import { DIA_LARGO } from '@/lib/pulso';
+import { soloDigitos, unir } from '@/lib/pedidos';
 import AdminMarco from './AdminMarco';
 
 type Suscripcion = Tables<'suscripciones'>;
+type Pedido = Tables<'pedidos'>;
+
+/* Lo que llega desde la landing: demos del Narra ID y pedidos del reporte. */
+const TIPO_PEDIDO: Record<string, string> = {
+  demo_persona: 'Demo · política',
+  demo_empresa: 'Demo · negocios',
+  reporte: 'Reporte Santa Fe 2026',
+};
+
+/** El formulario del pedido en una línea, según el tipo. */
+const detallePedido = (p: Pedido): string => {
+  const d = (p.datos && typeof p.datos === 'object' && !Array.isArray(p.datos) ? p.datos : {}) as Record<string, unknown>;
+  const v = (k: string) => (typeof d[k] === 'string' ? (d[k] as string) : '');
+  const quien = v('quien') ? 'pidió: ' + v('quien') : '';
+  if (p.tipo === 'demo_persona') return unir(v('cuenta'), v('cargo'), v('ciudad'), v('provincia'), v('pais'), quien);
+  if (p.tipo === 'demo_empresa') return unir(v('empresa'), v('sector'), v('pais'), v('cuentas'), quien);
+  return unir(v('nombre'), v('rol'));
+};
+
+const fechaCorta = (iso: string) =>
+  new Date(iso).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 interface Formulario {
   id: string | null;
@@ -46,6 +68,8 @@ const chipEstado = (estado: string) =>
 
 const Admin = () => {
   const [lista, setLista] = useState<Suscripcion[] | null>(null);
+  const [pedidos, setPedidos] = useState<Pedido[] | null>(null);
+  const [errorPedidos, setErrorPedidos] = useState<string | null>(null);
   const [form, setForm] = useState<Formulario | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,8 +84,19 @@ const Admin = () => {
     setLista(data ?? []);
   };
 
+  const cargarPedidos = async () => {
+    const { data, error: err } = await supabase
+      .from('pedidos')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (err) setErrorPedidos('No se pudieron cargar los pedidos: ' + err.message);
+    setPedidos(data ?? []);
+  };
+
   useEffect(() => {
     cargar();
+    cargarPedidos();
   }, []);
 
   const guardar = async (e: FormEvent) => {
@@ -311,6 +346,50 @@ const Admin = () => {
                     {s.estado === 'pausado' ? 'Reactivar' : 'Pausar'}
                   </button>
                 </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* ===== pedidos de la landing ===== */}
+      <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de demo y reporte</h2>
+      <p className="bo-sub">
+        Lo que entra por la landing: la demo del Narra ID (/posicion) y el reporte Santa Fe 2026
+        (/reporte). Los dos se mandan a mano por WhatsApp; la demo promete 48 horas hábiles.
+      </p>
+      {errorPedidos && <div className="bo-err" style={{ marginBottom: 14 }}>{errorPedidos}</div>}
+      {pedidos === null ? (
+        <div className="bo-vacio">Cargando…</div>
+      ) : pedidos.length === 0 ? (
+        <div className="bo-vacio">Todavía no llegó ningún pedido.</div>
+      ) : (
+        <table className="bo-tabla">
+          <thead>
+            <tr>
+              <th>Cuándo</th>
+              <th>Qué</th>
+              <th>WhatsApp</th>
+              <th>Correo</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pedidos.map((p) => (
+              <tr key={p.id}>
+                <td style={{ whiteSpace: 'nowrap' }}>{fechaCorta(p.created_at)}</td>
+                <td>
+                  <span className={'bo-chip ' + (p.tipo === 'reporte' ? 'base' : 'pro')}>
+                    {TIPO_PEDIDO[p.tipo] ?? p.tipo}
+                  </span>
+                </td>
+                <td style={{ whiteSpace: 'nowrap' }}>
+                  <a className="cod" href={'https://wa.me/' + soloDigitos(p.telefono)} target="_blank" rel="noopener noreferrer">
+                    {p.telefono}
+                  </a>
+                </td>
+                <td>{p.email ?? '—'}</td>
+                <td>{detallePedido(p)}</td>
               </tr>
             ))}
           </tbody>

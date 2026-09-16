@@ -50,6 +50,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pedidos: {
+        Row: {
+          created_at: string
+          datos: Json
+          email: string | null
+          id: string
+          origen: string
+          telefono: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          datos?: Json
+          email?: string | null
+          id?: string
+          origen?: string
+          telefono: string
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          datos?: Json
+          email?: string | null
+          id?: string
+          origen?: string
+          telefono?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
       political_contacts: {
         Row: {
           created_at: string
@@ -249,6 +279,16 @@ export type Database = {
       completar_alta: {
         Args: { p_codigo: string; p_datos: Json }
         Returns: Database["public"]["Tables"]["suscripciones"]["Row"]
+      }
+      enviar_pedido: {
+        Args: {
+          p_datos?: Json
+          p_email?: string
+          p_honeypot?: string
+          p_telefono: string
+          p_tipo: string
+        }
+        Returns: string
       }
       has_role: {
         Args: {
