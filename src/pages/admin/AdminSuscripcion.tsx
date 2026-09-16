@@ -406,7 +406,19 @@ const AdminSuscripcion = () => {
                   <button
                     className="bo-btn mini sec"
                     style={{ marginRight: 6 }}
-                    onClick={() => setPreview({ datos: t.datos, etiqueta: t.semana || 'Tablero' })}
+                    onClick={() => {
+                      /* misma regla que «Ver como cliente»: una semana guardada en el
+                         formato anterior, o tocada por fuera de la app, no se abre; se
+                         dicen sus errores y se vuelve a cargar con la emisión nueva */
+                      const v = validarNarra(t.datos as DatosNarra);
+                      if (!v.ok) {
+                        setError(`No se previsualiza «${t.semana || 'Tablero'}»: ${v.errores.join(' · ')}`);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                      }
+                      setError(null);
+                      setPreview({ datos: t.datos, etiqueta: t.semana || 'Tablero' });
+                    }}
                   >
                     Ver
                   </button>
