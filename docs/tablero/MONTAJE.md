@@ -71,6 +71,23 @@ El bucket y sus políticas están en `supabase/migrations/20260918120000_bucket_
 (lectura pública, subida y borrado sólo admin). La migración es idempotente porque el
 bucket se había creado a mano por SQL el 17-09.
 
+### Sólo `.webp`
+
+El tablero pide **siempre** `<actor_id>.webp` y ninguna otra extensión. Probar varias
+costaría hasta cuatro pedidos fallidos por cara, así que la convención es única y rígida:
+es la misma que ya emite el motor en el campo `foto` (`fotos/<actor_id>.webp`).
+
+La política de subida, en cambio, acepta `webp`, `jpeg` y `png`. Es más ancha que lo que
+el tablero lee, y esa diferencia es una trampa: **una foto subida como `.jpg` entra al
+bucket sin error y después no se ve**, porque el tablero nunca la pide y la cara cae en
+iniciales sin avisar. Al 18-09 los 239 archivos del bucket son `.webp`, así que no está
+pasando, pero conviene saberlo antes de subir a mano.
+
+Si en algún momento se quiere cerrar esa puerta, el cambio es acotar la política de
+subida a `.webp` y el `allowed_mime_types` a `image/webp`: el error salta en la subida,
+que es donde se puede corregir, en vez de aparecer como una cara faltante en el tablero
+del cliente.
+
 ## Prueba de humo, hecha el 15-09
 
 Con `datos.js` de Ciro W36, en Chromium a 1200 px: tres cards de semana, tres de cancha,
