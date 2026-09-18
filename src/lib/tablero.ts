@@ -9,6 +9,12 @@
 
 const TAG_DATOS = '<script src="datos.js"></script>';
 
+/** Álbum único de fotos (bucket público `fotos` del proyecto narraglobal). El
+    producto arma la cara de cada fila con esta base + el actor_id + `.webp`, y
+    si el archivo no está cae solo en las iniciales. Ver la migración
+    20260918120000_bucket_fotos.sql. */
+const FOTOS_BASE = 'https://aydtxqhtkcyytsamervs.supabase.co/storage/v1/object/public/fotos/';
+
 /** Lo mínimo que el producto necesita para dibujar algo: la emisión vigente
     (schema_version 2, emit_tablero.py del 10-09) con sus canchas en `TOPS`.
     Es el mismo contrato que exige el validador de /admin. Con cualquier otra
@@ -33,7 +39,7 @@ export function prepararTablero(html: string, datos: unknown): string {
     );
   }
   const json = JSON.stringify(datos).replace(/</g, '\\u003c');
-  const inyeccion = `<script>window.NARRA_RANKING=${json};</script>`;
+  const inyeccion = `<script>window.NARRA_FOTOS_BASE=${JSON.stringify(FOTOS_BASE)};window.NARRA_RANKING=${json};</script>`;
 
   return html
     .replace(TAG_DATOS, inyeccion)

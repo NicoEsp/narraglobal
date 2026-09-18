@@ -638,7 +638,9 @@
   var ini=function(n){return String(n||'').split(/\s+/).map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();};
   function av(r,size){
     var nm=r.you?(M.iniciales||ini(r.n)):ini(r.n);
-    var dentro=r.foto?'<img src="'+esc(r.foto)+'" alt="" loading="lazy">':esc(nm);
+    var FOTOS=window.NARRA_FOTOS_BASE||'';          // álbum único; si no está, manda lo que traiga datos.js
+    var src=(FOTOS&&r.id)?FOTOS+encodeURIComponent(r.id)+'.webp':r.foto;
+    var dentro=src?'<img src="'+esc(src)+'" alt="" loading="lazy" data-ini="'+esc(nm)+'" onerror="this.replaceWith(document.createTextNode(this.getAttribute(\'data-ini\')))">':esc(nm);
     return '<span class="ni-av'+(r.you?' you':'')+'" style="--h:hsl('+hue(r.n||'')+' 32% 44%);--s:'+size+'px" title="'+esc(r.largo||r.n)+'">'+dentro+'</span>';
   }
   function forma(f){ return '<span class="ni-form" aria-hidden="true">'+(f||[]).map(function(c){return '<i class="'+esc(c||'')+'"></i>';}).join('')+'</span>'; }
