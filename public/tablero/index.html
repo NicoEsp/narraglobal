@@ -636,11 +636,23 @@
 
   var hue=function(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))%360;return h;};
   var ini=function(n){return String(n||'').split(/\s+/).map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();};
+  /* El álbum acepta webp, jpeg y png, así que la cara se busca en ese orden y
+     recién al agotarlo caen las iniciales. Va encadenado por onerror y no en
+     paralelo: la foto que está (hoy las 239 son webp) cuesta un solo pedido, y
+     sólo la que falta paga los intentos de más. */
+  var EXT_FOTO=['webp','jpg','jpeg','png'];
+  window.NARRA_AV_ERR=function(img){
+    var base=img.getAttribute('data-base')||'';
+    var resto=(img.getAttribute('data-ext')||'').split(',').filter(function(e){return e;});
+    if(base && resto.length){ img.setAttribute('data-ext',resto.slice(1).join(',')); img.src=base+'.'+resto[0]; return; }
+    img.replaceWith(document.createTextNode(img.getAttribute('data-ini')||''));
+  };
   function av(r,size){
     var nm=r.you?(M.iniciales||ini(r.n)):ini(r.n);
     var FOTOS=window.NARRA_FOTOS_BASE||'';          // álbum único; si no está, manda lo que traiga datos.js
-    var src=(FOTOS&&r.id)?FOTOS+encodeURIComponent(r.id)+'.webp':r.foto;
-    var dentro=src?'<img src="'+esc(src)+'" alt="" loading="lazy" data-ini="'+esc(nm)+'" onerror="this.replaceWith(document.createTextNode(this.getAttribute(\'data-ini\')))">':esc(nm);
+    var base=(FOTOS&&r.id)?FOTOS+encodeURIComponent(r.id):'';
+    var src=base?base+'.'+EXT_FOTO[0]:r.foto;
+    var dentro=src?'<img src="'+esc(src)+'" alt="" loading="lazy" data-ini="'+esc(nm)+'" data-base="'+esc(base)+'" data-ext="'+EXT_FOTO.slice(1).join(',')+'" onerror="NARRA_AV_ERR(this)">':esc(nm);
     return '<span class="ni-av'+(r.you?' you':'')+'" style="--h:hsl('+hue(r.n||'')+' 32% 44%);--s:'+size+'px" title="'+esc(r.largo||r.n)+'">'+dentro+'</span>';
   }
   function forma(f){ return '<span class="ni-form" aria-hidden="true">'+(f||[]).map(function(c){return '<i class="'+esc(c||'')+'"></i>';}).join('')+'</span>'; }

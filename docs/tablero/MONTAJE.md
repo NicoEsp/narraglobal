@@ -52,11 +52,12 @@ sin pieza destacada no aparece el play, sin cancha no se dibuja esa card.
 Las caras ya no vienen del `datos.js`. Hay **un solo álbum** en Supabase Storage,
 bucket público `fotos`, y el tablero arma la ruta solo:
 
-    window.NARRA_FOTOS_BASE + actor_id + '.webp'
+    window.NARRA_FOTOS_BASE + actor_id + '.' + extension
 
 `src/lib/tablero.ts` inyecta `NARRA_FOTOS_BASE` junto con `NARRA_RANKING`, en el mismo
-reemplazo del `<script src="datos.js">`. Si el archivo no está en el bucket, el `onerror`
-del `<img>` lo cambia por las iniciales: **nunca un ícono roto**. Si no hay base inyectada
+reemplazo del `<script src="datos.js">`. Las extensiones se prueban en cadena (ver «Los
+tres formatos» más abajo) y, si ninguna está en el bucket, el `onerror` del `<img>` lo
+cambia por las iniciales: **nunca un ícono roto**. Si no hay base inyectada
 —abrir el `index.html` suelto, sin pasar por la app— manda el `r.foto` que traiga el
 `datos.js`, así el paquete suelto sigue funcionando igual que antes.
 
@@ -71,22 +72,23 @@ El bucket y sus políticas están en `supabase/migrations/20260918120000_bucket_
 (lectura pública, subida y borrado sólo admin). La migración es idempotente porque el
 bucket se había creado a mano por SQL el 17-09.
 
-### Sólo `.webp`
+### Los tres formatos
 
-El tablero pide **siempre** `<actor_id>.webp` y ninguna otra extensión. Probar varias
-costaría hasta cuatro pedidos fallidos por cara, así que la convención es única y rígida:
-es la misma que ya emite el motor en el campo `foto` (`fotos/<actor_id>.webp`).
+El bucket acepta `webp`, `jpeg` y `png`, y el tablero busca la cara en ese orden:
 
-La política de subida, en cambio, acepta `webp`, `jpeg` y `png`. Es más ancha que lo que
-el tablero lee, y esa diferencia es una trampa: **una foto subida como `.jpg` entra al
-bucket sin error y después no se ve**, porque el tablero nunca la pide y la cara cae en
-iniciales sin avisar. Al 18-09 los 239 archivos del bucket son `.webp`, así que no está
-pasando, pero conviene saberlo antes de subir a mano.
+    <actor_id>.webp → .jpg → .jpeg → .png → iniciales
 
-Si en algún momento se quiere cerrar esa puerta, el cambio es acotar la política de
-subida a `.webp` y el `allowed_mime_types` a `image/webp`: el error salta en la subida,
-que es donde se puede corregir, en vez de aparecer como una cara faltante en el tablero
-del cliente.
+La cadena va por `onerror`, un formato por vez, no los cuatro en paralelo. Así la foto
+que está cuesta **un solo pedido** y sólo la que falta paga los intentos de más. Hoy los
+239 archivos del bucket son `.webp`, con lo cual en la práctica es un pedido por cara.
+
+El costo del otro extremo: un actor sin ninguna foto genera cuatro pedidos fallidos antes
+de mostrar iniciales. No se ve nada roto, pero quedan cuatro 400 en la consola. Si algún
+día pesa, la salida es subir la foto que falta, no tocar la cadena.
+
+La lista vive en `EXT_FOTO` arriba de `av()`. Si se suma un formato a la política de
+subida hay que sumarlo también ahí, o las fotos en ese formato entran al bucket y no se
+ven nunca.
 
 ## Prueba de humo, hecha el 15-09
 
