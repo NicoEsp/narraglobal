@@ -1,9 +1,14 @@
-/* El producto tablero (Narra ID v2, 15-09-2026) vive INTACTO en
+/* El producto tablero (Narra ID v2, 15-09-2026) vive en
    public/tablero/index.html: la muda es la madre y se actualiza reemplazando ese
    archivo, nunca editándolo acá. El contrato está en docs/tablero/LEEME.md y
-   MONTAJE.md. En runtime se le aplica una sola transformación quirúrgica:
-   reemplazar el <script src="datos.js"> por los datos del cliente autenticado,
-   que el producto lee de window.NARRA_RANKING. La suscripción ya no tiene
+   MONTAJE.md. En runtime se le inyecta el <script src="datos.js"> reemplazado por
+   dos cosas: los datos del cliente autenticado, que el producto lee de
+   window.NARRA_RANKING, y la base del álbum de fotos, que lee de
+   window.NARRA_FOTOS_BASE.
+   ⚠ 18-09-2026: la muda dejó de estar intacta. av() se editó a mano para armar la
+   cara con esa base (ver MONTAJE.md §Las fotos). Al subir una muda nueva hay que
+   volver a aplicarle ese parche o las caras se pierden en silencio.
+   La suscripción ya no tiene
    escalones y el producto no lee ningún ?plan=, así que el plan no viaja.
    Los assets relativos que quedan (el favicon de marca/) se apuntan a /tablero/. */
 
