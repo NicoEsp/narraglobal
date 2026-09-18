@@ -47,6 +47,49 @@ quedar mostrando la semana anterior.
 va en `null` con su `origen`, y la plantilla lo resuelve sola: sin foto salen iniciales,
 sin pieza destacada no aparece el play, sin cancha no se dibuja esa card.
 
+## Las fotos (18-09-2026)
+
+Las caras ya no vienen del `datos.js`. Hay **un solo álbum** en Supabase Storage,
+bucket público `fotos`, y el tablero arma la ruta solo:
+
+    window.NARRA_FOTOS_BASE + actor_id + '.' + extension
+
+`src/lib/tablero.ts` inyecta `NARRA_FOTOS_BASE` junto con `NARRA_RANKING`, en el mismo
+reemplazo del `<script src="datos.js">`. Las extensiones se prueban en cadena (ver «Los
+tres formatos» más abajo) y, si ninguna está en el bucket, el `onerror` del `<img>` lo
+cambia por las iniciales: **nunca un ícono roto**. Si no hay base inyectada
+—abrir el `index.html` suelto, sin pasar por la app— manda el `r.foto` que traiga el
+`datos.js`, así el paquete suelto sigue funcionando igual que antes.
+
+El campo `foto` del `datos.js` quedó de respaldo y ya no hace falta llenarlo.
+
+⚠ **Esto rompe la regla de arriba**: `av()` en `index.html` está editado a mano
+(línea ~641). Es la única edición que la plantilla tiene contra la muda del 15-09.
+Al subir una muda nueva hay que volver a aplicar ese parche, o las caras desaparecen
+sin ningún error: vuelven todas a iniciales y nadie se entera.
+
+El bucket y sus políticas están en `supabase/migrations/20260918120000_bucket_fotos.sql`
+(lectura pública, subida y borrado sólo admin). La migración es idempotente porque el
+bucket se había creado a mano por SQL el 17-09.
+
+### Los tres formatos
+
+El bucket acepta `webp`, `jpeg` y `png`, y el tablero busca la cara en ese orden:
+
+    <actor_id>.webp → .jpg → .jpeg → .png → iniciales
+
+La cadena va por `onerror`, un formato por vez, no los cuatro en paralelo. Así la foto
+que está cuesta **un solo pedido** y sólo la que falta paga los intentos de más. Hoy los
+239 archivos del bucket son `.webp`, con lo cual en la práctica es un pedido por cara.
+
+El costo del otro extremo: un actor sin ninguna foto genera cuatro pedidos fallidos antes
+de mostrar iniciales. No se ve nada roto, pero quedan cuatro 400 en la consola. Si algún
+día pesa, la salida es subir la foto que falta, no tocar la cadena.
+
+La lista vive en `EXT_FOTO` arriba de `av()`. Si se suma un formato a la política de
+subida hay que sumarlo también ahí, o las fotos en ese formato entran al bucket y no se
+ven nunca.
+
 ## Prueba de humo, hecha el 15-09
 
 Con `datos.js` de Ciro W36, en Chromium a 1200 px: tres cards de semana, tres de cancha,
