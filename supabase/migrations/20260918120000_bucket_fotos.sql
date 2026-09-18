@@ -12,8 +12,10 @@ on conflict (id) do update
       allowed_mime_types = array['image/webp','image/jpeg','image/png'];
 
 -- 2) Lectura pública (el tablero del cliente arma la cara con la URL pública)
+--    El nombre es el que ya tiene el proyecto, no el de `client-logos`.
 drop policy if exists "Public can list and read fotos" on storage.objects;
-create policy "Public can list and read fotos"
+drop policy if exists "Public can read fotos" on storage.objects;
+create policy "Public can read fotos"
 on storage.objects
 for select
 using (bucket_id = 'fotos');
@@ -26,7 +28,7 @@ for insert
 with check (
   bucket_id = 'fotos'
   and has_role(auth.uid(), 'admin'::app_role)
-  and lower(name) ~ '\.(png|jpe?g|webp)$'
+  and lower(name) ~ '\.(webp|jpe?g|png)$'
 );
 
 -- 4) Actualización sólo admin
