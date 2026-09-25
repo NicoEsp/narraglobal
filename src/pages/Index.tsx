@@ -138,7 +138,7 @@ const Index = () => {
               <a href="#incompany">Workshops</a>
               <a href="/entrar" title="Acceso de clientes">Acceso clientes</a>
             </div>
-            <Link className="nav-cta" to="/reporte">Reporte Narrativa Santa Fe 2026</Link>
+            <Link className="nav-cta" to="/reporte">Reporte Narrativa Paraguay 2026</Link>
           </nav>
 
           <div className="hero-copy">

@@ -14,7 +14,7 @@ type Pedido = Tables<'pedidos'>;
 const TIPO_PEDIDO: Record<string, string> = {
   demo_persona: 'Demo · política',
   demo_empresa: 'Demo · negocios',
-  reporte: 'Reporte Santa Fe 2026',
+  reporte: 'Reporte Paraguay 2026',
 };
 
 /** El formulario del pedido en una línea, según el tipo. */
@@ -355,7 +355,7 @@ const Admin = () => {
       {/* ===== pedidos de la landing ===== */}
       <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de demo y reporte</h2>
       <p className="bo-sub">
-        Lo que entra por la landing: la demo del Narra ID (/posicion) y el reporte Santa Fe 2026
+        Lo que entra por la landing: la demo del Narra ID (/posicion) y el reporte Paraguay 2026
         (/reporte). Los dos se mandan a mano por WhatsApp; la demo promete 48 horas hábiles.
       </p>
       {errorPedidos && <div className="bo-err" style={{ marginBottom: 14 }}>{errorPedidos}</div>}
