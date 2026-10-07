@@ -14,7 +14,22 @@ type Pedido = Tables<'pedidos'>;
 const TIPO_PEDIDO: Record<string, string> = {
   demo_persona: 'Demo · política',
   demo_empresa: 'Demo · negocios',
-  reporte: 'Reporte Paraguay 2026',
+  reporte: 'Reporte',
+};
+
+/* Los pedidos de reporte anteriores a que se guardara la edición no la traen:
+   se deduce por la fecha (Santa Fe hasta el pase a Paraguay del 25-09). */
+const PASE_A_PARAGUAY = '2026-09-25T13:39:00Z';
+
+/** La etiqueta del pedido; los de reporte llevan su edición. */
+const etiquetaPedido = (p: Pedido): string => {
+  if (p.tipo !== 'reporte') return TIPO_PEDIDO[p.tipo] ?? p.tipo;
+  const d = p.datos && typeof p.datos === 'object' && !Array.isArray(p.datos) ? (p.datos as Record<string, unknown>) : {};
+  const edicion =
+    typeof d.edicion === 'string' && d.edicion
+      ? d.edicion
+      : new Date(p.created_at) < new Date(PASE_A_PARAGUAY) ? 'Santa Fe 2026' : 'Paraguay 2026';
+  return 'Reporte ' + edicion;
 };
 
 /** El formulario del pedido en una línea, según el tipo. */
@@ -355,8 +370,8 @@ const Admin = () => {
       {/* ===== pedidos de la landing ===== */}
       <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de demo y reporte</h2>
       <p className="bo-sub">
-        Lo que entra por la landing: la demo del Narra ID (/posicion) y el reporte Paraguay 2026
-        (/reporte). Los dos se mandan a mano por WhatsApp; la demo promete 48 horas hábiles.
+        Lo que entra por la landing: la demo del Narra ID (/posicion) y el reporte del momento,
+        hoy Despedida Messi 2026 (/reporte). Los dos se mandan a mano por WhatsApp; la demo promete 48 horas hábiles.
       </p>
       {errorPedidos && <div className="bo-err" style={{ marginBottom: 14 }}>{errorPedidos}</div>}
       {pedidos === null ? (
@@ -380,7 +395,7 @@ const Admin = () => {
                 <td style={{ whiteSpace: 'nowrap' }}>{fechaCorta(p.created_at)}</td>
                 <td>
                   <span className={'bo-chip ' + (p.tipo === 'reporte' ? 'base' : 'pro')}>
-                    {TIPO_PEDIDO[p.tipo] ?? p.tipo}
+                    {etiquetaPedido(p)}
                   </span>
                 </td>
                 <td style={{ whiteSpace: 'nowrap' }}>
