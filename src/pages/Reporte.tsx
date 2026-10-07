@@ -4,8 +4,12 @@ import { AVISO_TELEFONO, enviarPedido, telefonoValido, unir } from '@/lib/pedido
 import { waNarra } from '@/lib/enlaces';
 import '@/styles/posicion.css';
 
-/* El reporte NarraNoise® Paraguay 2026, sin cargo: una tarjeta, cuatro
+/* El reporte NarraNoise® Despedida Messi 2026, sin cargo: una tarjeta, cuatro
    campos, y el equipo lo manda por WhatsApp. */
+
+/* La edición viaja con cada pedido: el back office la muestra tal cual y
+   cambiar de edición no re-etiqueta los pedidos viejos. */
+const EDICION = 'Despedida Messi 2026';
 
 const ROLES = ['Figura pública', 'Jefe o jefa de prensa', 'Asesor o consultora', 'Periodista', 'Empresa u organización', 'Otro'];
 
@@ -38,7 +42,7 @@ const Reporte = () => {
       tipo: 'reporte',
       telefono: f.wsp,
       email: f.mail,
-      datos: { nombre: f.nombre.trim(), rol: f.rol },
+      datos: { nombre: f.nombre.trim(), rol: f.rol, edicion: EDICION },
       honeypot: f.hp,
     });
     setEnviando(false);
@@ -50,7 +54,7 @@ const Reporte = () => {
   };
 
   const waFallback = waNarra(
-    'Hola, quiero el reporte Narrativa Paraguay 2026. ' + unir(f.nombre, f.rol, f.mail) + '.',
+    'Hola, quiero el reporte ' + EDICION + '. ' + unir(f.nombre, f.rol, f.mail) + '.',
   );
 
   return (
@@ -66,7 +70,7 @@ const Reporte = () => {
       <div className="pos-hoja">
         {listo ? (
           <section className="pos-tarjeta">
-            <span className="pos-eyebrow">Reporte NarraNoise® · Paraguay 2026</span>
+            <span className="pos-eyebrow">Reporte NarraNoise® · {EDICION}</span>
             <div className="pos-ok-h"><span className="pos-ok-i" /><h2>¡Listo!</h2></div>
             <p className="pos-sub">Te mandamos el reporte por WhatsApp al <b>{f.wsp.trim()}</b>, sin cargo. Un correo, un reporte: no mandamos nada más.</p>
             <div className="pos-resumen">
@@ -81,7 +85,7 @@ const Reporte = () => {
           </section>
         ) : (
           <form className="pos-tarjeta" onSubmit={enviar}>
-            <span className="pos-eyebrow">Reporte NarraNoise® · Paraguay 2026</span>
+            <span className="pos-eyebrow">Reporte NarraNoise® · {EDICION}</span>
             <div className="pos-preg">¿A dónde te mandamos el reporte?</div>
             <div className="pos-campos">
               <div className="pos-fila">
