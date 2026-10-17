@@ -371,7 +371,7 @@ const Admin = () => {
       <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de demo y reporte</h2>
       <p className="bo-sub">
         Lo que entra por la landing: la demo del Narra ID (/posicion) y el reporte del momento,
-        hoy Despedida Messi 2026 (/reporte). Los dos se mandan a mano por WhatsApp; la demo promete 48 horas hábiles.
+        hoy Octubre 2026 — Narrativa ARG (/reporte). Los dos se mandan a mano por WhatsApp; la demo promete 48 horas hábiles.
       </p>
       {errorPedidos && <div className="bo-err" style={{ marginBottom: 14 }}>{errorPedidos}</div>}
       {pedidos === null ? (
