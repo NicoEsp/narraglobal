@@ -138,8 +138,8 @@ const Index = () => {
           <nav className="hnav">
             <img className="wm-img" src="/land/wm-blanco.svg" alt="narraglobal" />
             <div className="nav-links">
-              <a href="#medios">En los medios</a>
               <a href="#tablero">Narra ID</a>
+              <a href="#medios">En los medios</a>
               <a href="#incompany">Workshops</a>
               <a href="/entrar" title="Acceso de clientes">Acceso clientes</a>
             </div>
@@ -163,18 +163,17 @@ const Index = () => {
         </div>
       </div>
 
-      {/* ===================== MEDIOS ===================== */}
-      <section className="medios" id="medios">
-        <div className="cl-eyebrow">En los medios</div>
-        <div className="cl-title">Nuestros datos son publicados por los principales medios.</div>
-        <div className="mq mq-media">
+      {/* ===================== CLIENTES ===================== */}
+      <div className="clients">
+        <div className="cl-eyebrow">Nuestros clientes</div>
+        <div className="cl-title">Líderes políticos y corporativos controlan su narrativa con nosotros.</div>
+        <div className="mq">
           <div className="mq-track">
-            {MEDIA.map((m) => <MediaLogo key={m.file} m={m} />)}
-            {MEDIA.map((m) => <MediaLogo key={m.file + '-2'} m={m} hidden />)}
+            {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
+            {CLIENTS.map((c) => <ClientLogo key={c.file + '-2'} c={c} hidden />)}
           </div>
         </div>
-        <Link className="med-link" to="/reporte">Leé el último análisis, sin cargo: Despedida Messi 2026 →</Link>
-      </section>
+      </div>
 
       {/* ===================== NARRA ID · la película ===================== */}
       <div className="shot-zone" id="tablero">
@@ -294,17 +293,18 @@ const Index = () => {
         </div>
       </div>
 
-      {/* ===================== CLIENTES ===================== */}
-      <div className="clients">
-        <div className="cl-eyebrow">Nuestros clientes</div>
-        <div className="cl-title">Líderes políticos y corporativos controlan su narrativa con nosotros.</div>
-        <div className="mq">
+      {/* ===================== MEDIOS ===================== */}
+      <section className="medios" id="medios">
+        <div className="cl-eyebrow">En los medios</div>
+        <div className="cl-title">Nuestros datos son publicados por los principales medios.</div>
+        <div className="mq mq-media">
           <div className="mq-track">
-            {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
-            {CLIENTS.map((c) => <ClientLogo key={c.file + '-2'} c={c} hidden />)}
+            {MEDIA.map((m) => <MediaLogo key={m.file} m={m} />)}
+            {MEDIA.map((m) => <MediaLogo key={m.file + '-2'} m={m} hidden />)}
           </div>
         </div>
-      </div>
+        <Link className="med-link" to="/reporte">Leé el último análisis, sin cargo: Despedida Messi 2026 →</Link>
+      </section>
 
       {/* ===================== IN-COMPANY ===================== */}
       <section className="shot-zone" id="incompany">
