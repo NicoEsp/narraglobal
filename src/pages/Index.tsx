@@ -3,20 +3,22 @@ import { Link } from 'react-router-dom';
 import { waLisandro } from '@/lib/enlaces';
 
 /* Para quién habla la landing. El switch vive adentro del titular y cambia
-   tres cosas: la bajada del hero, el tipo de demo que pide el CTA y el nombre
-   del competidor en la película del Narra ID. */
+   la bajada del hero, la rama que viaja en el WhatsApp de activación, el
+   nombre del competidor en la película del Narra ID y a quién se mide. */
 type Modo = 'politica' | 'negocios';
 
-const MODOS: Record<Modo, { sub: string; tipo: 'persona' | 'empresa'; rival: string }> = {
+const MODOS: Record<Modo, { sub: string; rama: string; rival: string; alcance: string }> = {
   politica: {
     sub: 'Medimos políticos de escala ciudad, provincia y país.',
-    tipo: 'persona',
+    rama: 'política',
     rival: 'Actor 2',
+    alcance: 'en tu ciudad, tu provincia y el país',
   },
   negocios: {
     sub: 'Medimos verticales de negocio a escala país, región y global.',
-    tipo: 'empresa',
+    rama: 'negocios',
     rival: 'Empresa 2',
+    alcance: 'en tu vertical, la región y el mundo',
   },
 };
 
@@ -100,7 +102,9 @@ const Index = () => {
   const [otra, setOtra] = useState('');
 
   const copy = MODOS[modo];
-  const demoHref = '/posicion?tipo=' + copy.tipo;
+  // El Narra ID se activa en la conversación con Lisandro: el cobro online
+  // todavía no está, y la demo sin cargo de /posicion dejó de ser la puerta.
+  const activarHref = waLisandro('Hola, quiero activar mi Narra ID (' + copy.rama + ').');
 
   const toggleTema = (t: string) =>
     setIcSel((prev) => {
@@ -134,11 +138,12 @@ const Index = () => {
           <nav className="hnav">
             <img className="wm-img" src="/land/wm-blanco.svg" alt="narraglobal" />
             <div className="nav-links">
+              <a href="#medios">En los medios</a>
               <a href="#tablero">Narra ID</a>
               <a href="#incompany">Workshops</a>
               <a href="/entrar" title="Acceso de clientes">Acceso clientes</a>
             </div>
-            <Link className="nav-cta" to="/reporte">Reporte narraglobal / Despedida Messi 2026</Link>
+            <a className="nav-cta" href={activarHref} target="_blank" rel="noopener noreferrer">Activá tu Narra ID</a>
           </nav>
 
           <div className="hero-copy">
@@ -151,24 +156,25 @@ const Index = () => {
             </h1>
             <p className="hsub">{copy.sub}</p>
             <div className="hctas hctas-sel">
-              <Link className="sel-btn" to={demoHref}>Quiero mi demo</Link>
-              <span className="cta-price">Te llega por WhatsApp en 48 hs sin cargo.</span>
+              <a className="sel-btn" href={activarHref} target="_blank" rel="noopener noreferrer">Activá tu Narra ID</a>
+              <span className="cta-price">USD 1,000 / mes · cancelás cuando quieras</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ===================== CLIENTES ===================== */}
-      <div className="clients">
-        <div className="cl-eyebrow">Nuestros clientes</div>
-        <div className="cl-title">Líderes políticos y corporativos controlan su narrativa con nosotros.</div>
-        <div className="mq">
+      {/* ===================== MEDIOS ===================== */}
+      <section className="medios" id="medios">
+        <div className="cl-eyebrow">En los medios</div>
+        <div className="cl-title">Nuestros datos son publicados por los principales medios.</div>
+        <div className="mq mq-media">
           <div className="mq-track">
-            {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
-            {CLIENTS.map((c) => <ClientLogo key={c.file + '-2'} c={c} hidden />)}
+            {MEDIA.map((m) => <MediaLogo key={m.file} m={m} />)}
+            {MEDIA.map((m) => <MediaLogo key={m.file + '-2'} m={m} hidden />)}
           </div>
         </div>
-      </div>
+        <Link className="med-link" to="/reporte">Leé el último análisis, sin cargo: Despedida Messi 2026 →</Link>
+      </section>
 
       {/* ===================== NARRA ID · la película ===================== */}
       <div className="shot-zone" id="tablero">
@@ -182,11 +188,11 @@ const Index = () => {
               <h2 className="film-t">Control total sobre tu narrativa y la de tus competidores</h2>
               {/* cada ítem se resalta cuando la película muestra su ventana */}
               <ul className="film-li">
-                <li>Medimos tus piezas de social media</li>
-                <li>Encontramos lo que funciona en vos y en la competencia</li>
+                <li>Cómo te fue: medimos tus piezas de social media, semana a semana</li>
+                <li>Una corrección por semana: lo que funciona en vos y en la competencia</li>
                 <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
-                <li>Alertas semanales sobre tu narrativa y la competencia</li>
-                <li>Call mensual de orden táctico</li>
+                <li>Alertas semanales sobre tu narrativa, tu influencia digital y tu competencia {copy.alcance}</li>
+                <li>Call táctica mensual con Lisandro</li>
               </ul>
             </div>
 
@@ -282,23 +288,23 @@ const Index = () => {
             </div>
 
             <div className="film-pie solo">
-              <Link className="film-cta" to={demoHref}>Quiero mi demo</Link>
+              <a className="film-cta" href={activarHref} target="_blank" rel="noopener noreferrer">Activá tu Narra ID</a>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ===================== MEDIOS ===================== */}
-      <section className="medios" id="medios">
-        <div className="cl-eyebrow">En los medios</div>
-        <div className="cl-title">Nuestros datos son publicados por los principales medios.</div>
-        <div className="mq mq-media">
+      {/* ===================== CLIENTES ===================== */}
+      <div className="clients">
+        <div className="cl-eyebrow">Nuestros clientes</div>
+        <div className="cl-title">Líderes políticos y corporativos controlan su narrativa con nosotros.</div>
+        <div className="mq">
           <div className="mq-track">
-            {MEDIA.map((m) => <MediaLogo key={m.file} m={m} />)}
-            {MEDIA.map((m) => <MediaLogo key={m.file + '-2'} m={m} hidden />)}
+            {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
+            {CLIENTS.map((c) => <ClientLogo key={c.file + '-2'} c={c} hidden />)}
           </div>
         </div>
-      </section>
+      </div>
 
       {/* ===================== IN-COMPANY ===================== */}
       <section className="shot-zone" id="incompany">
