@@ -177,7 +177,7 @@ const Index = () => {
             <div className="film-txt">
               <div className="film-top">
                 <span className="film-k">Narra ID · Suscripción mensual</span>
-                <span className="film-precio">USD 999 <s>/ mes</s></span>
+                <span className="film-precio">USD 1,000 <s>/ mes</s></span>
               </div>
               <h2 className="film-t">Control total sobre tu narrativa y la de tus competidores</h2>
               {/* cada ítem se resalta cuando la película muestra su ventana */}
