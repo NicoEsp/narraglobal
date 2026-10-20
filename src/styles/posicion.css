@@ -75,3 +75,11 @@
 .pos-rr .rk{font-family:var(--mono);font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute);width:150px;flex:none}
 .pos-rr .rv{color:var(--ink);font-weight:600;overflow-wrap:anywhere}
 @media(max-width:620px){.pos-rr{flex-direction:column;gap:3px}.pos-rr .rk{width:auto}}
+
+/* activar · los tres medios de pago */
+.pos-medios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}
+@media(max-width:620px){.pos-medios{grid-template-columns:1fr}}
+.pos-medio{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line-2);border-radius:12px;padding:16px 18px;color:var(--ink);transition:border-color .15s,background .15s}
+.pos-medio b{font-size:16px;font-weight:700}
+.pos-medio span{font-size:13px;color:var(--ink-soft);line-height:1.45}
+.pos-medio:hover{border-color:var(--blue);background:var(--blue-soft)}

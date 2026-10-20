@@ -17,3 +17,13 @@ export const waNarra = (texto: string) => WA_NARRA + '?text=' + encodeURICompone
 /** WhatsApp de Lisandro (bienvenida y consultas) con el mensaje ya tipeado. */
 export const waLisandro = (texto: string) =>
   'https://wa.me/' + LISANDRO + '?text=' + encodeURIComponent(texto);
+
+/* Los links fijos de pago del Narra ID (USD 1,000 / mes, IVA incluido). Con
+   links fijos el sitio no se entera solo del pago: el equipo lo cruza con el
+   aviso de MP o PayPal y lo marca en el back office. */
+
+/** Mercado Pago: la suscripción en pesos. */
+export const MP_NARRA_ID = 'https://mpago.la/1QsU9Go';
+
+/** PayPal: cobro único de USD 1,000 (PayPal.me no es una suscripción). */
+export const PAYPAL_NARRA_ID = 'https://www.paypal.com/paypalme/lisandrobregant/1000USD';

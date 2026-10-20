@@ -14,6 +14,7 @@ Sigue el modelo de `ALTA-checklist`: el pago no es el alta, estados del cliente
 | `/suscripcion/{código}` | El tablero del cliente (también funciona `/suscripción/…` con tilde) | El cliente, con magic link a su email |
 | `/alta/{código}` | El **onboarding post-login**: wizard de ~2 min que completa el alta (nombre, de dónde comunica, categoría, sus @ públicos por red, hasta 5 a quiénes mirar de cerca, equipo y su WhatsApp) | El cliente con alta pendiente (`alta_completada_en` vacío) |
 | `/entrar` | Puerta desde la landing: pide el email y redirige al tablero (o al back office si el email es admin) | Cualquiera |
+| `/activar?rama=politica\|negocios` | **Activar el Narra ID** desde la landing: datos (nombre, correo, cuenta, WhatsApp) y después cómo paga — Mercado Pago, PayPal o efectivo por WhatsApp, con links fijos (§7) | Cualquiera |
 | `/posicion?tipo=persona\|empresa` | El pedido de **demo del Narra ID** desde la landing: dos pasos (elenco + contacto), sin login (§7) | Cualquiera |
 | `/reporte` | El pedido del **reporte NarraNoise® Despedida Messi 2026**, sin cargo (§7) | Cualquiera |
 | `/admin` | Back office: el store de clientes (altas, estados, pulso, pausas) | Equipo narraglobal (rol admin) |
@@ -354,7 +355,15 @@ al terminar ve la fecha de su primera entrega → el equipo carga la semana en `
    en el servidor (WhatsApp en formato internacional explícito, con el «+» y el código de
    país, correo en la demo, cuenta o empresa según la rama), corta al bot que llena el campo trampa y tolera **5 pedidos por teléfono cada
    24 h**. No hay INSERT directo: la clave anon solo puede ejecutar la función.
-5. **Dónde se ven**: en `/admin`, abajo del store de clientes, la tabla «Pedidos de demo y
+5. **`/activar`** — la puerta del Narra ID (USD 1,000 / mes, IVA incluido). Requiere la migración
+   `20261020120000_pedido_narra_id.sql` (tipo `narra_id` y la columna `pagado_en`). Guarda el pedido y
+   muestra su número corto (`#3F9A2C`) y tres links fijos, que viven en `src/lib/enlaces.ts`:
+   `MP_NARRA_ID` (la suscripción de Mercado Pago, en pesos: el precio queda congelado para el que se
+   suscribe; para subirlo a los nuevos se crea un plan nuevo y se cambia el link), `PAYPAL_NARRA_ID`
+   (PayPal.me, cobro único) y el WhatsApp de Lisandro para efectivo. Como los links son fijos, el sitio
+   no se entera del pago: se cruza el aviso de MP o PayPal con el correo y el número de pedido, se
+   aprieta **Marcar pagado** en el back office y se hace el alta con «+ Nueva suscripción».
+6. **Dónde se ven**: en `/admin`, abajo del store de clientes, la tabla «Pedidos de demo y
    reporte» con fecha, tipo, WhatsApp (link al chat), correo y detalle. La demo promete
    **48 horas hábiles** por WhatsApp y el alta del tablero al correo: esa alta se crea a
    mano con «+ Nueva suscripción» (plan demo) y se manda el link como siempre.

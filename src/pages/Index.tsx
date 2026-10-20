@@ -3,20 +3,18 @@ import { Link } from 'react-router-dom';
 import { waLisandro } from '@/lib/enlaces';
 
 /* Para quién habla la landing. El switch vive adentro del titular y cambia
-   la bajada del hero, la rama que viaja en el WhatsApp de activación, el
-   nombre del competidor en la película del Narra ID y a quién se mide. */
+   la bajada del hero, la rama que llega elegida a /activar, el nombre del
+   competidor en la película del Narra ID y a quién se mide. */
 type Modo = 'politica' | 'negocios';
 
-const MODOS: Record<Modo, { sub: string; rama: string; rival: string; alcance: string }> = {
+const MODOS: Record<Modo, { sub: string; rival: string; alcance: string }> = {
   politica: {
     sub: 'Medimos políticos de escala ciudad, provincia y país.',
-    rama: 'política',
     rival: 'Actor 2',
     alcance: 'en tu ciudad, tu provincia y el país',
   },
   negocios: {
     sub: 'Medimos verticales de negocio a escala país, región y global.',
-    rama: 'negocios',
     rival: 'Empresa 2',
     alcance: 'en tu vertical, la región y el mundo',
   },
@@ -103,9 +101,9 @@ const Index = () => {
   const [otra, setOtra] = useState('');
 
   const copy = MODOS[modo];
-  // El Narra ID se activa en la conversación con Lisandro: el cobro online
-  // todavía no está, y la demo sin cargo de /posicion dejó de ser la puerta.
-  const activarHref = waLisandro('Hola, quiero activar mi Narra ID (' + copy.rama + ').');
+  // Activar el Narra ID: /activar guarda el pedido y manda a pagar. La rama
+  // del switch viaja en la URL para que llegue elegida.
+  const activarHref = '/activar?rama=' + modo;
 
   const toggleTema = (t: string) =>
     setIcSel((prev) => {
@@ -142,7 +140,7 @@ const Index = () => {
               <a href="#incompany">Workshops</a>
               <a href="/entrar" title="Acceso de clientes">Acceso clientes</a>
             </div>
-            <a className="nav-cta" href={activarHref} target="_blank" rel="noopener noreferrer">Activá tu Narra ID</a>
+            <Link className="nav-cta" to={activarHref}>Activá tu Narra ID</Link>
           </nav>
 
           <div className="hero-copy">
@@ -284,7 +282,7 @@ const Index = () => {
             </div>
 
             <div className="film-pie solo">
-              <a className="film-cta" href={activarHref} target="_blank" rel="noopener noreferrer">Activá tu Narra ID</a>
+              <Link className="film-cta" to={activarHref}>Activá tu Narra ID</Link>
             </div>
           </div>
         </div>

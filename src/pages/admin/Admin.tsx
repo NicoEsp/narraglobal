@@ -4,14 +4,15 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { generarCodigo } from '@/lib/narra';
 import { DIA_LARGO } from '@/lib/pulso';
-import { soloDigitos, unir } from '@/lib/pedidos';
+import { numeroPedido, soloDigitos, unir } from '@/lib/pedidos';
 import AdminMarco from './AdminMarco';
 
 type Suscripcion = Tables<'suscripciones'>;
 type Pedido = Tables<'pedidos'>;
 
-/* Lo que llega desde la landing: demos del Narra ID y pedidos del reporte. */
+/* Lo que llega desde la landing: activar el Narra ID, demos y pedidos del reporte. */
 const TIPO_PEDIDO: Record<string, string> = {
+  narra_id: 'Narra ID',
   demo_persona: 'Demo · política',
   demo_empresa: 'Demo · negocios',
   reporte: 'Reporte',
@@ -39,6 +40,7 @@ const detallePedido = (p: Pedido): string => {
   const quien = v('quien') ? 'pidió: ' + v('quien') : '';
   if (p.tipo === 'demo_persona') return unir(v('cuenta'), v('cargo'), v('ciudad'), v('provincia'), v('pais'), quien);
   if (p.tipo === 'demo_empresa') return unir(v('empresa'), v('sector'), v('pais'), v('cuentas'), quien);
+  if (p.tipo === 'narra_id') return unir(v('nombre'), v('cuenta'), v('rama') === 'negocios' ? 'negocios' : 'política', v('quien'));
   return unir(v('nombre'), v('rol'));
 };
 
@@ -89,6 +91,7 @@ const Admin = () => {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiado, setCopiado] = useState<string | null>(null);
+  const [marcando, setMarcando] = useState<string | null>(null);
 
   const cargar = async () => {
     const { data, error: err } = await supabase
@@ -113,6 +116,22 @@ const Admin = () => {
     cargar();
     cargarPedidos();
   }, []);
+
+  /* Los links de pago son fijos: el pago se cruza a mano (aviso de MP o
+     PayPal, o el efectivo) y se marca acá. Desmarcar sirve para un error. */
+  const marcarPagado = async (p: Pedido) => {
+    setMarcando(p.id);
+    const { error: err } = await supabase
+      .from('pedidos')
+      .update({ pagado_en: p.pagado_en ? null : new Date().toISOString() })
+      .eq('id', p.id);
+    setMarcando(null);
+    if (err) {
+      setErrorPedidos('No se pudo marcar el pago: ' + err.message);
+      return;
+    }
+    cargarPedidos();
+  };
 
   const guardar = async (e: FormEvent) => {
     e.preventDefault();
@@ -368,10 +387,12 @@ const Admin = () => {
       )}
 
       {/* ===== pedidos de la landing ===== */}
-      <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de demo y reporte</h2>
+      <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de la landing</h2>
       <p className="bo-sub">
-        Lo que entra por la landing: la demo del Narra ID (/posicion) y el reporte del momento,
-        hoy Despedida Messi 2026 (/reporte). Los dos se mandan a mano por WhatsApp; la demo promete 48 horas hábiles.
+        Lo que entra por la landing: activar el Narra ID (/activar), la demo (/posicion) y el reporte del
+        momento, hoy Despedida Messi 2026 (/reporte). El Narra ID se paga con links fijos (Mercado Pago,
+        PayPal o efectivo): cruzá el aviso del pago con el número de pedido, marcalo pagado y hacé el alta
+        con «+ Nueva suscripción».
       </p>
       {errorPedidos && <div className="bo-err" style={{ marginBottom: 14 }}>{errorPedidos}</div>}
       {pedidos === null ? (
@@ -387,6 +408,7 @@ const Admin = () => {
               <th>WhatsApp</th>
               <th>Correo</th>
               <th>Detalle</th>
+              <th>Pago</th>
             </tr>
           </thead>
           <tbody>
@@ -397,6 +419,7 @@ const Admin = () => {
                   <span className={'bo-chip ' + (p.tipo === 'reporte' ? 'base' : 'pro')}>
                     {etiquetaPedido(p)}
                   </span>
+                  {p.tipo === 'narra_id' && <div className="cod" style={{ marginTop: 4 }}>{numeroPedido(p.id)}</div>}
                 </td>
                 <td style={{ whiteSpace: 'nowrap' }}>
                   <a className="cod" href={'https://wa.me/' + soloDigitos(p.telefono)} target="_blank" rel="noopener noreferrer">
@@ -405,6 +428,18 @@ const Admin = () => {
                 </td>
                 <td>{p.email ?? '—'}</td>
                 <td>{detallePedido(p)}</td>
+                <td style={{ whiteSpace: 'nowrap' }}>
+                  {p.tipo === 'narra_id' && (
+                    <>
+                      <span className={'bo-chip ' + (p.pagado_en ? 'ok' : 'off')}>
+                        {p.pagado_en ? 'Pagado · ' + fechaCorta(p.pagado_en) : 'Pendiente'}
+                      </span>{' '}
+                      <button type="button" className="bo-btn mini sec" disabled={marcando === p.id} onClick={() => marcarPagado(p)}>
+                        {p.pagado_en ? 'Desmarcar' : 'Marcar pagado'}
+                      </button>
+                    </>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
