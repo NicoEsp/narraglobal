@@ -278,20 +278,11 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                   <div className="es-nota">{sus.tz}</div>
                 </div>
 
-                <div className="es-card ancha">
-                  <div className="k">Mirás de cerca ({competidores.length} de 5)</div>
-                  {competidores.length === 0 ? (
-                    <>
-                      <div className="v mute">Todavía no elegiste a nadie</div>
-                      <div className="es-nota">
-                        Podés sumar hasta 5 personas o marcas para compararte cada semana.{' '}
-                        <a href={waCorregir} target="_blank" rel="noopener noreferrer">
-                          Decinos a quiénes
-                        </a>
-                        .
-                      </div>
-                    </>
-                  ) : (
+                {/* La competencia ya no se elige (la define el elenco): la tarjeta
+                    solo queda para las altas viejas que sí cargaron a quién mirar. */}
+                {competidores.length > 0 && (
+                  <div className="es-card ancha">
+                    <div className="k">Mirás de cerca</div>
                     <div className="es-mira">
                       {competidores.map((c, i) => (
                         <span key={c + i} className="es-chipm">
@@ -300,8 +291,8 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                         </span>
                       ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 <div className="es-card">
                   <div className="k">Tu suscripción</div>

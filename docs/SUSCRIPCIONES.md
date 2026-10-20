@@ -12,7 +12,7 @@ Sigue el modelo de `ALTA-checklist`: el pago no es el alta, estados del cliente
 | Ruta | Qué es | Quién entra |
 |---|---|---|
 | `/suscripcion/{código}` | El tablero del cliente (también funciona `/suscripción/…` con tilde) | El cliente, con magic link a su email |
-| `/alta/{código}` | El **onboarding post-login**: wizard de ~2 min que completa el alta (nombre, de dónde comunica, categoría, sus @ públicos por red, hasta 5 a quiénes mirar de cerca, equipo y su WhatsApp) | El cliente con alta pendiente (`alta_completada_en` vacío) |
+| `/alta/{código}` | El **onboarding post-login**: wizard de ~2 min que completa el alta (nombre, de dónde comunica, categoría, sus @ públicos por red, equipo y su WhatsApp; la competencia no se elige: la define el elenco) | El cliente con alta pendiente (`alta_completada_en` vacío) |
 | `/entrar` | Puerta desde la landing: pide el email y redirige al tablero (o al back office si el email es admin) | Cualquiera |
 | `/activar?rama=politica\|negocios` | **Activar el Narra ID** desde la landing: datos (nombre, correo, cuenta, WhatsApp) y después cómo paga — Mercado Pago, PayPal o efectivo por WhatsApp, con links fijos (§7) | Cualquiera |
 | `/posicion?tipo=persona\|empresa` | El pedido de **demo del Narra ID** desde la landing: dos pasos (elenco + contacto), sin login (§7) | Cualquiera |
@@ -211,15 +211,16 @@ Migraciones `20260718120000_alta_onboarding.sql` → `20260724130000_alta_pendie
 El cliente que pagó entra en `borrador`; al abrir su tablero se lo redirige al wizard.
 Guarda los **campos confirmados** (no la conversación) en columnas de `suscripciones`:
 `pais_de`, `pais_para`, `categoria`, `redes` (jsonb `[{red,usuario}]`), `competidores`
-(jsonb, hasta 5 — «a quién mirar de cerca», incluido en el Narra ID de **todos** los
-planes), `equipo_tamano`, `equipo_telefono`, `alta_completada_en`. Pedimos **solo los @
+(jsonb; el wizard ya no lo pide —la competencia la define el elenco, territorio en política
+y vertical en negocios— y manda `[]`: la columna queda para las altas viejas),
+`equipo_tamano`, `equipo_telefono`, `alta_completada_en`. Pedimos **solo los @
 públicos** — nunca login a las redes.
 
 Tres cosas del wizard que conviene tener presentes:
 
 - **Enter avanza.** Los botones muestran «↵» desde siempre, pero los campos no viven
   dentro de un `<form>` y la tecla no hacía nada. El listener va en el `document` y no en
-  el div del wizard: en los pasos sin input (país, mirar de cerca, equipo) el foco queda
+  el div del wizard: en los pasos sin input (país, equipo) el foco queda
   en el `<body>`, fuera del árbol de React. Con el foco en un botón o un link, Enter
   aprieta ese botón y no salta el paso.
 - **El código de país del WhatsApp se elige** (paso 7) y arranca en el país del paso 2.
@@ -370,3 +371,13 @@ al terminar ve la fecha de su primera entrega → el equipo carga la semana en `
    reporte» con fecha, tipo, WhatsApp (link al chat), correo y detalle. La demo promete
    **48 horas hábiles** por WhatsApp y el alta del tablero al correo: esa alta se crea a
    mano con «+ Nueva suscripción» (plan demo) y se manda el link como siempre.
+
+## 8 · El correo de bienvenida
+
+Cuando un pedido del Narra ID está **pagado**, el back office muestra **Mail de bienvenida**:
+abre el correo del equipo (`mailto:`) con el asunto y el cuerpo ya escritos —el link para
+agendar la videollamada de bienvenida con Lisandro (`AGENDA_BIENVENIDA` en
+`src/lib/enlaces.ts`), qué sigue y el acceso en `/entrar`—. El texto vive en
+`src/lib/correos.ts`. La versión con marca, para cuando haya envío automático (Resend), está en
+`docs/correos/bienvenida.html` con variables `{{nombre}}`, `{{email}}`, `{{numero}}` y
+`{{elenco}}`: si cambia el texto, cambiarlo en los dos lados.

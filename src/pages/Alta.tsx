@@ -29,7 +29,7 @@ const RED_PLACEHOLDER: Record<Red, string> = {
 };
 
 /* El código de país del WhatsApp. Antes estaba clavado en «+54 9»: el paso 2
-   ofrece México, Chile, España o Estados Unidos y el paso 7 le pegaba el
+   ofrece México, Chile, España o Estados Unidos y el paso 6 le pegaba el
    prefijo argentino igual, así que el teléfono de un cliente de afuera quedaba
    guardado mal — y por ahí es por donde le habla el Asistente IA y le llega el
    aviso semanal. Arranca en el país que eligió y lo puede cambiar. */
@@ -46,8 +46,6 @@ const CODIGOS: Record<string, string> = {
 const CC_OTRO = 'otro';
 const CC_OPCIONES = [...Object.values(CODIGOS), CC_OTRO];
 
-const TOPE_MIRA = 5;
-
 const CATEGORIAS = [
   { key: 'Política', ds: 'Campaña, gestión, opinión pública' },
   { key: 'Corporativo', ds: 'Marca, CEO, comunicación institucional' },
@@ -55,7 +53,7 @@ const CATEGORIAS = [
 ];
 
 /** % de la barra de progreso por paso. */
-const PROGRESO = [4, 12, 22, 33, 45, 58, 70, 84, 96, 100];
+const PROGRESO = [4, 14, 27, 41, 55, 70, 85, 96, 100];
 const ULTIMO = PROGRESO.length - 1; // pantalla "listo"
 
 const soloDigitos = (s: string) => s.replace(/[^\d]/g, '');
@@ -98,13 +96,6 @@ const Alta = () => {
         { on: boolean; usuario: string }
       >,
   );
-  const [competidores, setCompetidores] = useState<string[]>([]);
-  // Tarjeta en blanco que se está tipeando al final de la grilla, si la hay.
-  const [nuevoComp, setNuevoComp] = useState<string | null>(null);
-  // Aviso del tope, transitorio: aparece al intentar la sexta y se va solo. Es
-  // un contador y no un booleano para que al reintentar se remonte el cartel y
-  // la animación vuelva a arrancar.
-  const [avisoTope, setAvisoTope] = useState(0);
   const [conEquipo, setConEquipo] = useState(false);
   const [equipoN, setEquipoN] = useState(1);
   const [wa, setWa] = useState('');
@@ -175,7 +166,7 @@ const Alta = () => {
         return categoria !== '' && (categoria !== 'Otro' || categoriaOtro.trim() !== '');
       case 4:
         return REDES.some((r) => redes[r].on && redes[r].usuario.trim() !== '');
-      case 7:
+      case 6:
         // Con «otro» el número incluye el código de país: pedimos un dígito más.
         return soloDigitos(wa).length >= (cc === CC_OTRO ? 8 : 6);
       default:
@@ -191,30 +182,6 @@ const Alta = () => {
   const setUsuario = (r: Red, usuario: string) =>
     setRedes((prev) => ({ ...prev, [r]: { ...prev[r], usuario } }));
 
-  // El aviso del tope se borra solo: es un empujón, no un estado del paso.
-  useEffect(() => {
-    if (!avisoTope) return;
-    const t = setTimeout(() => setAvisoTope(0), 3600);
-    return () => clearTimeout(t);
-  }, [avisoTope]);
-
-  const abrirComp = () => {
-    if (nuevoComp !== null) return; // ya hay una tarjeta en blanco esperando
-    if (competidores.length >= TOPE_MIRA) {
-      setAvisoTope((n) => n + 1);
-      return;
-    }
-    setNuevoComp('');
-  };
-
-  /** Fija la tarjeta en blanco. Si quedó vacía, se descarta. */
-  const fijarComp = () => {
-    const v = (nuevoComp ?? '').trim();
-    setNuevoComp(null);
-    if (!v || competidores.length >= TOPE_MIRA) return;
-    setCompetidores((c) => [...c, v]);
-  };
-
   const finalizar = async () => {
     if (!codigo || enviando) return;
     setEnviando(true);
@@ -222,9 +189,9 @@ const Alta = () => {
     const redesPayload = REDES.filter((r) => redes[r].on && redes[r].usuario.trim() !== '').map(
       (r) => ({ red: r, usuario: redes[r].usuario.trim() }),
     );
-    // El WhatsApp del compañero vale por sí solo: el paso 8 lo pide sin volver
+    // El WhatsApp del compañero vale por sí solo: el paso 7 lo pide sin volver
     // a preguntar si trabaja con equipo, así que antes el número de quien había
-    // dicho «trabajo solo» en el paso 6 se descartaba en silencio — cargaba el
+    // dicho «trabajo solo» en el paso 5 se descartaba en silencio — cargaba el
     // teléfono, tocaba «Sumar y terminar» y no llegaba nunca.
     const telefonoEquipo = armarTelefono(cc, teamWa);
     const conCompanero = telefonoEquipo !== null && soloDigitos(teamWa).length >= 6;
@@ -235,7 +202,9 @@ const Alta = () => {
       pais_para: paisPara,
       categoria: categoria === 'Otro' ? categoriaOtro.trim() : categoria,
       redes: redesPayload,
-      competidores,
+      // La competencia ya no se elige: la define el elenco (territorio en
+      // política, vertical en negocios). Se manda vacía.
+      competidores: [],
       equipo_tamano: conEquipo ? equipoN : conCompanero ? 1 : 0,
       equipo_telefono: conCompanero ? telefonoEquipo : null,
     };
@@ -254,7 +223,7 @@ const Alta = () => {
      apretaba Enter no pasaba nada — y en un wizard de 2 minutos con un campo
      por pantalla, Enter es el gesto natural.
      Va en el documento y no en el div del wizard: en los pasos sin input
-     (país, mirar de cerca, equipo) el foco queda en el <body>, fuera del árbol
+     (país, equipo) el foco queda en el <body>, fuera del árbol
      de React, y un onKeyDown del div no se enteraba nunca. Sin arreglo de
      dependencias a propósito: se re-suscribe en cada render y así siempre lee
      el paso y los campos de ahora. */
@@ -266,15 +235,14 @@ const Alta = () => {
       // vez de abrir la tarjeta.
       const t = e.target;
       if (t instanceof HTMLButtonElement || t instanceof HTMLAnchorElement) return;
-      // La tarjeta de «mirar de cerca» maneja su propio Enter (corta la
-      // propagación); sin sesión, el Enter es del formulario del código.
+      // Sin sesión, el Enter es del formulario del código.
       if (!sus || enviando) return;
       e.preventDefault();
       if (paso === ULTIMO) {
         navigate('/suscripcion/' + sus.codigo);
         return;
       }
-      if (paso === 8) {
+      if (paso === 7) {
         finalizar();
         return;
       }
@@ -417,7 +385,7 @@ const Alta = () => {
           {paso === 1 && (
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
-              <span className="alta-eyebrow">Paso 1 de 7</span>
+              <span className="alta-eyebrow">Paso 1 de 6</span>
               <div className="alta-q">¿Con quién hablamos?</div>
               <div className="alta-qs">Tu nombre, como querés que aparezca en tu tablero.</div>
               <div className="alta-field">
@@ -441,7 +409,7 @@ const Alta = () => {
           {paso === 2 && (
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
-              <span className="alta-eyebrow">Paso 2 de 7</span>
+              <span className="alta-eyebrow">Paso 2 de 6</span>
               <div className="alta-q">¿Desde dónde comunicás?</div>
               <div className="alta-qs">
                 Nos dice contra qué mercado medirte — comparamos peras con peras.
@@ -476,7 +444,7 @@ const Alta = () => {
           {paso === 3 && (
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
-              <span className="alta-eyebrow">Paso 3 de 7</span>
+              <span className="alta-eyebrow">Paso 3 de 6</span>
               <div className="alta-q">¿En qué categoría compite tu marca pública?</div>
               <div className="alta-qs">Elegí tu cancha. Es la vara contra la que te leemos.</div>
               <div className="alta-cats">
@@ -518,7 +486,7 @@ const Alta = () => {
           {paso === 4 && (
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
-              <span className="alta-eyebrow">Paso 4 de 7</span>
+              <span className="alta-eyebrow">Paso 4 de 6</span>
               <div className="alta-q">¿Dónde publicás?</div>
               <div className="alta-qs">
                 Tocá tus redes y cargá tu usuario. Es lo que medimos — no entramos a ninguna cuenta,
@@ -560,106 +528,11 @@ const Alta = () => {
             </section>
           )}
 
-          {/* 5 · a quién mirar de cerca */}
+          {/* 5 · equipo */}
           {paso === 5 && (
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
-              <span className="alta-eyebrow">Paso 5 de 7</span>
-              <div className="alta-q">¿A quién te gustaría mirar de cerca?</div>
-              <div className="alta-qs">
-                Elegí hasta <b>5 personas o marcas</b>: vas a ver su calidad narrativa semana a
-                semana, con tips prácticos para achicar o ampliar la distancia. Está incluido en tu{' '}
-                <b>Narra ID</b>.
-              </div>
-              {(competidores.length > 0 || nuevoComp !== null) && (
-                <div className="alta-minis">
-                  {competidores.map((c, idx) => (
-                    <div key={c + idx} className="alta-mcard">
-                      <div className="top">
-                        <span className="av">{c.slice(0, 1).toUpperCase()}</span>
-                        <span className="nm">{c}</span>
-                        <button
-                          className="x"
-                          aria-label={'Quitar ' + c}
-                          onClick={() => setCompetidores((l) => l.filter((_, i) => i !== idx))}
-                        >
-                          ×
-                        </button>
-                      </div>
-                      <div className="bot">
-                        <span className="val">—</span>
-                        <span className="mlab">se mide desde tu alta</span>
-                      </div>
-                    </div>
-                  ))}
-                  {nuevoComp !== null && (
-                    <div className="alta-mcard">
-                      <div className="top">
-                        <span className="av">
-                          {nuevoComp.trim().slice(0, 1).toUpperCase() || '?'}
-                        </span>
-                        <span className="nm" style={{ flex: 1 }}>
-                          <input
-                            className="mtx"
-                            autoFocus
-                            aria-label="Nombre de la persona o marca a mirar de cerca"
-                            placeholder="Nombre o marca"
-                            value={nuevoComp}
-                            onChange={(e) => setNuevoComp(e.target.value)}
-                            onBlur={fijarComp}
-                            onKeyDown={(e) => {
-                              // Enter no avanza el paso acá: sólo cierra la tarjeta,
-                              // y el blur la fija.
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                e.currentTarget.blur();
-                              }
-                              if (e.key === 'Escape') {
-                                e.stopPropagation();
-                                setNuevoComp(null);
-                              }
-                            }}
-                          />
-                        </span>
-                        <button
-                          className="x"
-                          aria-label="Descartar"
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => setNuevoComp(null)}
-                        >
-                          ×
-                        </button>
-                      </div>
-                      <div className="bot">
-                        <span className="val">—</span>
-                        <span className="mlab">se mide desde tu alta</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              <button type="button" className="alta-addp" onClick={abrirComp}>
-                + Sumar una persona o marca
-              </button>
-              {avisoTope > 0 && (
-                <div key={avisoTope} className="alta-mwarn" role="status">
-                  Cinco es el máximo. Para sumar una nueva, sacá primero una de la lista.
-                </div>
-              )}
-              <div className="alta-actions">
-                <button className="alta-btn" onClick={avanzar}>
-                  Continuar <span className="k">↵</span>
-                </button>
-              </div>
-            </section>
-          )}
-
-          {/* 6 · equipo */}
-          {paso === 6 && (
-            <section className="alta-step">
-              <button className="alta-back" onClick={atras}>‹ atrás</button>
-              <span className="alta-eyebrow">Paso 6 de 7</span>
+              <span className="alta-eyebrow">Paso 5 de 6</span>
               <div className="alta-q">¿Trabajás solo o con equipo?</div>
               <div className="alta-qs">Para saber cómo hablarte a vos — y a ellos.</div>
               <div className="alta-toggle" role="radiogroup" aria-label="¿Trabajás solo o con equipo?">
@@ -713,10 +586,10 @@ const Alta = () => {
           )}
 
           {/* 7 · whatsapp */}
-          {paso === 7 && (
+          {paso === 6 && (
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
-              <span className="alta-eyebrow">Paso 7 de 7</span>
+              <span className="alta-eyebrow">Paso 6 de 6</span>
               <div className="alta-q">¿Tu WhatsApp?</div>
               <div className="alta-astchip">
                 <img className="avsvg" src="/land/asistente.svg" alt="" />
@@ -761,8 +634,8 @@ const Alta = () => {
             </section>
           )}
 
-          {/* 8 · invitar equipo (opcional) */}
-          {paso === 8 && (
+          {/* 7 · invitar equipo (opcional) */}
+          {paso === 7 && (
             <section className="alta-step">
               <button className="alta-back" onClick={atras}>‹ atrás</button>
               <span className="alta-eyebrow">Opcional · sumá a tu equipo</span>

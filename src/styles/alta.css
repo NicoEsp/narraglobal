@@ -146,35 +146,6 @@
 .alta-rednet .plus { margin-left: auto; color: var(--mute); font-size: 18px; padding-right: 8px; }
 .alta-rednet.on .plus { display: none; }
 
-/* mirar de cerca (competidores, incluido en Narra ID) */
-.alta-minis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
-.alta-mcard { border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; background: #fff; }
-.alta-mcard .top { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
-.alta-mcard .av { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 9px; font-weight: 800; flex: none; }
-.alta-mcard .nm { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.alta-mcard .x { margin-left: auto; color: var(--mute); cursor: pointer; font-size: 13px; line-height: 1; background: none; border: 0; }
-.alta-mcard .x:hover { color: var(--pink); }
-.alta-mcard .bot { display: flex; align-items: baseline; gap: 6px; }
-.alta-mcard .bot .val { font-family: var(--serif); font-weight: 600; font-size: 18px; letter-spacing: -.5px; color: var(--ink); }
-.alta-mcard .bot .mlab { font-size: 10px; color: var(--mute); }
-.alta-addp {
-  padding: 12px; text-align: center; font-size: 13px; color: var(--blue); font-weight: 600;
-  cursor: pointer; border: 1px dashed var(--line-2); border-radius: 10px; background: #fff; width: 100%;
-}
-.alta-addp:hover { border-color: var(--blue); }
-/* input de la tarjeta en blanco: se tipea el nombre ahí mismo */
-.alta-mcard .mtx {
-  border: 0; outline: 0; background: transparent; font: inherit; font-size: 12px;
-  font-weight: 600; width: 100%; padding: 0; color: var(--ink);
-}
-.alta-mcard .mtx::placeholder { color: var(--mute); font-weight: 500; }
-/* aviso del tope: transitorio, aparece al intentar la sexta */
-.alta-mwarn {
-  margin-top: 10px; border: 1.5px solid var(--pink); background: #fff0f5; color: var(--pink-ink);
-  border-radius: 10px; padding: 10px 14px; font-size: 12.5px; font-weight: 600; line-height: 1.45;
-  animation: alta-in .3s cubic-bezier(.2,.7,.2,1);
-}
-
 /* toggle equipo + stepper */
 .alta-toggle { display: flex; gap: 10px; margin-bottom: 8px; }
 .alta-toggle .t {
@@ -193,8 +164,7 @@
 .alta-cat:focus-visible,
 .alta-rednet:focus-visible,
 .alta-toggle .t:focus-visible,
-.alta-stepper .s:focus-visible,
-.alta-addp:focus-visible {
+.alta-stepper .s:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 2px;
   border-color: var(--blue);
@@ -290,7 +260,6 @@
 @media (max-width: 560px) {
   .alta-q { font-size: 26px; }
   .alta-selline .lbl { min-width: unset; }
-  .alta-minis { grid-template-columns: 1fr 1fr; }
   .alta-donetop { flex-direction: column; }
   .alta-dropfz { max-width: none; width: 100%; }
 }
