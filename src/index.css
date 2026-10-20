@@ -183,12 +183,12 @@
   .med-link{display:inline-block;margin-top:26px;font-weight:600;font-size:14px;color:var(--blue);border-bottom:1px solid var(--blue-soft);padding-bottom:2px}
   .med-link:hover{border-color:var(--blue)}
 
-  /* ===================== IN-COMPANY — placa negra, dos pasos ===================== */
+  /* ===================== IN-COMPANY — placa azul narraglobal, dos pasos ===================== */
   #incompany.shot-zone{padding-top:36px}
   #tablero.shot-zone{padding-top:72px}
-  .shot-frame.negra{background:#111319;color:#fff}
+  .shot-frame.negra{background:var(--blue);color:#fff}
   .shot-frame.negra::after{content:"";position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(80% 110% at 85% 0%, rgba(62,28,255,.35), transparent 60%)}
+    background:radial-gradient(80% 110% at 85% 0%, rgba(255,255,255,.14), transparent 60%)}
   .shot-frame.negra .film{position:relative;z-index:1}
   .shot-frame.negra .film-t{color:#fff}
   .shot-frame.negra .film-d{color:rgba(255,255,255,.78)}
@@ -197,14 +197,14 @@
   .ic3-flujo{position:relative;display:flex;flex-direction:column;gap:14px;margin-top:16px}
   .ic3-flujo::before{content:"";position:absolute;left:8.5px;top:10px;bottom:22px;width:1px;background:rgba(255,255,255,.45)}
   .ic3-paso{position:relative;display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:rgba(255,255,255,.7)}
-  .ic3-paso i{position:relative;z-index:1;font-style:normal;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:#111319;display:grid;place-items:center;font-size:8.5px;color:#fff}
+  .ic3-paso i{position:relative;z-index:1;font-style:normal;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:var(--blue);display:grid;place-items:center;font-size:8.5px;color:#fff}
   .ic3-cuerpo{padding-left:28px;display:flex;flex-direction:column}
   .ic3-paso.accion{gap:12px;flex-wrap:wrap}
   .ic3-paso.accion .film-cta{margin-left:0;display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);
     font-family:var(--sans);font-size:14px;letter-spacing:0;text-transform:none}
   .ic3-paso.accion .film-cta svg{width:16px;height:16px;fill:currentColor}
   /* con al menos una temática elegida el botón se prende */
-  .ic3-paso.accion .film-cta.lista{background:#fff;color:#111319;border-color:#fff}
+  .ic3-paso.accion .film-cta.lista{background:#fff;color:var(--blue);border-color:#fff}
   .ic3-paso.accion .film-cta.lista:hover{background:#f1efff}
   .ic3-nota{font-family:var(--mono);font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:rgba(255,255,255,.55)}
 
@@ -213,7 +213,7 @@
     background:transparent;border:1px solid rgba(255,255,255,.32);padding:8px 15px;border-radius:999px;cursor:pointer;transition:.15s}
   .chip:hover{border-color:#fff}
   .chip .cx{font-size:14px;line-height:1;opacity:.75}
-  .chip.on{background:#fff;border-color:#fff;color:#111319}
+  .chip.on{background:#fff;border-color:#fff;color:var(--blue)}
   .chip.on .cx{opacity:1}
   .ic-otra-input{margin-top:13px;width:100%;max-width:330px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.35);
     border-radius:10px;padding:11px 14px;color:#fff;font-family:var(--sans);font-size:14px;outline:none;transition:.15s}
