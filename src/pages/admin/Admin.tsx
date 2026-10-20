@@ -4,14 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { generarCodigo } from '@/lib/narra';
 import { DIA_LARGO } from '@/lib/pulso';
-import { soloDigitos, unir } from '@/lib/pedidos';
+import { numeroPedido, soloDigitos, unir } from '@/lib/pedidos';
+import { mailtoBienvenida } from '@/lib/correos';
 import AdminMarco from './AdminMarco';
 
 type Suscripcion = Tables<'suscripciones'>;
 type Pedido = Tables<'pedidos'>;
 
-/* Lo que llega desde la landing: demos del Narra ID y pedidos del reporte. */
+/* Lo que llega desde la landing: activar el Narra ID, demos y pedidos del reporte. */
 const TIPO_PEDIDO: Record<string, string> = {
+  narra_id: 'Narra ID',
   demo_persona: 'Demo · política',
   demo_empresa: 'Demo · negocios',
   reporte: 'Reporte',
@@ -39,7 +41,34 @@ const detallePedido = (p: Pedido): string => {
   const quien = v('quien') ? 'pidió: ' + v('quien') : '';
   if (p.tipo === 'demo_persona') return unir(v('cuenta'), v('cargo'), v('ciudad'), v('provincia'), v('pais'), quien);
   if (p.tipo === 'demo_empresa') return unir(v('empresa'), v('sector'), v('pais'), v('cuentas'), quien);
+  if (p.tipo === 'narra_id')
+    return v('rama') === 'negocios'
+      ? unir(v('nombre'), v('cuenta'), 'negocios', v('sector'), v('pais'), v('quien'))
+      : unir(v('nombre'), v('cuenta'), 'política', v('cargo'), v('ciudad'), v('provincia'), v('pais'), v('quien'));
   return unir(v('nombre'), v('rol'));
+};
+
+/** WhatsApp para retomar un Narra ID que quedó sin pagar, con el mensaje escrito. */
+const recuperarPedido = (p: Pedido): string => {
+  const d = (p.datos && typeof p.datos === 'object' && !Array.isArray(p.datos) ? p.datos : {}) as Record<string, unknown>;
+  const v = (k: string) => (typeof d[k] === 'string' ? (d[k] as string) : '');
+  const nombre = v('nombre').split(' ')[0];
+  const texto =
+    'Hola' + (nombre ? ' ' + nombre : '') + ', soy Lisandro Bregant, director de narraglobal. Vi que empezaste a activar tu Narra ID' +
+    (v('cuenta') ? ' para ' + v('cuenta') : '') + ' y quedó el pago pendiente (pedido ' + numeroPedido(p.id) +
+    '). ¿Te ayudo a terminarlo o tenés alguna duda?';
+  return 'https://wa.me/' + soloDigitos(p.telefono) + '?text=' + encodeURIComponent(texto);
+};
+
+/** El mail de bienvenida del pedido del Narra ID, listo para mandar. */
+const bienvenidaPedido = (p: Pedido): string => {
+  const d = (p.datos && typeof p.datos === 'object' && !Array.isArray(p.datos) ? p.datos : {}) as Record<string, unknown>;
+  const v = (k: string) => (typeof d[k] === 'string' ? (d[k] as string) : '');
+  const elenco =
+    v('rama') === 'negocios'
+      ? [v('sector'), v('pais')].filter(Boolean).join(' en ')
+      : unir(v('ciudad'), v('provincia'), v('pais')).replace(/ · /g, ', ');
+  return mailtoBienvenida({ nombre: v('nombre'), email: p.email ?? '', numero: numeroPedido(p.id), elenco });
 };
 
 const fechaCorta = (iso: string) =>
@@ -89,6 +118,7 @@ const Admin = () => {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiado, setCopiado] = useState<string | null>(null);
+  const [marcando, setMarcando] = useState<string | null>(null);
 
   const cargar = async () => {
     const { data, error: err } = await supabase
@@ -113,6 +143,22 @@ const Admin = () => {
     cargar();
     cargarPedidos();
   }, []);
+
+  /* Los links de pago son fijos: el pago se cruza a mano (aviso de MP o
+     PayPal, o el efectivo) y se marca acá. Desmarcar sirve para un error. */
+  const marcarPagado = async (p: Pedido) => {
+    setMarcando(p.id);
+    const { error: err } = await supabase
+      .from('pedidos')
+      .update({ pagado_en: p.pagado_en ? null : new Date().toISOString() })
+      .eq('id', p.id);
+    setMarcando(null);
+    if (err) {
+      setErrorPedidos('No se pudo marcar el pago: ' + err.message);
+      return;
+    }
+    cargarPedidos();
+  };
 
   const guardar = async (e: FormEvent) => {
     e.preventDefault();
@@ -368,11 +414,19 @@ const Admin = () => {
       )}
 
       {/* ===== pedidos de la landing ===== */}
-      <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de demo y reporte</h2>
+      <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de la landing</h2>
       <p className="bo-sub">
-        Lo que entra por la landing: la demo del Narra ID (/posicion) y el reporte del momento,
-        hoy Octubre 2026 — Narrativa ARG (/reporte). Los dos se mandan a mano por WhatsApp; la demo promete 48 horas hábiles.
+        Lo que entra por la landing: activar el Narra ID (/activar), la demo (/posicion) y el reporte del
+        momento, hoy Octubre 2026 — Narrativa ARG (/reporte). El Narra ID se paga con links fijos (Mercado Pago,
+        PayPal o efectivo): cruzá el aviso del pago con el número de pedido, marcalo pagado, hacé el alta
+        con «+ Nueva suscripción» y mandá el «Mail de bienvenida» (se abre tu correo con todo escrito).
       </p>
+      {pedidos && pedidos.some((p) => p.tipo === 'narra_id' && !p.pagado_en) && (
+        <p className="bo-sub">
+          <b>{pedidos.filter((p) => p.tipo === 'narra_id' && !p.pagado_en).length} Narra ID sin pagar.</b>{' '}
+          Dejaron sus datos y no completaron el pago: «Retomar por WhatsApp» abre el chat con el mensaje escrito.
+        </p>
+      )}
       {errorPedidos && <div className="bo-err" style={{ marginBottom: 14 }}>{errorPedidos}</div>}
       {pedidos === null ? (
         <div className="bo-vacio">Cargando…</div>
@@ -387,6 +441,7 @@ const Admin = () => {
               <th>WhatsApp</th>
               <th>Correo</th>
               <th>Detalle</th>
+              <th>Pago</th>
             </tr>
           </thead>
           <tbody>
@@ -397,6 +452,7 @@ const Admin = () => {
                   <span className={'bo-chip ' + (p.tipo === 'reporte' ? 'base' : 'pro')}>
                     {etiquetaPedido(p)}
                   </span>
+                  {p.tipo === 'narra_id' && <div className="cod" style={{ marginTop: 4 }}>{numeroPedido(p.id)}</div>}
                 </td>
                 <td style={{ whiteSpace: 'nowrap' }}>
                   <a className="cod" href={'https://wa.me/' + soloDigitos(p.telefono)} target="_blank" rel="noopener noreferrer">
@@ -405,6 +461,32 @@ const Admin = () => {
                 </td>
                 <td>{p.email ?? '—'}</td>
                 <td>{detallePedido(p)}</td>
+                <td style={{ whiteSpace: 'nowrap' }}>
+                  {p.tipo === 'narra_id' && (
+                    <>
+                      <span className={'bo-chip ' + (p.pagado_en ? 'ok' : 'off')}>
+                        {p.pagado_en ? 'Pagado · ' + fechaCorta(p.pagado_en) : 'Pendiente'}
+                      </span>{' '}
+                      <button type="button" className="bo-btn mini sec" disabled={marcando === p.id} onClick={() => marcarPagado(p)}>
+                        {p.pagado_en ? 'Desmarcar' : 'Marcar pagado'}
+                      </button>
+                      {!p.pagado_en && (
+                        <>
+                          {' '}
+                          <a className="bo-btn mini" href={recuperarPedido(p)} target="_blank" rel="noopener noreferrer">
+                            Retomar por WhatsApp
+                          </a>
+                        </>
+                      )}
+                      {p.pagado_en && p.email && (
+                        <>
+                          {' '}
+                          <a className="bo-btn mini" href={bienvenidaPedido(p)}>Mail de bienvenida</a>
+                        </>
+                      )}
+                    </>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

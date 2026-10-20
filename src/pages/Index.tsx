@@ -1,22 +1,24 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { waLisandro } from '@/lib/enlaces';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { IG_DATA, LINKEDIN_NARRA, X_DATA, waLisandro } from '@/lib/enlaces';
 
 /* Para quién habla la landing. El switch vive adentro del titular y cambia
-   tres cosas: la bajada del hero, el tipo de demo que pide el CTA y el nombre
-   del competidor en la película del Narra ID. */
+   la bajada del hero, la rama que llega elegida a /activar, el nombre del
+   competidor en la película del Narra ID y a quién se mide. */
 type Modo = 'politica' | 'negocios';
 
-const MODOS: Record<Modo, { sub: string; tipo: 'persona' | 'empresa'; rival: string }> = {
+const MODOS: Record<Modo, { sub: string; rival: string; alcance: string; canchas: [string, string, string] }> = {
   politica: {
     sub: 'Medimos políticos de escala ciudad, provincia y país.',
-    tipo: 'persona',
     rival: 'Actor 2',
+    alcance: 'en tu ciudad, tu provincia y el país',
+    canchas: ['Top ciudad', 'Top provincial', 'Top nacional'],
   },
   negocios: {
     sub: 'Medimos verticales de negocio a escala país, región y global.',
-    tipo: 'empresa',
     rival: 'Empresa 2',
+    alcance: 'en tu vertical, la región y el mundo',
+    canchas: ['Top vertical', 'Top regional', 'Top global'],
   },
 };
 
@@ -24,7 +26,7 @@ const MODOS: Record<Modo, { sub: string; tipo: 'persona' | 'empresa'; rival: str
 interface ClientDef { file: string; alt: string; fallback: string; size?: 'md' | 'lg'; }
 const CLIENTS: ClientDef[] = [
   { file: 'cli-google', alt: 'Google', fallback: 'Google', size: 'md' },
-  { file: 'cli-hbomax', alt: 'HBO Max', fallback: 'HBO Max' },
+  { file: 'cli-hbomax', alt: 'HBO Max', fallback: 'HBO Max', size: 'lg' },
   { file: 'cli-bayer', alt: 'Bayer', fallback: 'Bayer', size: 'lg' },
   { file: 'cli-syngenta', alt: 'Syngenta', fallback: 'Syngenta' },
   { file: 'cli-amgen', alt: 'AMGEN', fallback: 'AMGEN' },
@@ -79,9 +81,10 @@ const WaIcon = () => (
   <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.82 9.82 0 001.523 5.215l-.999 3.648 3.965-.962zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" /></svg>
 );
 
+// En el hero azul van las versiones en blanco (public/land/cli-*-blanco.png)
 const ClientLogo = ({ c, hidden }: { c: ClientDef; hidden?: boolean }) => (
   <span className="mq-it" {...(hidden ? { 'aria-hidden': true } : {})}>
-    <img className={c.size} src={`/land/${c.file}.png`} alt={hidden ? '' : c.alt} onError={imgError} />
+    <img className={c.size} src={`/land/${c.file}-blanco.png`} alt={hidden ? '' : c.alt} onError={imgError} />
     <i className="lf">{c.fallback}</i>
   </span>
 );
@@ -93,14 +96,62 @@ const MediaLogo = ({ m, hidden }: { m: MediaDef; hidden?: boolean }) => (
   </span>
 );
 
+/* La palabra con el corte de señal de la marca: cuatro tajadas de la misma
+   palabra, dos corridas en horizontal. La de base queda transparente (no
+   oculta) para que los lectores de pantalla la lean una sola vez. */
+const Corte = ({ children }: { children: string }) => (
+  <span className="cut">
+    <span className="b">{children}</span>
+    {['s1', 's2', 's3', 's4'].map((k) => (
+      <span key={k} className={'s ' + k} aria-hidden="true"><i>{children}</i></span>
+    ))}
+  </span>
+);
+
+/* Las secciones con dirección propia: /narraid es la misma landing, parada en
+   la placa del Narra ID. Sin «#» porque se tipea y se dicta (radio, TV). */
+const SECCIONES: Record<string, string> = { '/narraid': 'tablero' };
+
+/* Las tres canchas del mail del lunes, en la película: en cada una tu fila
+   sube un puesto mientras se ve la ventana (rkSube / rkBaja en index.css). */
+const RANKINGS: Array<{ arriba: number; total: number }> = [
+  { arriba: 1, total: 12 },
+  { arriba: 13, total: 30 },
+  { arriba: 16, total: 30 },
+];
+
+const RankMini = ({ titulo, arriba, total, rival }: { titulo: string; arriba: number; total: number; rival: string }) => (
+  <div className="c rk">
+    <s>{titulo}</s>
+    <ol className="rk-l">
+      <li style={{ top: 0 }}><i>{arriba}º</i>{rival} {arriba}</li>
+      <li className="baja" style={{ top: 13 }}><i><em className="a">{arriba + 1}º</em><em className="b">{arriba + 2}º</em></i>{rival} {arriba + 1}</li>
+      <li className="yo sube" style={{ top: 26 }}><i><em className="a">{arriba + 2}º</em><em className="b">{arriba + 1}º</em></i>Vos</li>
+    </ol>
+    <u>Estás <span className="rk-n"><em className="a">{arriba + 2}º</em><em className="b">{arriba + 1}º</em></span> de {total} <span className="rk-up">▲1</span></u>
+  </div>
+);
+
 const Index = () => {
+  const { pathname } = useLocation();
+  // al entrar por la dirección se llega directo; al tocar «Ver más», con scroll suave
+  const primera = useRef(true);
+  useEffect(() => {
+    const id = SECCIONES[pathname.toLowerCase()];
+    const el = id ? document.getElementById(id) : null;
+    if (el) el.scrollIntoView({ behavior: primera.current ? 'auto' : 'smooth' });
+    primera.current = false;
+  }, [pathname]);
+
   const [modo, setModo] = useState<Modo>('politica');
   const [icSel, setIcSel] = useState<Set<string>>(new Set());
   const [otraOn, setOtraOn] = useState(false);
   const [otra, setOtra] = useState('');
 
   const copy = MODOS[modo];
-  const demoHref = '/posicion?tipo=' + copy.tipo;
+  // Activar el Narra ID: /activar guarda el pedido y manda a pagar. La rama
+  // del switch viaja en la URL para que llegue elegida.
+  const activarHref = '/activar?rama=' + modo;
 
   const toggleTema = (t: string) =>
     setIcSel((prev) => {
@@ -134,39 +185,36 @@ const Index = () => {
           <nav className="hnav">
             <img className="wm-img" src="/land/wm-blanco.svg" alt="narraglobal" />
             <div className="nav-links">
-              <a href="#tablero">Narra ID</a>
               <a href="#incompany">Workshops</a>
               <a href="/entrar" title="Acceso de clientes">Acceso clientes</a>
             </div>
-            <Link className="nav-cta" to="/reporte">Reporte Octubre 2026 — Narrativa ARG</Link>
+            <Link className="nav-cta" to={activarHref}>Activá tu Narra ID</Link>
           </nav>
 
           <div className="hero-copy">
             <h1 className="hh">
-              Controlá tu narrativa en{' '}
+              Dato <Corte>mejora</Corte> relato
+              <br />
+              en{' '}
               <span className="modo-seg" role="group" aria-label="Para quién">
                 <button type="button" className={'modo-b' + (modo === 'politica' ? ' on' : '')} aria-pressed={modo === 'politica'} onClick={() => setModo('politica')}>Política</button>
                 <button type="button" className={'modo-b' + (modo === 'negocios' ? ' on' : '')} aria-pressed={modo === 'negocios'} onClick={() => setModo('negocios')}>Negocios</button>
               </span>
             </h1>
             <p className="hsub">{copy.sub}</p>
-            <div className="hctas hctas-sel">
-              <Link className="sel-btn" to={demoHref}>Quiero mi demo</Link>
-              <span className="cta-price">Te llega por WhatsApp en 48 hs sin cargo.</span>
-            </div>
           </div>
         </div>
-      </div>
 
-      {/* ===================== CLIENTES ===================== */}
-      <div className="clients">
-        <div className="cl-eyebrow">Nuestros clientes</div>
-        <div className="cl-title">Líderes políticos y corporativos controlan su narrativa con nosotros.</div>
-        <div className="mq">
-          <div className="mq-track">
-            {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
-            {CLIENTS.map((c) => <ClientLogo key={c.file + '-2'} c={c} hidden />)}
+        {/* clientes, en blanco sobre el azul; la leyenda va abajo de los logos
+            para separarla del copy del hero */}
+        <div className="hero-clients">
+          <div className="mq">
+            <div className="mq-track">
+              {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
+              {CLIENTS.map((c) => <ClientLogo key={c.file + '-2'} c={c} hidden />)}
+            </div>
           </div>
+          <div className="cl-eyebrow">Mejoran sus narrativas con nosotros</div>
         </div>
       </div>
 
@@ -177,16 +225,15 @@ const Index = () => {
             <div className="film-txt">
               <div className="film-top">
                 <span className="film-k">Narra ID · Suscripción mensual</span>
-                <span className="film-precio">USD 999 <s>/ mes</s></span>
+                <span className="film-precio">USD 1,000 <s>/ mes</s></span>
               </div>
-              <h2 className="film-t">Control total sobre tu narrativa y la de tus competidores</h2>
+              <h2 className="film-t">Mejorá tu narrativa cada semana y mirá qué le funciona a tu competencia</h2>
               {/* cada ítem se resalta cuando la película muestra su ventana */}
               <ul className="film-li">
-                <li>Medimos tus piezas de social media</li>
-                <li>Encontramos lo que funciona en vos y en la competencia</li>
-                <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
-                <li>Alertas semanales sobre tu narrativa y la competencia</li>
-                <li>Call mensual de orden táctico</li>
+                <li>Cómo te fue: medimos tus piezas de social media, semana a semana</li>
+                <li>Alertas semanales sobre tu narrativa, tu influencia digital y tu competencia {copy.alcance}</li>
+                <li>Un asistente IA en WhatsApp, a cualquier hora, para pensar tu próxima narrativa</li>
+                <li>Call táctica mensual con Lisandro Bregant, director de narraglobal</li>
               </ul>
             </div>
 
@@ -210,27 +257,6 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* e2 · techo y piso de la semana */}
-                <div className="pel-e e2">
-                  <div className="pel-win">
-                    <span className="pel-tt"><span className="mk up">▲</span>El techo de la semana</span>
-                    <div className="pel-graf techo">
-                      <svg viewBox="0 0 240 120" aria-hidden="true">
-                        <polyline points="14,86 44,80 74,84 104,72 134,66 164,58 194,64 222,56" fill="none" stroke="#111319" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                        <line x1="222" y1="56" x2="222" y2="22" stroke="#00C281" strokeWidth="2.4" strokeLinecap="round" />
-                        <line x1="222" y1="56" x2="222" y2="98" stroke="#FF3D7A" strokeWidth="2.4" strokeLinecap="round" />
-                        <circle className="pg-techo" cx="222" cy="22" r="5.2" fill="#00C281" />
-                        <text x="212" y="25" textAnchor="end" fontFamily={MONO} fontSize="7.5" letterSpacing="1" fill="#00875a" fontWeight="600">REEL A CÁMARA · 48</text>
-                        <circle cx="222" cy="98" r="5.2" fill="#FF3D7A" />
-                        <text x="212" y="101" textAnchor="end" fontFamily={MONO} fontSize="7.5" letterSpacing="1" fill="#c9265b">TEXTO LEÍDO · 21</text>
-                        <circle cx="222" cy="56" r="3.6" fill="#3E1CFF" />
-                        <text x="14" y="114" fontFamily={MONO} fontSize="7" letterSpacing="1" fill="#8b8f99">HACE 8 SEMANAS</text>
-                        <text x="226" y="114" textAnchor="end" fontFamily={MONO} fontSize="7" letterSpacing="1" fill="#8b8f99">HOY · 35</text>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
                 {/* e3 · el asistente por WhatsApp */}
                 <div className="pel-e e3">
                   <div className="pel-win">
@@ -244,8 +270,8 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* e4 · el mail del lunes */}
-                <div className="pel-e e4">
+                {/* e2 · el mail del lunes: las alertas */}
+                <div className="pel-e e2">
                   <div className="pel-win">
                     <span className="pel-tt">Cada lunes en tu mail</span>
                     <div className="pel-mail">
@@ -254,18 +280,18 @@ const Index = () => {
                         <div className="c"><s className="ok">▲ Funcionó</s><b>El reel del martes en la escuela técnica movió a 11 personas</b><u>Ver pieza →</u></div>
                         <div className="c"><s className="ok">▲ Funcionó</s><b>La recorrida por el barrio, sin guión, quedó 13 puntos arriba de tu promedio</b><u>Ver pieza →</u></div>
                         <div className="c azul"><s>Lo que hay que repetir</s><b>Repetí el reel sin locución con la recorrida que ya tenés grabada</b><u>En el asistente</u></div>
-                        <div className="c"><s>Top ciudad · Rosario</s><b>«Respeto, una palabra. Simple, concreta y elemental.»</b><u>Estás 2 de 27</u></div>
-                        <div className="c"><s>Top provincial</s><b>«Qué está pasando abajo del Boulevard Pellegrini»</b><u>Estás 14 de 30</u></div>
-                        <div className="c"><s>Top nacional</s><b>«Gracias por no haber bajado los brazos nunca.»</b><u>Ver tabla</u></div>
+                        {RANKINGS.map((r, k) => (
+                          <RankMini key={k} titulo={copy.canchas[k]} arriba={r.arriba} total={r.total} rival={copy.rival.replace(/ \d+$/, '')} />
+                        ))}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* e5 · la call mensual */}
-                <div className="pel-e e5">
+                {/* e4 · la call mensual */}
+                <div className="pel-e e4">
                   <div className="pel-win">
-                    <span className="pel-tt">Una hora de orden táctico</span>
+                    <span className="pel-tt">Una hora al mes para organizar tu narrativa</span>
                     <div className="pel-call">
                       <div className="cam">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -282,7 +308,7 @@ const Index = () => {
             </div>
 
             <div className="film-pie solo">
-              <Link className="film-cta" to={demoHref}>Quiero mi demo</Link>
+              <Link className="film-cta" to={activarHref}>Activá tu Narra ID</Link>
             </div>
           </div>
         </div>
@@ -298,6 +324,12 @@ const Index = () => {
             {MEDIA.map((m) => <MediaLogo key={m.file + '-2'} m={m} hidden />)}
           </div>
         </div>
+        <p className="med-redes">
+          Seguí los reportes en nuestras cuentas de{' '}
+          <a href={X_DATA} target="_blank" rel="noopener noreferrer">X</a>,{' '}
+          <a href={IG_DATA} target="_blank" rel="noopener noreferrer">Instagram</a> y{' '}
+          <a href={LINKEDIN_NARRA} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </p>
       </section>
 
       {/* ===================== IN-COMPANY ===================== */}

@@ -57,6 +57,7 @@ export type Database = {
           email: string | null
           id: string
           origen: string
+          pagado_en: string | null
           telefono: string
           tipo: string
         }
@@ -66,6 +67,7 @@ export type Database = {
           email?: string | null
           id?: string
           origen?: string
+          pagado_en?: string | null
           telefono: string
           tipo: string
         }
@@ -75,6 +77,7 @@ export type Database = {
           email?: string | null
           id?: string
           origen?: string
+          pagado_en?: string | null
           telefono?: string
           tipo?: string
         }
@@ -289,6 +292,13 @@ export type Database = {
           p_tipo: string
         }
         Returns: string
+      }
+      registrar_suscripcion_paypal: {
+        Args: {
+          p_pedido: string
+          p_suscripcion: string
+        }
+        Returns: undefined
       }
       has_role: {
         Args: {

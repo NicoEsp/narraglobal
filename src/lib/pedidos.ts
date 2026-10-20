@@ -1,11 +1,11 @@
-/* Pedidos que llegan desde la landing: la demo del Narra ID (/posicion) y el
-   reporte (/reporte). Los dos guardan en public.pedidos a través de la RPC
-   enviar_pedido, que valida y corta a los bots; el equipo los ve en el back
-   office y manda la demo o el reporte a mano por WhatsApp. */
+/* Pedidos que llegan desde la landing: activar el Narra ID (/activar), la
+   demo (/posicion) y el reporte (/reporte). Todos guardan en public.pedidos a
+   través de la RPC enviar_pedido, que valida y corta a los bots; el equipo
+   los ve en el back office. */
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 
-export type TipoPedido = 'demo_persona' | 'demo_empresa' | 'reporte';
+export type TipoPedido = 'demo_persona' | 'demo_empresa' | 'reporte' | 'narra_id';
 
 /** Los países de la lista de la maqueta. */
 export const PAISES = [
@@ -39,18 +39,27 @@ export interface Pedido {
   honeypot: string;
 }
 
-/** Guarda el pedido. Devuelve null si entró, o el motivo, en castellano, si no. */
-export async function enviarPedido(p: Pedido): Promise<string | null> {
-  const { error } = await supabase.rpc('enviar_pedido', {
+/** Guarda el pedido. Devuelve su id si entró, o el motivo, en castellano, si no. */
+export async function guardarPedido(p: Pedido): Promise<{ id: string } | { error: string }> {
+  const { data, error } = await supabase.rpc('enviar_pedido', {
     p_tipo: p.tipo,
     p_telefono: telefonoCanonico(p.telefono),
     p_email: p.email?.trim() || undefined,
     p_datos: p.datos,
     p_honeypot: p.honeypot,
   });
-  if (!error) return null;
-  return explicar(error);
+  if (error) return { error: explicar(error) };
+  return { id: data };
 }
+
+/** Guarda el pedido. Devuelve null si entró, o el motivo, en castellano, si no. */
+export async function enviarPedido(p: Pedido): Promise<string | null> {
+  const r = await guardarPedido(p);
+  return 'error' in r ? r.error : null;
+}
+
+/** El número corto con el que se cruza un pago con su pedido: «#3F9A2C». */
+export const numeroPedido = (id: string) => '#' + id.replace(/-/g, '').slice(0, 6).toUpperCase();
 
 /* Lo que devuelve la RPC viene pensado para el log, no para la persona: acá
    se traduce lo que puede pasar de verdad. */

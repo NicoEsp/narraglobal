@@ -48,6 +48,19 @@
   .cta-price{font-family:var(--mono);font-size:11.5px;letter-spacing:.9px;text-transform:uppercase;color:rgba(255,255,255,.72);line-height:1.35;text-align:center}
 
   /* --- Política / Negocios: el switch vive adentro del titular --- */
+  /* corte de señal: «mejora» del titular (mismas tajadas que las hojas de insight) */
+  .cut{position:relative;display:inline-block;line-height:1;vertical-align:baseline;--c1t:.4535em;--c1b:.5725em;--c2t:.6065em;--c2b:.6405em;--th:.5px}
+  .cut .b{color:transparent}
+  .cut .s{position:absolute;left:0;width:100%;overflow:hidden;white-space:nowrap}
+  .cut .s i{position:absolute;left:0;font-style:normal}
+  .cut .s1{top:-.3em;height:calc(.3em + var(--c1t) - var(--th))} .cut .s1 i{top:.3em}
+  .cut .s2{top:var(--c1t);height:calc(var(--c1b) - var(--c1t));transform:translateX(.042em);animation:cutA 5s steps(1) infinite} .cut .s2 i{top:calc(0px - var(--c1t))}
+  .cut .s3{top:var(--c2t);height:calc(var(--c2b) - var(--c2t));transform:translateX(-.025em);animation:cutB 5s steps(1) infinite} .cut .s3 i{top:calc(0px - var(--c2t))}
+  .cut .s4{top:calc(var(--c2b) + var(--th));height:.75em} .cut .s4 i{top:calc(0px - var(--c2b) - var(--th))}
+  /* cada 5 s, un salto corto de señal */
+  @keyframes cutA{0%{transform:translateX(.042em)}88%{transform:translateX(.13em)}90%{transform:translateX(-.06em)}92%{transform:translateX(.09em)}94%,to{transform:translateX(.042em)}}
+  @keyframes cutB{0%{transform:translateX(-.025em)}88%{transform:translateX(-.1em)}90%{transform:translateX(.07em)}92%{transform:translateX(-.05em)}94%,to{transform:translateX(-.025em)}}
+  @media(prefers-reduced-motion:reduce){.cut .s2,.cut .s3{animation:none}}
   .modo-seg{display:inline-flex;gap:3px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);border-radius:99px;padding:3px;vertical-align:.14em;margin:0 0 0 .12em}
   .modo-b{font-family:var(--mono);font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.62);background:transparent;border:0;border-radius:99px;padding:9px 18px;cursor:pointer;transition:background .15s,color .15s}
   h1.hh .modo-b{font-size:clamp(11px,.23em,17px);letter-spacing:.14em;padding:.7em 1.5em;font-weight:500}
@@ -55,7 +68,10 @@
   .modo-b.on,.modo-b.on:hover{background:#fff;color:var(--blue)}
 
   /* ===================== CLIENTES — carrusel ===================== */
-  .clients{padding:84px 0 60px;text-align:center}
+  .hero-clients{position:relative;z-index:2;padding:10px 0 56px;text-align:center}
+  .hero-clients .cl-eyebrow{color:rgba(255,255,255,.72);margin-top:22px}
+  .hero-clients .mq{margin-top:0}
+  .hero-clients .mq .lf{color:rgba(255,255,255,.8)}
   .cl-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mute)}
   .cl-title{font-weight:800;font-size:clamp(20px,2.4vw,27px);letter-spacing:-.03em;line-height:1.2;color:var(--ink);margin:12px auto 0;max-width:34ch;padding:0 5vw}
   .mq{position:relative;overflow:hidden;margin-top:44px;
@@ -95,25 +111,23 @@
   .film-cta{margin-left:auto;background:var(--blue);color:#fff;font-weight:600;font-size:14px;padding:12px 22px;border-radius:8px;white-space:nowrap;transition:background .15s,transform .15s}
   .film-cta:hover{background:#2c0fd6;transform:translateY(-1px)}
 
-  /* la película: cinco ventanas que se turnan cada 4 s, en sincronía con la lista */
+  /* la película: cuatro ventanas que se turnan cada 4 s, en sincronía con la lista */
   .film-stage{position:relative;height:352px;background:var(--paper-2);border:1px solid var(--line);border-radius:16px;overflow:hidden}
   .film-stage::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.7;
     background-image:linear-gradient(90deg,rgba(17,19,25,.035) 1px,transparent 1px),linear-gradient(rgba(17,19,25,.035) 1px,transparent 1px);background-size:34px 34px}
   .pel{position:relative;width:100%;height:100%;display:grid;place-items:center;pointer-events:none}
-  .pel-e{grid-area:1/1;width:100%;height:100%;opacity:0;display:flex;align-items:center;justify-content:center;animation:pelEsc 20s linear infinite}
+  .pel-e{grid-area:1/1;width:100%;height:100%;opacity:0;display:flex;align-items:center;justify-content:center;animation:pelEsc 16s linear infinite}
   .pel-e.e1{animation-delay:0s}
   .pel-e.e2{animation-delay:4s}
   .pel-e.e3{animation-delay:8s}
   .pel-e.e4{animation-delay:12s}
-  .pel-e.e5{animation-delay:16s}
-  @keyframes pelEsc{0%{opacity:0;transform:translateY(7px) scale(.99)}2%{opacity:1;transform:none}18%{opacity:1;transform:none}20%,to{opacity:0;transform:translateY(-7px) scale(.995)}}
-  .film-li li{animation:liOn 20s linear infinite}
+  @keyframes pelEsc{0%{opacity:0;transform:translateY(7px) scale(.99)}2.5%{opacity:1;transform:none}22.5%{opacity:1;transform:none}25%,to{opacity:0;transform:translateY(-7px) scale(.995)}}
+  .film-li li{animation:liOn 16s linear infinite}
   .film-li li:nth-child(1){animation-delay:0s}
   .film-li li:nth-child(2){animation-delay:4s}
   .film-li li:nth-child(3){animation-delay:8s}
   .film-li li:nth-child(4){animation-delay:12s}
-  .film-li li:nth-child(5){animation-delay:16s}
-  @keyframes liOn{0%,1%{background:var(--blue-soft)}18%{background:var(--blue-soft)}20%,to{background:transparent}}
+  @keyframes liOn{0%,1.25%{background:var(--blue-soft)}22.5%{background:var(--blue-soft)}25%,to{background:transparent}}
 
   .pel-win{width:min(430px,94%);background:#fff;border:1px solid var(--line-2);border-radius:16px;padding:18px 20px 20px;
     display:flex;flex-direction:column;gap:12px;box-shadow:0 18px 44px rgba(17,19,25,.14)}
@@ -121,16 +135,13 @@
   .pel-tt .mk{font-size:12px;line-height:1;flex:none;color:var(--mute)}
   .pel-tt .mk.up{color:var(--green-ink)}
 
-  /* e1 · e2: las gráficas */
+  /* e1: la gráfica */
   .pel-graf{background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px 4px}
-  .pel-graf.techo{background:#fff;padding:10px 12px 6px}
   .pel-graf svg{width:100%;height:auto;display:block;overflow:visible}
-  .pel-graf .pg-line{stroke-dasharray:1;stroke-dashoffset:1;animation:pgDraw 20s linear infinite}
-  @keyframes pgDraw{0%,1%{stroke-dashoffset:1}10%,to{stroke-dashoffset:0}}
-  .pel-graf .pg-dot{opacity:0;animation:pgDot 20s linear infinite}
-  @keyframes pgDot{0%,9%{opacity:0}11%,to{opacity:1}}
-  .pel-graf .pg-techo{animation:pgTecho 1.4s ease-in-out infinite;transform-origin:222px 22px;transform-box:view-box}
-  @keyframes pgTecho{0%,to{transform:scale(1)}50%{transform:scale(1.35)}}
+  .pel-graf .pg-line{stroke-dasharray:1;stroke-dashoffset:1;animation:pgDraw 16s linear infinite}
+  @keyframes pgDraw{0%,1.25%{stroke-dashoffset:1}12.5%,to{stroke-dashoffset:0}}
+  .pel-graf .pg-dot{opacity:0;animation:pgDot 16s linear infinite}
+  @keyframes pgDot{0%,11.25%{opacity:0}13.75%,to{opacity:1}}
 
   /* e3: el asistente por WhatsApp */
   .pel-chat{display:flex;flex-direction:column;gap:7px}
@@ -154,8 +165,26 @@
   .pel-mail .c.azul s{color:rgba(255,255,255,.72)}
   .pel-mail .c.azul b{color:#fff}
   .pel-mail .c.azul u{color:#fff;border-top-color:rgba(255,255,255,.28)}
+  /* las tres canchas: tu fila sube un puesto mientras se ve la ventana (e2, 4 s de 16) */
+  .rk-l{position:relative;height:39px;list-style:none;margin:2px 0 0;padding:0}
+  .rk-l li{position:absolute;left:0;right:0;height:12px;display:flex;align-items:center;gap:4px;padding:0 3px;border-radius:3px;font-size:7px;color:var(--ink-soft);white-space:nowrap;overflow:hidden}
+  .rk-l li i{position:relative;flex:none;width:15px;height:12px;font-style:normal;font-family:var(--mono);font-size:6px;color:var(--mute)}
+  .rk-l li em{position:absolute;left:0;top:50%;transform:translateY(-50%);font-style:normal}
+  .rk-l li.yo{color:var(--blue);font-weight:700;background:var(--blue-soft);z-index:1}
+  .rk-l li.yo i{color:var(--blue)}
+  .rk-l li.sube{animation:rkSube 16s linear 4s infinite}
+  .rk-l li.baja{animation:rkBaja 16s linear 4s infinite}
+  .rk-l em.a,.rk-n em.a{animation:rkA 16s linear 4s infinite}
+  .rk-l em.b,.rk-n em.b{opacity:0;animation:rkB 16s linear 4s infinite}
+  .rk-n{display:inline-grid}
+  .rk-n em{grid-area:1/1;font-style:normal}
+  .pel-mail .rk u .rk-up{color:var(--green-ink);font-weight:600;opacity:0;animation:rkB 16s linear 4s infinite}
+  @keyframes rkSube{0%,8%{transform:translateY(0)}11.5%,to{transform:translateY(-13px)}}
+  @keyframes rkBaja{0%,8%{transform:translateY(0)}11.5%,to{transform:translateY(13px)}}
+  @keyframes rkA{0%,10%{opacity:1}11%,to{opacity:0}}
+  @keyframes rkB{0%,10%{opacity:0}11%,to{opacity:1}}
 
-  /* e5: la call mensual */
+  /* e4: la call mensual */
   .pel-call{background:#111319;border-radius:12px;padding:16px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;color:#fff}
   .pel-call .cam{width:46px;height:46px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;animation:camPulso 1.8s ease-out infinite}
   .pel-call .cam svg{width:22px;height:22px}
@@ -169,7 +198,7 @@
 
   /* sin movimiento: queda fija la primera ventana y la lista sin resaltado */
   @media(prefers-reduced-motion:reduce){
-    .pel-e,.film-li li,.pel-graf .pg-line,.pel-graf .pg-dot,.pel-graf .pg-techo,.pel-call .cam{animation:none}
+    .pel-e,.film-li li,.pel-graf .pg-line,.pel-graf .pg-dot,.pel-call .cam,.rk-l li,.rk-l em,.rk-n em,.pel-mail .rk u .rk-up{animation:none}
     .pel-e.e1{opacity:1}
     .pel-graf .pg-line{stroke-dashoffset:0}
     .pel-graf .pg-dot{opacity:1}
@@ -177,12 +206,17 @@
 
   /* ===================== MEDIOS — mismo carrusel que los clientes ===================== */
   .medios{max-width:1180px;margin:0 auto;padding:52px 5vw 44px;text-align:center}
+  .med-redes{margin-top:26px;font-size:14px;color:var(--ink-soft)}
+  .med-redes a{font-weight:600;color:var(--blue);border-bottom:1px solid var(--blue-soft);padding-bottom:1px}
+  .med-redes a:hover{border-color:var(--blue)}
+  .med-redes span{color:var(--mute)}
 
-  /* ===================== IN-COMPANY — placa negra, dos pasos ===================== */
+  /* ===================== IN-COMPANY — placa azul narraglobal, dos pasos ===================== */
   #incompany.shot-zone{padding-top:36px}
-  .shot-frame.negra{background:#111319;color:#fff}
+  #tablero.shot-zone{padding-top:72px}
+  .shot-frame.negra{background:var(--blue);color:#fff}
   .shot-frame.negra::after{content:"";position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(80% 110% at 85% 0%, rgba(62,28,255,.35), transparent 60%)}
+    background:radial-gradient(80% 110% at 85% 0%, rgba(255,255,255,.14), transparent 60%)}
   .shot-frame.negra .film{position:relative;z-index:1}
   .shot-frame.negra .film-t{color:#fff}
   .shot-frame.negra .film-d{color:rgba(255,255,255,.78)}
@@ -191,14 +225,14 @@
   .ic3-flujo{position:relative;display:flex;flex-direction:column;gap:14px;margin-top:16px}
   .ic3-flujo::before{content:"";position:absolute;left:8.5px;top:10px;bottom:22px;width:1px;background:rgba(255,255,255,.45)}
   .ic3-paso{position:relative;display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:rgba(255,255,255,.7)}
-  .ic3-paso i{position:relative;z-index:1;font-style:normal;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:#111319;display:grid;place-items:center;font-size:8.5px;color:#fff}
+  .ic3-paso i{position:relative;z-index:1;font-style:normal;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:var(--blue);display:grid;place-items:center;font-size:8.5px;color:#fff}
   .ic3-cuerpo{padding-left:28px;display:flex;flex-direction:column}
   .ic3-paso.accion{gap:12px;flex-wrap:wrap}
   .ic3-paso.accion .film-cta{margin-left:0;display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);
     font-family:var(--sans);font-size:14px;letter-spacing:0;text-transform:none}
   .ic3-paso.accion .film-cta svg{width:16px;height:16px;fill:currentColor}
   /* con al menos una temática elegida el botón se prende */
-  .ic3-paso.accion .film-cta.lista{background:#fff;color:#111319;border-color:#fff}
+  .ic3-paso.accion .film-cta.lista{background:#fff;color:var(--blue);border-color:#fff}
   .ic3-paso.accion .film-cta.lista:hover{background:#f1efff}
   .ic3-nota{font-family:var(--mono);font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:rgba(255,255,255,.55)}
 
@@ -207,7 +241,7 @@
     background:transparent;border:1px solid rgba(255,255,255,.32);padding:8px 15px;border-radius:999px;cursor:pointer;transition:.15s}
   .chip:hover{border-color:#fff}
   .chip .cx{font-size:14px;line-height:1;opacity:.75}
-  .chip.on{background:#fff;border-color:#fff;color:#111319}
+  .chip.on{background:#fff;border-color:#fff;color:var(--blue)}
   .chip.on .cx{opacity:1}
   .ic-otra-input{margin-top:13px;width:100%;max-width:330px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.35);
     border-radius:10px;padding:11px 14px;color:#fff;font-family:var(--sans);font-size:14px;outline:none;transition:.15s}

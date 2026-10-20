@@ -60,7 +60,7 @@ const BLOQUES = [
     n: '03',
     bloque: 'Tus packs',
     items: [
-      { t: 'Tu llamado con Lisandro', d: 'Media hora por mes, incluida en Narra ID, para la mirada estratégica.' },
+      { t: 'Tu llamado con Lisandro Bregant', d: 'Una hora por mes con el director de narraglobal, incluida en Narra ID, para organizar tu narrativa.' },
       { t: 'Taller al equipo y Mesa chica', d: 'Los dos packs que se suman a la suscripción cuando hacen falta.' },
     ],
   },
@@ -278,20 +278,11 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                   <div className="es-nota">{sus.tz}</div>
                 </div>
 
-                <div className="es-card ancha">
-                  <div className="k">Mirás de cerca ({competidores.length} de 5)</div>
-                  {competidores.length === 0 ? (
-                    <>
-                      <div className="v mute">Todavía no elegiste a nadie</div>
-                      <div className="es-nota">
-                        Podés sumar hasta 5 personas o marcas para compararte cada semana.{' '}
-                        <a href={waCorregir} target="_blank" rel="noopener noreferrer">
-                          Decinos a quiénes
-                        </a>
-                        .
-                      </div>
-                    </>
-                  ) : (
+                {/* La competencia ya no se elige (la define el elenco): la tarjeta
+                    solo queda para las altas viejas que sí cargaron a quién mirar. */}
+                {competidores.length > 0 && (
+                  <div className="es-card ancha">
+                    <div className="k">Mirás de cerca</div>
                     <div className="es-mira">
                       {competidores.map((c, i) => (
                         <span key={c + i} className="es-chipm">
@@ -300,8 +291,8 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                         </span>
                       ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 <div className="es-card">
                   <div className="k">Tu suscripción</div>
@@ -409,12 +400,12 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                 rel="noopener noreferrer"
               >
                 <span className="lav">
-                  <img src="/land/lisandro.jpg" alt="Lisandro" />
+                  <img src="/land/lisandro.jpg" alt="Lisandro Bregant" />
                   <i />
                 </span>
                 <span className="ft">
-                  <b>Escribile a Lisandro</b>
-                  <s>Consultas, pedidos o contexto que quieras que tengamos en cuenta</s>
+                  <b>Escribile a Lisandro Bregant</b>
+                  <s>Director de narraglobal · consultas, pedidos o contexto que quieras que tengamos en cuenta</s>
                 </span>
               </a>
             </div>

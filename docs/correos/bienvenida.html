@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Te damos la bienvenida al Narra ID</title>
+<!--
+  Correo de bienvenida del Narra ID, con marca, para cuando haya envío
+  automático (Resend). Variables: {{nombre}}, {{email}}, {{numero}}, {{elenco}}.
+  La versión de texto que hoy sale a mano desde el back office está en
+  src/lib/correos.ts: si cambia el texto, cambiarlo en los dos lados.
+  HTML de correo: tablas y estilos en línea, sin fuentes web obligatorias.
+-->
+</head>
+<body style="margin:0;padding:0;background:#f7f8fa;">
+<span style="display:none;max-height:0;overflow:hidden;opacity:0;">Ya está activo tu Narra ID. Agendá tu videollamada de bienvenida con Lisandro.</span>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f8fa;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#ffffff;border:1px solid #e8e9ed;border-radius:14px;overflow:hidden;">
+
+        <!-- cabecera azul -->
+        <tr>
+          <td style="background:#3E1CFF;padding:28px 36px;">
+            <div style="font-family:Inter,Arial,Helvetica,sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px;color:#ffffff;">narraglobal</div>
+            <div style="font-family:'IBM Plex Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.75);margin-top:18px;">Narra ID · Suscripción mensual</div>
+            <div style="font-family:Inter,Arial,Helvetica,sans-serif;font-weight:800;font-size:30px;line-height:1.15;letter-spacing:-1px;color:#ffffff;margin-top:8px;">Te damos la bienvenida, {{nombre}}.</div>
+          </td>
+        </tr>
+
+        <!-- cuerpo -->
+        <tr>
+          <td style="padding:32px 36px 8px;font-family:Inter,Arial,Helvetica,sans-serif;color:#111319;">
+            <p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Ya está activo tu Narra ID. Gracias por confiar en narraglobal.</p>
+            <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">Lo primero es conocernos. Agendá una videollamada de bienvenida conmigo: repasamos tu cuenta, tu elenco y qué querés lograr, y dejamos todo listo para tu primera medición.</p>
+
+            <!-- botón -->
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="background:#3E1CFF;border-radius:8px;">
+                  <a href="https://calendar.app.google/FjL87RmwqXESzhqt6" style="display:inline-block;padding:15px 24px;font-family:Inter,Arial,Helvetica,sans-serif;font-weight:700;font-size:15px;color:#ffffff;text-decoration:none;">Agendá tu videollamada de bienvenida →</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- qué sigue -->
+        <tr>
+          <td style="padding:28px 36px 8px;font-family:Inter,Arial,Helvetica,sans-serif;color:#111319;">
+            <div style="font-family:'IBM Plex Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#3E1CFF;margin-bottom:6px;">Qué sigue</div>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td width="34" valign="top" style="padding:12px 0;border-bottom:1px solid #e8e9ed;font-family:'IBM Plex Mono',Menlo,Consolas,monospace;font-size:12px;color:#3E1CFF;">01</td>
+                <td style="padding:12px 0;border-bottom:1px solid #e8e9ed;font-size:15px;line-height:1.5;"><b>Videollamada de bienvenida:</b> nos conocemos y ajustamos tu elenco.</td>
+              </tr>
+              <tr>
+                <td width="34" valign="top" style="padding:12px 0;border-bottom:1px solid #e8e9ed;font-family:'IBM Plex Mono',Menlo,Consolas,monospace;font-size:12px;color:#3E1CFF;">02</td>
+                <td style="padding:12px 0;border-bottom:1px solid #e8e9ed;font-size:15px;line-height:1.5;"><b>Cómo te fue:</b> tu punto de partida frente a tu competencia ({{elenco}}).</td>
+              </tr>
+              <tr>
+                <td width="34" valign="top" style="padding:12px 0;border-bottom:1px solid #e8e9ed;font-family:'IBM Plex Mono',Menlo,Consolas,monospace;font-size:12px;color:#3E1CFF;">03</td>
+                <td style="padding:12px 0;border-bottom:1px solid #e8e9ed;font-size:15px;line-height:1.5;"><b>Cada semana:</b> alertas sobre tu narrativa, tu influencia digital y tu competencia.</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- acceso -->
+        <tr>
+          <td style="padding:24px 36px 8px;font-family:Inter,Arial,Helvetica,sans-serif;color:#111319;">
+            <p style="margin:0;font-size:15px;line-height:1.6;">Entrás a tu tablero con este correo (<b>{{email}}</b>) en <a href="https://narraglobal.com/entrar" style="color:#3E1CFF;">narraglobal.com/entrar</a>.</p>
+          </td>
+        </tr>
+
+        <!-- firma -->
+        <tr>
+          <td style="padding:24px 36px 32px;font-family:Inter,Arial,Helvetica,sans-serif;color:#111319;">
+            <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#565a64;">Cualquier cosa, respondé este correo o escribime por <a href="https://wa.me/5491130731011" style="color:#3E1CFF;">WhatsApp</a>.</p>
+            <p style="margin:0;font-size:15px;line-height:1.5;"><b>Lisandro Bregant</b><br><span style="color:#565a64;">Director de narraglobal</span></p>
+          </td>
+        </tr>
+
+        <!-- pie -->
+        <tr>
+          <td style="padding:16px 36px;border-top:1px solid #e8e9ed;font-family:'IBM Plex Mono',Menlo,Consolas,monospace;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#6b6f78;">
+            Pedido {{numero}} · USD 1,000 / mes, IVA incluido · cancelás cuando quieras
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
