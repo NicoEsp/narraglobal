@@ -48,6 +48,18 @@ const detallePedido = (p: Pedido): string => {
   return unir(v('nombre'), v('rol'));
 };
 
+/** WhatsApp para retomar un Narra ID que quedó sin pagar, con el mensaje escrito. */
+const recuperarPedido = (p: Pedido): string => {
+  const d = (p.datos && typeof p.datos === 'object' && !Array.isArray(p.datos) ? p.datos : {}) as Record<string, unknown>;
+  const v = (k: string) => (typeof d[k] === 'string' ? (d[k] as string) : '');
+  const nombre = v('nombre').split(' ')[0];
+  const texto =
+    'Hola' + (nombre ? ' ' + nombre : '') + ', soy Lisandro de narraglobal. Vi que empezaste a activar tu Narra ID' +
+    (v('cuenta') ? ' para ' + v('cuenta') : '') + ' y quedó el pago pendiente (pedido ' + numeroPedido(p.id) +
+    '). ¿Te ayudo a terminarlo o tenés alguna duda?';
+  return 'https://wa.me/' + soloDigitos(p.telefono) + '?text=' + encodeURIComponent(texto);
+};
+
 /** El mail de bienvenida del pedido del Narra ID, listo para mandar. */
 const bienvenidaPedido = (p: Pedido): string => {
   const d = (p.datos && typeof p.datos === 'object' && !Array.isArray(p.datos) ? p.datos : {}) as Record<string, unknown>;
@@ -409,6 +421,12 @@ const Admin = () => {
         PayPal o efectivo): cruzá el aviso del pago con el número de pedido, marcalo pagado, hacé el alta
         con «+ Nueva suscripción» y mandá el «Mail de bienvenida» (se abre tu correo con todo escrito).
       </p>
+      {pedidos && pedidos.some((p) => p.tipo === 'narra_id' && !p.pagado_en) && (
+        <p className="bo-sub">
+          <b>{pedidos.filter((p) => p.tipo === 'narra_id' && !p.pagado_en).length} Narra ID sin pagar.</b>{' '}
+          Dejaron sus datos y no completaron el pago: «Retomar por WhatsApp» abre el chat con el mensaje escrito.
+        </p>
+      )}
       {errorPedidos && <div className="bo-err" style={{ marginBottom: 14 }}>{errorPedidos}</div>}
       {pedidos === null ? (
         <div className="bo-vacio">Cargando…</div>
@@ -452,6 +470,14 @@ const Admin = () => {
                       <button type="button" className="bo-btn mini sec" disabled={marcando === p.id} onClick={() => marcarPagado(p)}>
                         {p.pagado_en ? 'Desmarcar' : 'Marcar pagado'}
                       </button>
+                      {!p.pagado_en && (
+                        <>
+                          {' '}
+                          <a className="bo-btn mini" href={recuperarPedido(p)} target="_blank" rel="noopener noreferrer">
+                            Retomar por WhatsApp
+                          </a>
+                        </>
+                      )}
                       {p.pagado_en && p.email && (
                         <>
                           {' '}
