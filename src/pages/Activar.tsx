@@ -44,13 +44,12 @@ const Resumen = ({ rama }: { rama: Rama }) => (
     <div className="ac-r-t">Narra ID · Suscripción mensual</div>
     <ul className="ac-checks">
       <li>Cómo te fue: medimos tus piezas de social media, semana a semana</li>
-      <li>Una corrección por semana: lo que funciona en vos y en la competencia</li>
-      <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
       <li>
         Alertas semanales sobre tu narrativa, tu influencia digital y tu competencia{' '}
         {rama === 'politica' ? 'en tu ciudad, tu provincia y el país' : 'en tu vertical, la región y el mundo'}
       </li>
-      <li>Call táctica mensual con Lisandro</li>
+      <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
+      <li>Call táctica mensual con Lisandro Bregant, director de narraglobal</li>
     </ul>
     <p className="ac-r-nota">
       Tu competencia no la elegís: sale de {rama === 'politica' ? 'tu territorio' : 'tu vertical y tu país'}.

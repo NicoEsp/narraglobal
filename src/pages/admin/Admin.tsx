@@ -54,7 +54,7 @@ const recuperarPedido = (p: Pedido): string => {
   const v = (k: string) => (typeof d[k] === 'string' ? (d[k] as string) : '');
   const nombre = v('nombre').split(' ')[0];
   const texto =
-    'Hola' + (nombre ? ' ' + nombre : '') + ', soy Lisandro de narraglobal. Vi que empezaste a activar tu Narra ID' +
+    'Hola' + (nombre ? ' ' + nombre : '') + ', soy Lisandro Bregant, director de narraglobal. Vi que empezaste a activar tu Narra ID' +
     (v('cuenta') ? ' para ' + v('cuenta') : '') + ' y quedó el pago pendiente (pedido ' + numeroPedido(p.id) +
     '). ¿Te ayudo a terminarlo o tenés alguna duda?';
   return 'https://wa.me/' + soloDigitos(p.telefono) + '?text=' + encodeURIComponent(texto);

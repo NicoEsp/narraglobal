@@ -197,10 +197,9 @@ const Index = () => {
               {/* cada ítem se resalta cuando la película muestra su ventana */}
               <ul className="film-li">
                 <li>Cómo te fue: medimos tus piezas de social media, semana a semana</li>
-                <li>Una corrección por semana: lo que funciona en vos y en la competencia</li>
-                <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
                 <li>Alertas semanales sobre tu narrativa, tu influencia digital y tu competencia {copy.alcance}</li>
-                <li>Call táctica mensual con Lisandro</li>
+                <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
+                <li>Call táctica mensual con Lisandro Bregant, director de narraglobal</li>
               </ul>
             </div>
 
@@ -224,27 +223,6 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* e2 · techo y piso de la semana */}
-                <div className="pel-e e2">
-                  <div className="pel-win">
-                    <span className="pel-tt"><span className="mk up">▲</span>El techo de la semana</span>
-                    <div className="pel-graf techo">
-                      <svg viewBox="0 0 240 120" aria-hidden="true">
-                        <polyline points="14,86 44,80 74,84 104,72 134,66 164,58 194,64 222,56" fill="none" stroke="#111319" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                        <line x1="222" y1="56" x2="222" y2="22" stroke="#00C281" strokeWidth="2.4" strokeLinecap="round" />
-                        <line x1="222" y1="56" x2="222" y2="98" stroke="#FF3D7A" strokeWidth="2.4" strokeLinecap="round" />
-                        <circle className="pg-techo" cx="222" cy="22" r="5.2" fill="#00C281" />
-                        <text x="212" y="25" textAnchor="end" fontFamily={MONO} fontSize="7.5" letterSpacing="1" fill="#00875a" fontWeight="600">REEL A CÁMARA · 48</text>
-                        <circle cx="222" cy="98" r="5.2" fill="#FF3D7A" />
-                        <text x="212" y="101" textAnchor="end" fontFamily={MONO} fontSize="7.5" letterSpacing="1" fill="#c9265b">TEXTO LEÍDO · 21</text>
-                        <circle cx="222" cy="56" r="3.6" fill="#3E1CFF" />
-                        <text x="14" y="114" fontFamily={MONO} fontSize="7" letterSpacing="1" fill="#8b8f99">HACE 8 SEMANAS</text>
-                        <text x="226" y="114" textAnchor="end" fontFamily={MONO} fontSize="7" letterSpacing="1" fill="#8b8f99">HOY · 35</text>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
                 {/* e3 · el asistente por WhatsApp */}
                 <div className="pel-e e3">
                   <div className="pel-win">
@@ -258,8 +236,8 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* e4 · el mail del lunes */}
-                <div className="pel-e e4">
+                {/* e2 · el mail del lunes: las alertas */}
+                <div className="pel-e e2">
                   <div className="pel-win">
                     <span className="pel-tt">Cada lunes en tu mail</span>
                     <div className="pel-mail">
@@ -276,8 +254,8 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* e5 · la call mensual */}
-                <div className="pel-e e5">
+                {/* e4 · la call mensual */}
+                <div className="pel-e e4">
                   <div className="pel-win">
                     <span className="pel-tt">Una hora de orden táctico</span>
                     <div className="pel-call">

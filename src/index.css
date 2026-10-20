@@ -98,25 +98,23 @@
   .film-cta{margin-left:auto;background:var(--blue);color:#fff;font-weight:600;font-size:14px;padding:12px 22px;border-radius:8px;white-space:nowrap;transition:background .15s,transform .15s}
   .film-cta:hover{background:#2c0fd6;transform:translateY(-1px)}
 
-  /* la película: cinco ventanas que se turnan cada 4 s, en sincronía con la lista */
+  /* la película: cuatro ventanas que se turnan cada 4 s, en sincronía con la lista */
   .film-stage{position:relative;height:352px;background:var(--paper-2);border:1px solid var(--line);border-radius:16px;overflow:hidden}
   .film-stage::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.7;
     background-image:linear-gradient(90deg,rgba(17,19,25,.035) 1px,transparent 1px),linear-gradient(rgba(17,19,25,.035) 1px,transparent 1px);background-size:34px 34px}
   .pel{position:relative;width:100%;height:100%;display:grid;place-items:center;pointer-events:none}
-  .pel-e{grid-area:1/1;width:100%;height:100%;opacity:0;display:flex;align-items:center;justify-content:center;animation:pelEsc 20s linear infinite}
+  .pel-e{grid-area:1/1;width:100%;height:100%;opacity:0;display:flex;align-items:center;justify-content:center;animation:pelEsc 16s linear infinite}
   .pel-e.e1{animation-delay:0s}
   .pel-e.e2{animation-delay:4s}
   .pel-e.e3{animation-delay:8s}
   .pel-e.e4{animation-delay:12s}
-  .pel-e.e5{animation-delay:16s}
-  @keyframes pelEsc{0%{opacity:0;transform:translateY(7px) scale(.99)}2%{opacity:1;transform:none}18%{opacity:1;transform:none}20%,to{opacity:0;transform:translateY(-7px) scale(.995)}}
-  .film-li li{animation:liOn 20s linear infinite}
+  @keyframes pelEsc{0%{opacity:0;transform:translateY(7px) scale(.99)}2.5%{opacity:1;transform:none}22.5%{opacity:1;transform:none}25%,to{opacity:0;transform:translateY(-7px) scale(.995)}}
+  .film-li li{animation:liOn 16s linear infinite}
   .film-li li:nth-child(1){animation-delay:0s}
   .film-li li:nth-child(2){animation-delay:4s}
   .film-li li:nth-child(3){animation-delay:8s}
   .film-li li:nth-child(4){animation-delay:12s}
-  .film-li li:nth-child(5){animation-delay:16s}
-  @keyframes liOn{0%,1%{background:var(--blue-soft)}18%{background:var(--blue-soft)}20%,to{background:transparent}}
+  @keyframes liOn{0%,1.25%{background:var(--blue-soft)}22.5%{background:var(--blue-soft)}25%,to{background:transparent}}
 
   .pel-win{width:min(430px,94%);background:#fff;border:1px solid var(--line-2);border-radius:16px;padding:18px 20px 20px;
     display:flex;flex-direction:column;gap:12px;box-shadow:0 18px 44px rgba(17,19,25,.14)}
@@ -124,16 +122,13 @@
   .pel-tt .mk{font-size:12px;line-height:1;flex:none;color:var(--mute)}
   .pel-tt .mk.up{color:var(--green-ink)}
 
-  /* e1 · e2: las gráficas */
+  /* e1: la gráfica */
   .pel-graf{background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px 4px}
-  .pel-graf.techo{background:#fff;padding:10px 12px 6px}
   .pel-graf svg{width:100%;height:auto;display:block;overflow:visible}
-  .pel-graf .pg-line{stroke-dasharray:1;stroke-dashoffset:1;animation:pgDraw 20s linear infinite}
-  @keyframes pgDraw{0%,1%{stroke-dashoffset:1}10%,to{stroke-dashoffset:0}}
-  .pel-graf .pg-dot{opacity:0;animation:pgDot 20s linear infinite}
-  @keyframes pgDot{0%,9%{opacity:0}11%,to{opacity:1}}
-  .pel-graf .pg-techo{animation:pgTecho 1.4s ease-in-out infinite;transform-origin:222px 22px;transform-box:view-box}
-  @keyframes pgTecho{0%,to{transform:scale(1)}50%{transform:scale(1.35)}}
+  .pel-graf .pg-line{stroke-dasharray:1;stroke-dashoffset:1;animation:pgDraw 16s linear infinite}
+  @keyframes pgDraw{0%,1.25%{stroke-dashoffset:1}12.5%,to{stroke-dashoffset:0}}
+  .pel-graf .pg-dot{opacity:0;animation:pgDot 16s linear infinite}
+  @keyframes pgDot{0%,11.25%{opacity:0}13.75%,to{opacity:1}}
 
   /* e3: el asistente por WhatsApp */
   .pel-chat{display:flex;flex-direction:column;gap:7px}
@@ -158,7 +153,7 @@
   .pel-mail .c.azul b{color:#fff}
   .pel-mail .c.azul u{color:#fff;border-top-color:rgba(255,255,255,.28)}
 
-  /* e5: la call mensual */
+  /* e4: la call mensual */
   .pel-call{background:#111319;border-radius:12px;padding:16px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;color:#fff}
   .pel-call .cam{width:46px;height:46px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;animation:camPulso 1.8s ease-out infinite}
   .pel-call .cam svg{width:22px;height:22px}
@@ -172,7 +167,7 @@
 
   /* sin movimiento: queda fija la primera ventana y la lista sin resaltado */
   @media(prefers-reduced-motion:reduce){
-    .pel-e,.film-li li,.pel-graf .pg-line,.pel-graf .pg-dot,.pel-graf .pg-techo,.pel-call .cam{animation:none}
+    .pel-e,.film-li li,.pel-graf .pg-line,.pel-graf .pg-dot,.pel-call .cam{animation:none}
     .pel-e.e1{opacity:1}
     .pel-graf .pg-line{stroke-dashoffset:0}
     .pel-graf .pg-dot{opacity:1}

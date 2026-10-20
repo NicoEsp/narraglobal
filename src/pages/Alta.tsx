@@ -742,19 +742,19 @@ const Alta = () => {
                   <img className="alta-famwm" src="/land/wm-a.svg" alt="narraglobal" />
                 </div>
                 <div className="alta-famsub">
-                  Lisandro en las próximas horas te va a escribir para darte la bienvenida. Podés
+                  Lisandro Bregant, director de narraglobal, te va a escribir en las próximas horas para darte la bienvenida. Podés
                   también escribirle ahora mismo, en caso que tengas consultas o quieras hacer algún
                   comentario.
                 </div>
               </div>
               <a className="alta-lischip" href={WA_LISANDRO} target="_blank" rel="noopener noreferrer">
                 <span className="lav">
-                  <img src="/land/lisandro.jpg" alt="Lisandro" />
+                  <img src="/land/lisandro.jpg" alt="Lisandro Bregant" />
                   <i />
                 </span>
                 <span className="lt">
-                  <b>Escribile a Lisandro</b>
-                  <s>Consultas · pedidos</s>
+                  <b>Escribile a Lisandro Bregant</b>
+                  <s>Director de narraglobal · consultas · pedidos</s>
                 </span>
                 <span className="arr">→</span>
               </a>

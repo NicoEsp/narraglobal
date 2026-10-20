@@ -60,7 +60,7 @@ const BLOQUES = [
     n: '03',
     bloque: 'Tus packs',
     items: [
-      { t: 'Tu llamado con Lisandro', d: 'Media hora por mes, incluida en Narra ID, para la mirada estratégica.' },
+      { t: 'Tu llamado con Lisandro Bregant', d: 'Media hora por mes con el director de narraglobal, incluida en Narra ID, para la mirada estratégica.' },
       { t: 'Taller al equipo y Mesa chica', d: 'Los dos packs que se suman a la suscripción cuando hacen falta.' },
     ],
   },
@@ -400,12 +400,12 @@ const Antesala = ({ suscripcion: sus, email, onSalir }: Props) => {
                 rel="noopener noreferrer"
               >
                 <span className="lav">
-                  <img src="/land/lisandro.jpg" alt="Lisandro" />
+                  <img src="/land/lisandro.jpg" alt="Lisandro Bregant" />
                   <i />
                 </span>
                 <span className="ft">
-                  <b>Escribile a Lisandro</b>
-                  <s>Consultas, pedidos o contexto que quieras que tengamos en cuenta</s>
+                  <b>Escribile a Lisandro Bregant</b>
+                  <s>Director de narraglobal · consultas, pedidos o contexto que quieras que tengamos en cuenta</s>
                 </span>
               </a>
             </div>

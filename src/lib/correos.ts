@@ -36,7 +36,7 @@ export const textoBienvenida = (d: DatosBienvenida) =>
     'Cualquier cosa, respondé este correo o escribime por WhatsApp al +54 9 11 3073-1011.',
     '',
     'Lisandro Bregant',
-    'narraglobal',
+    'Director de narraglobal',
     '',
     'Pedido ' + d.numero,
   ].join('\n');
