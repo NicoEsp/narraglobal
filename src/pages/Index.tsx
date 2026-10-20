@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { waLisandro } from '@/lib/enlaces';
 
 /* Para quién habla la landing. El switch vive adentro del titular y cambia
@@ -94,7 +94,21 @@ const MediaLogo = ({ m, hidden }: { m: MediaDef; hidden?: boolean }) => (
   </span>
 );
 
+/* Las secciones con dirección propia: /narraid es la misma landing, parada en
+   la placa del Narra ID. Sin «#» porque se tipea y se dicta (radio, TV). */
+const SECCIONES: Record<string, string> = { '/narraid': 'tablero' };
+
 const Index = () => {
+  const { pathname } = useLocation();
+  // al entrar por la dirección se llega directo; al tocar «Ver más», con scroll suave
+  const primera = useRef(true);
+  useEffect(() => {
+    const id = SECCIONES[pathname.toLowerCase()];
+    const el = id ? document.getElementById(id) : null;
+    if (el) el.scrollIntoView({ behavior: primera.current ? 'auto' : 'smooth' });
+    primera.current = false;
+  }, [pathname]);
+
   const [modo, setModo] = useState<Modo>('politica');
   const [icSel, setIcSel] = useState<Set<string>>(new Set());
   const [otraOn, setOtraOn] = useState(false);
@@ -153,7 +167,7 @@ const Index = () => {
             </h1>
             <p className="hsub">{copy.sub}</p>
             <div className="hctas hctas-sel">
-              <a className="sel-btn" href="#tablero">Ver más</a>
+              <Link className="sel-btn" to="/narraid">Ver más</Link>
             </div>
           </div>
         </div>
@@ -179,7 +193,7 @@ const Index = () => {
                 <span className="film-k">Narra ID · Suscripción mensual</span>
                 <span className="film-precio">USD 1,000 <s>/ mes</s></span>
               </div>
-              <h2 className="film-t">Control total sobre tu narrativa y la de tus competidores</h2>
+              <h2 className="film-t">Mejorá tu narrativa cada semana y mirá qué le funciona a tu competencia</h2>
               {/* cada ítem se resalta cuando la película muestra su ventana */}
               <ul className="film-li">
                 <li>Cómo te fue: medimos tus piezas de social media, semana a semana</li>

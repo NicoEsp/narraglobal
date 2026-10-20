@@ -14,6 +14,8 @@ const App = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Index />} />
+      {/* la misma landing, parada en la placa del Narra ID */}
+      <Route path="/narraid" element={<Index />} />
       {/* pedidos desde la landing: la demo del Narra ID y el reporte, sin login */}
       <Route path="/posicion" element={<Posicion />} />
       <Route path="/reporte" element={<Reporte />} />
