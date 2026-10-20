@@ -48,7 +48,7 @@ const Resumen = ({ rama }: { rama: Rama }) => (
         Alertas semanales sobre tu narrativa, tu influencia digital y tu competencia{' '}
         {rama === 'politica' ? 'en tu ciudad, tu provincia y el país' : 'en tu vertical, la región y el mundo'}
       </li>
-      <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
+      <li>Un asistente IA en WhatsApp, a cualquier hora, para pensar tu próxima narrativa</li>
       <li>Call táctica mensual con Lisandro Bregant, director de narraglobal</li>
     </ul>
     <p className="ac-r-nota">

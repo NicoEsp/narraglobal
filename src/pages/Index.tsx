@@ -232,7 +232,7 @@ const Index = () => {
               <ul className="film-li">
                 <li>Cómo te fue: medimos tus piezas de social media, semana a semana</li>
                 <li>Alertas semanales sobre tu narrativa, tu influencia digital y tu competencia {copy.alcance}</li>
-                <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
+                <li>Un asistente IA en WhatsApp, a cualquier hora, para pensar tu próxima narrativa</li>
                 <li>Call táctica mensual con Lisandro Bregant, director de narraglobal</li>
               </ul>
             </div>
