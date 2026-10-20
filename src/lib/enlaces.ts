@@ -35,3 +35,6 @@ export const PAYPAL_PLAN_NARRA_ID = 'P-67T0654124275352WNLLS6DI';
 /** El mismo plan como link, por si el botón de PayPal no carga. */
 export const PAYPAL_LINK_NARRA_ID =
   'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=' + PAYPAL_PLAN_NARRA_ID;
+
+/** La agenda de Lisandro para la videollamada de bienvenida del Narra ID. */
+export const AGENDA_BIENVENIDA = 'https://calendar.app.google/FjL87RmwqXESzhqt6';

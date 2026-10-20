@@ -5,6 +5,7 @@ import type { Tables } from '@/integrations/supabase/types';
 import { generarCodigo } from '@/lib/narra';
 import { DIA_LARGO } from '@/lib/pulso';
 import { numeroPedido, soloDigitos, unir } from '@/lib/pedidos';
+import { mailtoBienvenida } from '@/lib/correos';
 import AdminMarco from './AdminMarco';
 
 type Suscripcion = Tables<'suscripciones'>;
@@ -45,6 +46,17 @@ const detallePedido = (p: Pedido): string => {
       ? unir(v('nombre'), v('cuenta'), 'negocios', v('sector'), v('pais'), v('quien'))
       : unir(v('nombre'), v('cuenta'), 'política', v('cargo'), v('ciudad'), v('provincia'), v('pais'), v('quien'));
   return unir(v('nombre'), v('rol'));
+};
+
+/** El mail de bienvenida del pedido del Narra ID, listo para mandar. */
+const bienvenidaPedido = (p: Pedido): string => {
+  const d = (p.datos && typeof p.datos === 'object' && !Array.isArray(p.datos) ? p.datos : {}) as Record<string, unknown>;
+  const v = (k: string) => (typeof d[k] === 'string' ? (d[k] as string) : '');
+  const elenco =
+    v('rama') === 'negocios'
+      ? [v('sector'), v('pais')].filter(Boolean).join(' en ')
+      : unir(v('ciudad'), v('provincia'), v('pais')).replace(/ · /g, ', ');
+  return mailtoBienvenida({ nombre: v('nombre'), email: p.email ?? '', numero: numeroPedido(p.id), elenco });
 };
 
 const fechaCorta = (iso: string) =>
@@ -394,8 +406,8 @@ const Admin = () => {
       <p className="bo-sub">
         Lo que entra por la landing: activar el Narra ID (/activar), la demo (/posicion) y el reporte del
         momento, hoy Despedida Messi 2026 (/reporte). El Narra ID se paga con links fijos (Mercado Pago,
-        PayPal o efectivo): cruzá el aviso del pago con el número de pedido, marcalo pagado y hacé el alta
-        con «+ Nueva suscripción».
+        PayPal o efectivo): cruzá el aviso del pago con el número de pedido, marcalo pagado, hacé el alta
+        con «+ Nueva suscripción» y mandá el «Mail de bienvenida» (se abre tu correo con todo escrito).
       </p>
       {errorPedidos && <div className="bo-err" style={{ marginBottom: 14 }}>{errorPedidos}</div>}
       {pedidos === null ? (
@@ -440,6 +452,12 @@ const Admin = () => {
                       <button type="button" className="bo-btn mini sec" disabled={marcando === p.id} onClick={() => marcarPagado(p)}>
                         {p.pagado_en ? 'Desmarcar' : 'Marcar pagado'}
                       </button>
+                      {p.pagado_en && p.email && (
+                        <>
+                          {' '}
+                          <a className="bo-btn mini" href={bienvenidaPedido(p)}>Mail de bienvenida</a>
+                        </>
+                      )}
                     </>
                   )}
                 </td>
