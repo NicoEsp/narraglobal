@@ -26,7 +26,7 @@ const MODOS: Record<Modo, { sub: string; rama: string; rival: string; alcance: s
 interface ClientDef { file: string; alt: string; fallback: string; size?: 'md' | 'lg'; }
 const CLIENTS: ClientDef[] = [
   { file: 'cli-google', alt: 'Google', fallback: 'Google', size: 'md' },
-  { file: 'cli-hbomax', alt: 'HBO Max', fallback: 'HBO Max' },
+  { file: 'cli-hbomax', alt: 'HBO Max', fallback: 'HBO Max', size: 'lg' },
   { file: 'cli-bayer', alt: 'Bayer', fallback: 'Bayer', size: 'lg' },
   { file: 'cli-syngenta', alt: 'Syngenta', fallback: 'Syngenta' },
   { file: 'cli-amgen', alt: 'AMGEN', fallback: 'AMGEN' },
