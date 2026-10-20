@@ -417,7 +417,7 @@ const Admin = () => {
       <h2 className="bo-h" style={{ marginTop: 48 }}>Pedidos de la landing</h2>
       <p className="bo-sub">
         Lo que entra por la landing: activar el Narra ID (/activar), la demo (/posicion) y el reporte del
-        momento, hoy Despedida Messi 2026 (/reporte). El Narra ID se paga con links fijos (Mercado Pago,
+        momento, hoy Octubre 2026 — Narrativa ARG (/reporte). El Narra ID se paga con links fijos (Mercado Pago,
         PayPal o efectivo): cruzá el aviso del pago con el número de pedido, marcalo pagado, hacé el alta
         con «+ Nueva suscripción» y mandá el «Mail de bienvenida» (se abre tu correo con todo escrito).
       </p>

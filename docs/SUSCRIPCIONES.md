@@ -16,7 +16,7 @@ Sigue el modelo de `ALTA-checklist`: el pago no es el alta, estados del cliente
 | `/entrar` | Puerta desde la landing: pide el email y redirige al tablero (o al back office si el email es admin) | Cualquiera |
 | `/activar?rama=politica\|negocios` | **Activar el Narra ID** desde la landing: datos (nombre, correo, cuenta, WhatsApp) y después cómo paga — Mercado Pago, PayPal o efectivo por WhatsApp, con links fijos (§7) | Cualquiera |
 | `/posicion?tipo=persona\|empresa` | El pedido de **demo del Narra ID** desde la landing: dos pasos (elenco + contacto), sin login (§7) | Cualquiera |
-| `/reporte` | El pedido del **reporte NarraNoise® Despedida Messi 2026**, sin cargo (§7) | Cualquiera |
+| `/reporte` | El pedido del **reporte NarraNoise® Octubre 2026 — Narrativa ARG**, sin cargo (§7) | Cualquiera |
 | `/admin` | Back office: el store de clientes (altas, estados, pulso, pausas) | Equipo narraglobal (rol admin) |
 | `/admin/suscripcion/{id}` | Las semanas de un cliente: pegar datos.js, validar, ver como cliente, programar, publicar | Equipo narraglobal |
 
@@ -348,7 +348,7 @@ al terminar ve la fecha de su primera entrega → el equipo carga la semana en `
    cuentas que se miden). Paso 2, la cuenta (solo en política: en negocios ya vino en el
    paso 1), el WhatsApp, el correo y quién lo pide. La rama llega elegida desde el switch
    del hero (Política / Negocios) y se puede cambiar arriba de la tarjeta.
-3. **`/reporte`** — el reporte Despedida Messi 2026: nombre, correo, WhatsApp (obligatorio) y rol.
+3. **`/reporte`** — el reporte Octubre 2026 — Narrativa ARG: nombre, correo, WhatsApp (obligatorio) y rol.
    La edición viaja en `datos.edicion` (`EDICION` en `Reporte.tsx`); los pedidos previos sin
    ese campo se rotulan por fecha en el back office (Santa Fe hasta el 25-09, después Paraguay).
 4. **Qué guarda `enviar_pedido`**: `tipo`, `telefono` normalizado (`+<dígitos>`: con eso el
