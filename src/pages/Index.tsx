@@ -157,7 +157,6 @@ const Index = () => {
             <p className="hsub">{copy.sub}</p>
             <div className="hctas hctas-sel">
               <a className="sel-btn" href={activarHref} target="_blank" rel="noopener noreferrer">Activá tu Narra ID</a>
-              <span className="cta-price">USD 1,000 / mes · cancelás cuando quieras</span>
             </div>
           </div>
         </div>
