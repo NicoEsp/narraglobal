@@ -4,12 +4,12 @@ import { AVISO_TELEFONO, enviarPedido, telefonoValido, unir } from '@/lib/pedido
 import { waNarra } from '@/lib/enlaces';
 import '@/styles/posicion.css';
 
-/* El reporte NarraNoise® Despedida Messi 2026, sin cargo: una tarjeta, cuatro
+/* El reporte NarraNoise® Octubre 2026 — Narrativa ARG, sin cargo: una tarjeta, cuatro
    campos, y el equipo lo manda por WhatsApp. */
 
 /* La edición viaja con cada pedido: el back office la muestra tal cual y
    cambiar de edición no re-etiqueta los pedidos viejos. */
-const EDICION = 'Despedida Messi 2026';
+const EDICION = 'Octubre 2026 — Narrativa ARG';
 
 const ROLES = ['Figura pública', 'Jefe o jefa de prensa', 'Asesor o consultora', 'Periodista', 'Empresa u organización', 'Otro'];
 
