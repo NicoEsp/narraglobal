@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { IG_DATA, X_DATA, waLisandro } from '@/lib/enlaces';
+import { IG_DATA, LINKEDIN_NARRA, X_DATA, waLisandro } from '@/lib/enlaces';
 
 /* Para quién habla la landing. El switch vive adentro del titular y cambia
    la bajada del hero, la rama que llega elegida a /activar, el nombre del
@@ -326,9 +326,9 @@ const Index = () => {
         </div>
         <p className="med-redes">
           Seguí los reportes en nuestras cuentas de{' '}
-          <a href={X_DATA} target="_blank" rel="noopener noreferrer">X</a> e{' '}
-          <a href={IG_DATA} target="_blank" rel="noopener noreferrer">Instagram</a>
-          <span> · @datanarraglobal</span>
+          <a href={X_DATA} target="_blank" rel="noopener noreferrer">X</a>,{' '}
+          <a href={IG_DATA} target="_blank" rel="noopener noreferrer">Instagram</a> y{' '}
+          <a href={LINKEDIN_NARRA} target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </p>
       </section>
 

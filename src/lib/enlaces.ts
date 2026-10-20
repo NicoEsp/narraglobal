@@ -42,3 +42,5 @@ export const AGENDA_BIENVENIDA = 'https://calendar.app.google/FjL87RmwqXESzhqt6'
 /** Las cuentas donde se publican los reportes: @datanarraglobal. */
 export const X_DATA = 'https://x.com/datanarraglobal';
 export const IG_DATA = 'https://www.instagram.com/datanarraglobal/';
+/** La página de narraglobal en LinkedIn. */
+export const LINKEDIN_NARRA = 'https://www.linkedin.com/company/narraglobal/';
