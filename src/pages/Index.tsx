@@ -7,16 +7,18 @@ import { waLisandro } from '@/lib/enlaces';
    competidor en la película del Narra ID y a quién se mide. */
 type Modo = 'politica' | 'negocios';
 
-const MODOS: Record<Modo, { sub: string; rival: string; alcance: string }> = {
+const MODOS: Record<Modo, { sub: string; rival: string; alcance: string; canchas: [string, string, string] }> = {
   politica: {
     sub: 'Medimos políticos de escala ciudad, provincia y país.',
     rival: 'Actor 2',
     alcance: 'en tu ciudad, tu provincia y el país',
+    canchas: ['Top ciudad', 'Top provincial', 'Top nacional'],
   },
   negocios: {
     sub: 'Medimos verticales de negocio a escala país, región y global.',
     rival: 'Empresa 2',
     alcance: 'en tu vertical, la región y el mundo',
+    canchas: ['Top vertical', 'Top regional', 'Top global'],
   },
 };
 
@@ -97,6 +99,26 @@ const MediaLogo = ({ m, hidden }: { m: MediaDef; hidden?: boolean }) => (
 /* Las secciones con dirección propia: /narraid es la misma landing, parada en
    la placa del Narra ID. Sin «#» porque se tipea y se dicta (radio, TV). */
 const SECCIONES: Record<string, string> = { '/narraid': 'tablero' };
+
+/* Las tres canchas del mail del lunes, en la película: en cada una tu fila
+   sube un puesto mientras se ve la ventana (rkSube / rkBaja en index.css). */
+const RANKINGS: Array<{ arriba: number; total: number }> = [
+  { arriba: 1, total: 12 },
+  { arriba: 13, total: 30 },
+  { arriba: 16, total: 30 },
+];
+
+const RankMini = ({ titulo, arriba, total, rival }: { titulo: string; arriba: number; total: number; rival: string }) => (
+  <div className="c rk">
+    <s>{titulo}</s>
+    <ol className="rk-l">
+      <li style={{ top: 0 }}><i>{arriba}º</i>{rival} {arriba}</li>
+      <li className="baja" style={{ top: 13 }}><i><em className="a">{arriba + 1}º</em><em className="b">{arriba + 2}º</em></i>{rival} {arriba + 1}</li>
+      <li className="yo sube" style={{ top: 26 }}><i><em className="a">{arriba + 2}º</em><em className="b">{arriba + 1}º</em></i>Vos</li>
+    </ol>
+    <u>Estás <span className="rk-n"><em className="a">{arriba + 2}º</em><em className="b">{arriba + 1}º</em></span> de {total} <span className="rk-up">▲1</span></u>
+  </div>
+);
 
 const Index = () => {
   const { pathname } = useLocation();
@@ -246,9 +268,9 @@ const Index = () => {
                         <div className="c"><s className="ok">▲ Funcionó</s><b>El reel del martes en la escuela técnica movió a 11 personas</b><u>Ver pieza →</u></div>
                         <div className="c"><s className="ok">▲ Funcionó</s><b>La recorrida por el barrio, sin guión, quedó 13 puntos arriba de tu promedio</b><u>Ver pieza →</u></div>
                         <div className="c azul"><s>Lo que hay que repetir</s><b>Repetí el reel sin locución con la recorrida que ya tenés grabada</b><u>En el asistente</u></div>
-                        <div className="c"><s>Top ciudad · Rosario</s><b>«Respeto, una palabra. Simple, concreta y elemental.»</b><u>Estás 2 de 27</u></div>
-                        <div className="c"><s>Top provincial</s><b>«Qué está pasando abajo del Boulevard Pellegrini»</b><u>Estás 14 de 30</u></div>
-                        <div className="c"><s>Top nacional</s><b>«Gracias por no haber bajado los brazos nunca.»</b><u>Ver tabla</u></div>
+                        {RANKINGS.map((r, k) => (
+                          <RankMini key={k} titulo={copy.canchas[k]} arriba={r.arriba} total={r.total} rival={copy.rival.replace(/ \d+$/, '')} />
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -257,7 +279,7 @@ const Index = () => {
                 {/* e4 · la call mensual */}
                 <div className="pel-e e4">
                   <div className="pel-win">
-                    <span className="pel-tt">Una hora de orden táctico</span>
+                    <span className="pel-tt">Una hora al mes para organizar tu narrativa</span>
                     <div className="pel-call">
                       <div className="cam">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
