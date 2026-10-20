@@ -293,6 +293,13 @@ export type Database = {
         }
         Returns: string
       }
+      registrar_suscripcion_paypal: {
+        Args: {
+          p_pedido: string
+          p_suscripcion: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

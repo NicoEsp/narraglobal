@@ -20,10 +20,18 @@ export const waLisandro = (texto: string) =>
 
 /* Los links fijos de pago del Narra ID (USD 1,000 / mes, IVA incluido). Con
    links fijos el sitio no se entera solo del pago: el equipo lo cruza con el
-   aviso de MP o PayPal y lo marca en el back office. */
+   aviso de MP o PayPal y lo marca en el back office. La suscripción de
+   PayPal lleva el número de pedido (custom_id) y queda anotada en el pedido. */
 
 /** Mercado Pago: la suscripción en pesos. */
 export const MP_NARRA_ID = 'https://mpago.la/1QsU9Go';
 
-/** PayPal: cobro único de USD 1,000 (PayPal.me no es una suscripción). */
-export const PAYPAL_NARRA_ID = 'https://www.paypal.com/paypalme/lisandrobregant/1000USD';
+/** PayPal: la suscripción de USD 1,000 / mes (botón de PayPal Subscriptions).
+    El client-id es público: es el que PayPal pone en el código del botón. */
+export const PAYPAL_CLIENT_ID =
+  'BAA9TY8r0VhgBiwkKnCCFTftX9cGVmxefXdsQ4AmYaggoGNIziRILopkBbkTQMeUjgpQQ86eJINjXq41b8';
+export const PAYPAL_PLAN_NARRA_ID = 'P-67T0654124275352WNLLS6DI';
+
+/** El mismo plan como link, por si el botón de PayPal no carga. */
+export const PAYPAL_LINK_NARRA_ID =
+  'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=' + PAYPAL_PLAN_NARRA_ID;

@@ -1,14 +1,22 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AVISO_TELEFONO, guardarPedido, numeroPedido, telefonoValido, unir } from '@/lib/pedidos';
-import { MP_NARRA_ID, PAYPAL_NARRA_ID, waLisandro } from '@/lib/enlaces';
+import { supabase } from '@/integrations/supabase/client';
+import {
+  MP_NARRA_ID,
+  PAYPAL_CLIENT_ID,
+  PAYPAL_LINK_NARRA_ID,
+  PAYPAL_PLAN_NARRA_ID,
+  waLisandro,
+} from '@/lib/enlaces';
 import '@/styles/posicion.css';
 
 /* Activar el Narra ID, en dos pasos: primero los datos (quién, la cuenta que
    medimos y el correo del alta), que quedan guardados como pedido; después
-   cómo paga. Los tres medios son links fijos —Mercado Pago, PayPal o efectivo
-   por WhatsApp—, así que el pago se cruza a mano con el número de pedido y se
-   marca en el back office. La rama llega del switch del hero (?rama=). */
+   cómo paga: Mercado Pago (link fijo de la suscripción), PayPal (el botón de
+   suscripción, que lleva el número de pedido) o efectivo por WhatsApp. El
+   pago se cruza a mano con el número de pedido y se marca en el back office.
+   La rama llega del switch del hero (?rama=). */
 
 type Rama = 'politica' | 'negocios';
 
@@ -16,6 +24,85 @@ const QUIEN = ['El propio · soy yo', 'Jefe o jefa de prensa', 'Asesor o consult
 
 const VACIO = { nombre: '', mail: '', wsp: '', cuenta: '', quien: '', hp: '' };
 type Campos = typeof VACIO;
+
+/* Lo justo del SDK de PayPal que usa el botón de suscripción. */
+interface PayPalSdk {
+  Buttons: (o: {
+    style: Record<string, string>;
+    createSubscription: (data: unknown, actions: { subscription: { create: (o: Record<string, string>) => Promise<string> } }) => Promise<string>;
+    onApprove: (data: { subscriptionID?: string | null }) => void;
+    onError: () => void;
+  }) => { render: (el: HTMLElement) => Promise<void>; close?: () => void };
+}
+declare global {
+  interface Window { paypal?: PayPalSdk }
+}
+
+const SDK_PAYPAL =
+  'https://www.paypal.com/sdk/js?client-id=' + PAYPAL_CLIENT_ID + '&vault=true&intent=subscription';
+
+/** Carga el SDK de PayPal una sola vez por página. */
+let cargaPayPal: Promise<PayPalSdk> | null = null;
+const cargarPayPal = () =>
+  (cargaPayPal ??= new Promise<PayPalSdk>((ok, mal) => {
+    if (window.paypal) return ok(window.paypal);
+    const s = document.createElement('script');
+    s.src = SDK_PAYPAL;
+    s.setAttribute('data-sdk-integration-source', 'button-factory');
+    s.onload = () => (window.paypal ? ok(window.paypal) : mal(new Error('sin paypal')));
+    s.onerror = () => {
+      cargaPayPal = null;
+      mal(new Error('no cargó'));
+    };
+    document.head.appendChild(s);
+  }));
+
+/* El botón de suscripción de PayPal. Lleva el número de pedido en custom_id
+   (así llega en el aviso de PayPal) y, al aprobarse, anota el id de la
+   suscripción en el pedido. Si el SDK no carga, queda el link directo. */
+const BotonPayPal = ({ pedidoId, numero, onListo }: { pedidoId: string; numero: string; onListo: (sub: string) => void }) => {
+  const caja = useRef<HTMLDivElement>(null);
+  const [falla, setFalla] = useState(false);
+
+  useEffect(() => {
+    let vivo = true;
+    let botones: { close?: () => void } | null = null;
+    cargarPayPal()
+      .then((pp) => {
+        if (!vivo || !caja.current) return;
+        botones = pp.Buttons({
+          style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'subscribe' },
+          createSubscription: (_d, actions) =>
+            actions.subscription.create({ plan_id: PAYPAL_PLAN_NARRA_ID, custom_id: numero }),
+          onApprove: (data) => {
+            const sub = data.subscriptionID ?? '';
+            // anotarlo es ayuda para cruzar el pago: si falla, el pago igual entró
+            if (sub) supabase.rpc('registrar_suscripcion_paypal', { p_pedido: pedidoId, p_suscripcion: sub }).then(() => undefined);
+            onListo(sub);
+          },
+          onError: () => setFalla(true),
+        });
+        return (botones as { render: (el: HTMLElement) => Promise<void> }).render(caja.current);
+      })
+      .catch(() => vivo && setFalla(true));
+    return () => {
+      vivo = false;
+      botones?.close?.();
+    };
+  }, [pedidoId, numero, onListo]);
+
+  return (
+    <div className="pos-paypal">
+      <div ref={caja} />
+      {falla && (
+        <p className="pos-sub">
+          El botón de PayPal no cargó. <a href={PAYPAL_LINK_NARRA_ID} target="_blank" rel="noopener noreferrer">Suscribite desde este link</a> y
+          poné el pedido <b>{numero}</b> si te pide una nota.
+        </p>
+      )}
+    </div>
+  );
+};
 
 const Activar = () => {
   const [params, setParams] = useSearchParams();
@@ -26,7 +113,10 @@ const Activar = () => {
   const [enviando, setEnviando] = useState(false);
   // fallo=true es la base que no tomó el pedido: ahí se ofrece WhatsApp
   const [error, setError] = useState<{ texto: string; fallo: boolean } | null>(null);
-  const [pedido, setPedido] = useState<string | null>(null);
+  const [pedido, setPedido] = useState<{ id: string; numero: string } | null>(null);
+  const [verPayPal, setVerPayPal] = useState(false);
+  const [paypalListo, setPaypalListo] = useState<string | null>(null);
+  const alSuscribirPayPal = useRef((sub: string) => setPaypalListo(sub || 'ok')).current;
 
   const set = (k: keyof Campos) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setF((prev) => ({ ...prev, [k]: e.target.value }));
@@ -55,7 +145,7 @@ const Activar = () => {
       setError({ texto: 'No pudimos guardar tu pedido: ' + r.error + '.', fallo: true });
       return;
     }
-    setPedido(numeroPedido(r.id));
+    setPedido({ id: r.id, numero: numeroPedido(r.id) });
   };
 
   const waFallback = waLisandro(
@@ -63,7 +153,7 @@ const Activar = () => {
       unir(f.nombre, f.cuenta, f.mail) + '.',
   );
   const waEfectivo = waLisandro(
-    'Hola, quiero activar mi Narra ID. Pedido ' + (pedido ?? '') + '. Pago en efectivo.',
+    'Hola, quiero activar mi Narra ID. Pedido ' + (pedido?.numero ?? '') + '. Pago en efectivo.',
   );
 
   return (
@@ -83,28 +173,41 @@ const Activar = () => {
           <span className={'pos-pt' + (pedido ? ' on' : '')}><b>2</b><span>Cómo pagás</span></span>
         </div>
 
-        {pedido ? (
+        {pedido && paypalListo ? (
           <section className="pos-tarjeta">
-            <span className="pos-eyebrow">Narra ID · pedido {pedido}</span>
+            <span className="pos-eyebrow">Narra ID · pedido {pedido.numero}</span>
+            <div className="pos-ok-h"><span className="pos-ok-i" /><h2>¡Suscripción activa!</h2></div>
+            <p className="pos-sub">
+              PayPal confirmó tu suscripción{paypalListo !== 'ok' && <> (<b>{paypalListo}</b>)</>}. Te escribimos
+              al <b>{f.wsp.trim()}</b> para el alta y con <b>{f.mail.trim()}</b> entrás a tu tablero.
+            </p>
+            <div className="pos-acciones">
+              <Link className="pos-btn p" to="/">← Volver a narraglobal</Link>
+            </div>
+          </section>
+        ) : pedido ? (
+          <section className="pos-tarjeta">
+            <span className="pos-eyebrow">Narra ID · pedido {pedido.numero}</span>
             <div className="pos-preg">¿Cómo pagás?</div>
             <p className="pos-sub">
               USD 1,000 por mes, IVA incluido. Pagá con tu correo, <b>{f.mail.trim()}</b>, y si el medio
-              te deja una nota, poné <b>{pedido}</b>: así cruzamos tu pago con el pedido.
+              te deja una nota, poné <b>{pedido.numero}</b>: así cruzamos tu pago con el pedido.
             </p>
             <div className="pos-medios">
               <a className="pos-medio" href={MP_NARRA_ID} target="_blank" rel="noopener noreferrer">
                 <b>Mercado Pago</b>
                 <span>En pesos. Suscribite y congelás tu precio: se debita cada mes.</span>
               </a>
-              <a className="pos-medio" href={PAYPAL_NARRA_ID} target="_blank" rel="noopener noreferrer">
+              <button type="button" className={'pos-medio' + (verPayPal ? ' on' : '')} aria-expanded={verPayPal} onClick={() => setVerPayPal(true)}>
                 <b>PayPal</b>
-                <span>USD 1,000, desde cualquier país.</span>
-              </a>
+                <span>USD 1,000 por mes, desde cualquier país.</span>
+              </button>
               <a className="pos-medio" href={waEfectivo} target="_blank" rel="noopener noreferrer">
                 <b>Efectivo</b>
                 <span>Lo coordinamos por WhatsApp.</span>
               </a>
             </div>
+            {verPayPal && <BotonPayPal pedidoId={pedido.id} numero={pedido.numero} onListo={alSuscribirPayPal} />}
             <div className="pos-pie">
               Cuando se acredita el pago te escribimos al {f.wsp.trim()} para el alta · cancelás cuando quieras
             </div>

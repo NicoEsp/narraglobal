@@ -359,10 +359,13 @@ al terminar ve la fecha de su primera entrega → el equipo carga la semana en `
    `20261020120000_pedido_narra_id.sql` (tipo `narra_id` y la columna `pagado_en`). Guarda el pedido y
    muestra su número corto (`#3F9A2C`) y tres links fijos, que viven en `src/lib/enlaces.ts`:
    `MP_NARRA_ID` (la suscripción de Mercado Pago, en pesos: el precio queda congelado para el que se
-   suscribe; para subirlo a los nuevos se crea un plan nuevo y se cambia el link), `PAYPAL_NARRA_ID`
-   (PayPal.me, cobro único) y el WhatsApp de Lisandro para efectivo. Como los links son fijos, el sitio
-   no se entera del pago: se cruza el aviso de MP o PayPal con el correo y el número de pedido, se
-   aprieta **Marcar pagado** en el back office y se hace el alta con «+ Nueva suscripción».
+   suscribe; para subirlo a los nuevos se crea un plan nuevo y se cambia el link), el botón de
+   **suscripción de PayPal** (`PAYPAL_CLIENT_ID` y `PAYPAL_PLAN_NARRA_ID`; si el SDK no carga queda el
+   link directo del plan) y el WhatsApp de Lisandro para efectivo. La suscripción de PayPal viaja con el
+   número de pedido en `custom_id` y, al aprobarse, `registrar_suscripcion_paypal` anota su id (`I-…`)
+   en `datos.paypal_suscripcion`. El sitio no confirma pagos solo: se cruza el aviso de MP o PayPal con
+   el correo y el número de pedido, se aprieta **Marcar pagado** en el back office y se hace el alta con
+   «+ Nueva suscripción».
 6. **Dónde se ven**: en `/admin`, abajo del store de clientes, la tabla «Pedidos de demo y
    reporte» con fecha, tipo, WhatsApp (link al chat), correo y detalle. La demo promete
    **48 horas hábiles** por WhatsApp y el alta del tablero al correo: esa alta se crea a

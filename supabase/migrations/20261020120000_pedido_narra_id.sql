@@ -8,9 +8,11 @@
 -- pago: el equipo lo cruza con el mail de MP o PayPal y lo marca en el back
 -- office, que es lo que guarda pagado_en.
 --
--- Cambios: el tipo nuevo en el check, la columna pagado_en y enviar_pedido
--- aceptando 'narra_id' (pide correo y la cuenta a medir). El resto de la
--- función queda igual a 20260916151418_enviar_pedido_tope_en_serie.sql.
+-- Cambios: el tipo nuevo en el check, la columna pagado_en, enviar_pedido
+-- aceptando 'narra_id' (pide correo y la cuenta a medir; el resto de la
+-- función queda igual a 20260916151418_enviar_pedido_tope_en_serie.sql) y
+-- registrar_suscripcion_paypal, que anota en el pedido el id de la
+-- suscripción que devuelve el botón de PayPal.
 -- ============================================================================
 
 alter table public.pedidos drop constraint if exists pedidos_tipo_check;
@@ -101,3 +103,32 @@ $$;
 
 revoke all on function public.enviar_pedido(text, text, text, jsonb, text) from public;
 grant execute on function public.enviar_pedido(text, text, text, jsonb, text) to anon, authenticated;
+
+-- registrar_suscripcion_paypal: la llama /activar cuando PayPal aprueba la
+-- suscripción. Solo anota el id (I-…) en datos.paypal_suscripcion para que el
+-- equipo cruce el pago; NO marca pagado: eso se confirma contra PayPal en el
+-- back office. Una vez por pedido, solo pedidos narra_id del último día.
+create or replace function public.registrar_suscripcion_paypal(
+  p_pedido      uuid,
+  p_suscripcion text
+) returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if coalesce(p_suscripcion, '') !~ '^I-[A-Z0-9]{8,40}$' then
+    raise exception 'pedido_invalido' using hint = 'La suscripción de PayPal no tiene el formato esperado.';
+  end if;
+
+  update public.pedidos
+  set datos = datos || jsonb_build_object('paypal_suscripcion', p_suscripcion)
+  where id = p_pedido
+    and tipo = 'narra_id'
+    and datos->>'paypal_suscripcion' is null
+    and created_at > now() - interval '24 hours';
+end;
+$$;
+
+revoke all on function public.registrar_suscripcion_paypal(uuid, text) from public;
+grant execute on function public.registrar_suscripcion_paypal(uuid, text) to anon, authenticated;
