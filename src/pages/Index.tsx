@@ -155,7 +155,7 @@ const Index = () => {
             </h1>
             <p className="hsub">{copy.sub}</p>
             <div className="hctas hctas-sel">
-              <a className="sel-btn" href={activarHref} target="_blank" rel="noopener noreferrer">Activá tu Narra ID</a>
+              <a className="sel-btn" href="#tablero">Ver más</a>
             </div>
           </div>
         </div>
