@@ -48,6 +48,19 @@
   .cta-price{font-family:var(--mono);font-size:11.5px;letter-spacing:.9px;text-transform:uppercase;color:rgba(255,255,255,.72);line-height:1.35;text-align:center}
 
   /* --- Política / Negocios: el switch vive adentro del titular --- */
+  /* corte de señal: «mejora» del titular (mismas tajadas que las hojas de insight) */
+  .cut{position:relative;display:inline-block;line-height:1;vertical-align:baseline;--c1t:.4535em;--c1b:.5725em;--c2t:.6065em;--c2b:.6405em;--th:.5px}
+  .cut .b{color:transparent}
+  .cut .s{position:absolute;left:0;width:100%;overflow:hidden;white-space:nowrap}
+  .cut .s i{position:absolute;left:0;font-style:normal}
+  .cut .s1{top:-.3em;height:calc(.3em + var(--c1t) - var(--th))} .cut .s1 i{top:.3em}
+  .cut .s2{top:var(--c1t);height:calc(var(--c1b) - var(--c1t));transform:translateX(.042em);animation:cutA 5s steps(1) infinite} .cut .s2 i{top:calc(0px - var(--c1t))}
+  .cut .s3{top:var(--c2t);height:calc(var(--c2b) - var(--c2t));transform:translateX(-.025em);animation:cutB 5s steps(1) infinite} .cut .s3 i{top:calc(0px - var(--c2t))}
+  .cut .s4{top:calc(var(--c2b) + var(--th));height:.75em} .cut .s4 i{top:calc(0px - var(--c2b) - var(--th))}
+  /* cada 5 s, un salto corto de señal */
+  @keyframes cutA{0%{transform:translateX(.042em)}88%{transform:translateX(.13em)}90%{transform:translateX(-.06em)}92%{transform:translateX(.09em)}94%,to{transform:translateX(.042em)}}
+  @keyframes cutB{0%{transform:translateX(-.025em)}88%{transform:translateX(-.1em)}90%{transform:translateX(.07em)}92%{transform:translateX(-.05em)}94%,to{transform:translateX(-.025em)}}
+  @media(prefers-reduced-motion:reduce){.cut .s2,.cut .s3{animation:none}}
   .modo-seg{display:inline-flex;gap:3px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);border-radius:99px;padding:3px;vertical-align:.14em;margin:0 0 0 .12em}
   .modo-b{font-family:var(--mono);font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.62);background:transparent;border:0;border-radius:99px;padding:9px 18px;cursor:pointer;transition:background .15s,color .15s}
   h1.hh .modo-b{font-size:clamp(11px,.23em,17px);letter-spacing:.14em;padding:.7em 1.5em;font-weight:500}
@@ -55,9 +68,9 @@
   .modo-b.on,.modo-b.on:hover{background:#fff;color:var(--blue)}
 
   /* ===================== CLIENTES — carrusel ===================== */
-  .hero-clients{position:relative;z-index:2;padding:6px 0 60px;text-align:center}
-  .hero-clients .cl-eyebrow{color:rgba(255,255,255,.72)}
-  .hero-clients .mq{margin-top:26px}
+  .hero-clients{position:relative;z-index:2;padding:10px 0 56px;text-align:center}
+  .hero-clients .cl-eyebrow{color:rgba(255,255,255,.72);margin-top:22px}
+  .hero-clients .mq{margin-top:0}
   .hero-clients .mq .lf{color:rgba(255,255,255,.8)}
   .cl-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mute)}
   .cl-title{font-weight:800;font-size:clamp(20px,2.4vw,27px);letter-spacing:-.03em;line-height:1.2;color:var(--ink);margin:12px auto 0;max-width:34ch;padding:0 5vw}

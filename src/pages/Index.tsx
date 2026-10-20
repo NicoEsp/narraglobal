@@ -96,6 +96,18 @@ const MediaLogo = ({ m, hidden }: { m: MediaDef; hidden?: boolean }) => (
   </span>
 );
 
+/* La palabra con el corte de señal de la marca: cuatro tajadas de la misma
+   palabra, dos corridas en horizontal. La de base queda transparente (no
+   oculta) para que los lectores de pantalla la lean una sola vez. */
+const Corte = ({ children }: { children: string }) => (
+  <span className="cut">
+    <span className="b">{children}</span>
+    {['s1', 's2', 's3', 's4'].map((k) => (
+      <span key={k} className={'s ' + k} aria-hidden="true"><i>{children}</i></span>
+    ))}
+  </span>
+);
+
 /* Las secciones con dirección propia: /narraid es la misma landing, parada en
    la placa del Narra ID. Sin «#» porque se tipea y se dicta (radio, TV). */
 const SECCIONES: Record<string, string> = { '/narraid': 'tablero' };
@@ -181,7 +193,7 @@ const Index = () => {
 
           <div className="hero-copy">
             <h1 className="hh">
-              Dato mejora relato
+              Dato <Corte>mejora</Corte> relato
               <br />
               en{' '}
               <span className="modo-seg" role="group" aria-label="Para quién">
@@ -193,15 +205,16 @@ const Index = () => {
           </div>
         </div>
 
-        {/* clientes, en blanco sobre el azul, debajo del botón */}
+        {/* clientes, en blanco sobre el azul; la leyenda va abajo de los logos
+            para separarla del copy del hero */}
         <div className="hero-clients">
-          <div className="cl-eyebrow">Mejoran su narrativa con nosotros</div>
           <div className="mq">
             <div className="mq-track">
               {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
               {CLIENTS.map((c) => <ClientLogo key={c.file + '-2'} c={c} hidden />)}
             </div>
           </div>
+          <div className="cl-eyebrow">Mejoran sus narrativas con nosotros</div>
         </div>
       </div>
 
