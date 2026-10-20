@@ -60,7 +60,7 @@ const BLOQUES = [
     n: '03',
     bloque: 'Tus packs',
     items: [
-      { t: 'Tu llamado con Lisandro Bregant', d: 'Media hora por mes con el director de narraglobal, incluida en Narra ID, para la mirada estratégica.' },
+      { t: 'Tu llamado con Lisandro Bregant', d: 'Una hora por mes con el director de narraglobal, incluida en Narra ID, para organizar tu narrativa.' },
       { t: 'Taller al equipo y Mesa chica', d: 'Los dos packs que se suman a la suscripción cuando hacen falta.' },
     ],
   },

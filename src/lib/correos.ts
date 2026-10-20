@@ -29,7 +29,7 @@ export const textoBienvenida = (d: DatosBienvenida) =>
     'Qué sigue:',
     '1. Videollamada de bienvenida: nos conocemos y ajustamos tu elenco.',
     '2. Cómo te fue: tu punto de partida frente a tu competencia' + (d.elenco ? ' (' + d.elenco + ')' : '') + '.',
-    '3. Cada domingo: tu semana medida y una corrección concreta para la siguiente.',
+    '3. Cada semana: alertas sobre tu narrativa, tu influencia digital y tu competencia.',
     '',
     'Entrás a tu tablero con este correo (' + d.email + ') en https://narraglobal.com/entrar',
     '',

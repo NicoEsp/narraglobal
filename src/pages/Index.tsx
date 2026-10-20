@@ -181,7 +181,7 @@ const Index = () => {
 
           <div className="hero-copy">
             <h1 className="hh">
-              Controlá tu narrativa en{' '}
+              Dato mejora relato en{' '}
               <span className="modo-seg" role="group" aria-label="Para quién">
                 <button type="button" className={'modo-b' + (modo === 'politica' ? ' on' : '')} aria-pressed={modo === 'politica'} onClick={() => setModo('politica')}>Política</button>
                 <button type="button" className={'modo-b' + (modo === 'negocios' ? ' on' : '')} aria-pressed={modo === 'negocios'} onClick={() => setModo('negocios')}>Negocios</button>
