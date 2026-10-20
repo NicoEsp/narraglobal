@@ -181,22 +181,21 @@ const Index = () => {
 
           <div className="hero-copy">
             <h1 className="hh">
-              Dato mejora relato en{' '}
+              Dato mejora relato
+              <br />
+              en{' '}
               <span className="modo-seg" role="group" aria-label="Para quién">
                 <button type="button" className={'modo-b' + (modo === 'politica' ? ' on' : '')} aria-pressed={modo === 'politica'} onClick={() => setModo('politica')}>Política</button>
                 <button type="button" className={'modo-b' + (modo === 'negocios' ? ' on' : '')} aria-pressed={modo === 'negocios'} onClick={() => setModo('negocios')}>Negocios</button>
               </span>
             </h1>
             <p className="hsub">{copy.sub}</p>
-            <div className="hctas hctas-sel">
-              <Link className="sel-btn" to="/narraid">Ver más</Link>
-            </div>
           </div>
         </div>
 
         {/* clientes, en blanco sobre el azul, debajo del botón */}
         <div className="hero-clients">
-          <div className="cl-eyebrow">Controlan su narrativa con nosotros</div>
+          <div className="cl-eyebrow">Mejoran su narrativa con nosotros</div>
           <div className="mq">
             <div className="mq-track">
               {CLIENTS.map((c) => <ClientLogo key={c.file} c={c} />)}
