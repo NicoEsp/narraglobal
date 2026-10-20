@@ -139,8 +139,6 @@ const Index = () => {
           <nav className="hnav">
             <img className="wm-img" src="/land/wm-blanco.svg" alt="narraglobal" />
             <div className="nav-links">
-              <a href="#tablero">Narra ID</a>
-              <a href="#medios">En los medios</a>
               <a href="#incompany">Workshops</a>
               <a href="/entrar" title="Acceso de clientes">Acceso clientes</a>
             </div>
