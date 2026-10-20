@@ -38,3 +38,7 @@ export const PAYPAL_LINK_NARRA_ID =
 
 /** La agenda de Lisandro para la videollamada de bienvenida del Narra ID. */
 export const AGENDA_BIENVENIDA = 'https://calendar.app.google/FjL87RmwqXESzhqt6';
+
+/** Las cuentas donde se publican los reportes: @datanarraglobal. */
+export const X_DATA = 'https://x.com/datanarraglobal';
+export const IG_DATA = 'https://www.instagram.com/datanarraglobal/';

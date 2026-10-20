@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { waLisandro } from '@/lib/enlaces';
+import { IG_DATA, X_DATA, waLisandro } from '@/lib/enlaces';
 
 /* Para quién habla la landing. El switch vive adentro del titular y cambia
    la bajada del hero, la rama que llega elegida a /activar, el nombre del
@@ -324,7 +324,12 @@ const Index = () => {
             {MEDIA.map((m) => <MediaLogo key={m.file + '-2'} m={m} hidden />)}
           </div>
         </div>
-        <Link className="med-link" to="/reporte">Leé el último análisis, sin cargo: Despedida Messi 2026 →</Link>
+        <p className="med-redes">
+          Seguí los reportes en nuestras cuentas de{' '}
+          <a href={X_DATA} target="_blank" rel="noopener noreferrer">X</a> e{' '}
+          <a href={IG_DATA} target="_blank" rel="noopener noreferrer">Instagram</a>
+          <span> · @datanarraglobal</span>
+        </p>
       </section>
 
       {/* ===================== IN-COMPANY ===================== */}

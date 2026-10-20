@@ -206,8 +206,10 @@
 
   /* ===================== MEDIOS — mismo carrusel que los clientes ===================== */
   .medios{max-width:1180px;margin:0 auto;padding:52px 5vw 44px;text-align:center}
-  .med-link{display:inline-block;margin-top:26px;font-weight:600;font-size:14px;color:var(--blue);border-bottom:1px solid var(--blue-soft);padding-bottom:2px}
-  .med-link:hover{border-color:var(--blue)}
+  .med-redes{margin-top:26px;font-size:14px;color:var(--ink-soft)}
+  .med-redes a{font-weight:600;color:var(--blue);border-bottom:1px solid var(--blue-soft);padding-bottom:1px}
+  .med-redes a:hover{border-color:var(--blue)}
+  .med-redes span{color:var(--mute)}
 
   /* ===================== IN-COMPANY — placa azul narraglobal, dos pasos ===================== */
   #incompany.shot-zone{padding-top:36px}
