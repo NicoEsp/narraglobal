@@ -85,3 +85,21 @@
 .pos-medio:hover,.pos-medio.on{border-color:var(--blue);background:var(--blue-soft)}
 button.pos-medio{font-family:var(--sans);text-align:left;background:var(--paper);cursor:pointer}
 .pos-paypal{margin-top:18px;max-width:380px}
+
+/* activar · el formulario y, al costado, el resumen de la compra */
+.pos-wrap.ancho .pos-hoja,.pos-wrap.ancho .pos-top .in{max-width:1120px}
+.ac-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+@media(max-width:900px){.ac-grid{grid-template-columns:1fr}}
+.ac-col{min-width:0}
+.ac-resumen{margin-top:20px;position:sticky;top:20px;border:1px solid var(--line-2);border-radius:16px;padding:24px;background:var(--paper-2)}
+@media(max-width:900px){.ac-resumen{position:static}}
+.ac-r-t{font-family:var(--serif);font-weight:500;font-size:21px;letter-spacing:-.6px;line-height:1.2}
+.ac-checks{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.ac-checks li{position:relative;padding:10px 0 10px 26px;border-bottom:1px solid var(--line);font-size:13px;line-height:1.45}
+.ac-checks li::before{content:"";position:absolute;left:5px;top:13px;width:5px;height:10px;border-right:2px solid var(--blue);border-bottom:2px solid var(--blue);transform:rotate(42deg)}
+.ac-r-nota{font-size:12.5px;color:var(--ink-soft);margin-top:12px;line-height:1.45}
+.ac-r-total{display:flex;align-items:baseline;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-2)}
+.ac-r-total span{font-family:var(--mono);font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mute)}
+.ac-r-total b{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.ac-r-total s{text-decoration:none;font-family:var(--mono);font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute);font-weight:500}
+.ac-r-pie{margin-top:8px;font-family:var(--mono);font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mute);line-height:1.8}

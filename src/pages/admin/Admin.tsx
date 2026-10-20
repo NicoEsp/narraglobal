@@ -40,7 +40,10 @@ const detallePedido = (p: Pedido): string => {
   const quien = v('quien') ? 'pidió: ' + v('quien') : '';
   if (p.tipo === 'demo_persona') return unir(v('cuenta'), v('cargo'), v('ciudad'), v('provincia'), v('pais'), quien);
   if (p.tipo === 'demo_empresa') return unir(v('empresa'), v('sector'), v('pais'), v('cuentas'), quien);
-  if (p.tipo === 'narra_id') return unir(v('nombre'), v('cuenta'), v('rama') === 'negocios' ? 'negocios' : 'política', v('quien'));
+  if (p.tipo === 'narra_id')
+    return v('rama') === 'negocios'
+      ? unir(v('nombre'), v('cuenta'), 'negocios', v('sector'), v('pais'), v('quien'))
+      : unir(v('nombre'), v('cuenta'), 'política', v('cargo'), v('ciudad'), v('provincia'), v('pais'), v('quien'));
   return unir(v('nombre'), v('rol'));
 };
 

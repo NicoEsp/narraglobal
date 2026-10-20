@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AVISO_TELEFONO, guardarPedido, numeroPedido, telefonoValido, unir } from '@/lib/pedidos';
+import { AVISO_TELEFONO, PAISES, guardarPedido, numeroPedido, telefonoValido, unir } from '@/lib/pedidos';
 import { supabase } from '@/integrations/supabase/client';
 import {
   MP_NARRA_ID,
@@ -12,18 +12,56 @@ import {
 import '@/styles/posicion.css';
 
 /* Activar el Narra ID, en dos pasos: primero los datos (quién, la cuenta que
-   medimos y el correo del alta), que quedan guardados como pedido; después
+   medimos, el territorio o la vertical —que definen la competencia, nadie la
+   elige— y el correo del alta), que quedan guardados como pedido; después
    cómo paga: Mercado Pago (link fijo de la suscripción), PayPal (el botón de
    suscripción, que lleva el número de pedido) o efectivo por WhatsApp. El
    pago se cruza a mano con el número de pedido y se marca en el back office.
-   La rama llega del switch del hero (?rama=). */
+   La rama llega del switch del hero (?rama=). Al costado, todo el tiempo, el
+   resumen con lo que se está comprando. */
 
 type Rama = 'politica' | 'negocios';
 
 const QUIEN = ['El propio · soy yo', 'Jefe o jefa de prensa', 'Asesor o consultora externa', 'Alguien del equipo'];
 
-const VACIO = { nombre: '', mail: '', wsp: '', cuenta: '', quien: '', hp: '' };
+const SECTORES = ['Energía', 'Ciencia, farma y salud', 'Agro', 'Bancos y fintech', 'Consumo masivo'];
+const SECTOR_OTRO = 'Otro — decinos cuál';
+
+const VACIO = {
+  nombre: '', mail: '', wsp: '', cuenta: '', quien: '', hp: '',
+  pais: 'Argentina',
+  // política: el territorio
+  prov: '', ciudad: '', cargo: '',
+  // negocios: la vertical
+  sector: '', sectorOtro: '',
+};
 type Campos = typeof VACIO;
+
+/* Lo que se compra, con los mismos ítems que la placa del Narra ID de la home. */
+const Resumen = ({ rama }: { rama: Rama }) => (
+  <aside className="ac-resumen" aria-label="Lo que estás comprando">
+    <span className="pos-eyebrow">Lo que estás comprando</span>
+    <div className="ac-r-t">Narra ID · Suscripción mensual</div>
+    <ul className="ac-checks">
+      <li>Cómo te fue: medimos tus piezas de social media, semana a semana</li>
+      <li>Una corrección por semana: lo que funciona en vos y en la competencia</li>
+      <li>Entrenamos tu Asistente IA para que edite tu narrativa en tiempo real</li>
+      <li>
+        Alertas semanales sobre tu narrativa, tu influencia digital y tu competencia{' '}
+        {rama === 'politica' ? 'en tu ciudad, tu provincia y el país' : 'en tu vertical, la región y el mundo'}
+      </li>
+      <li>Call táctica mensual con Lisandro</li>
+    </ul>
+    <p className="ac-r-nota">
+      Tu competencia no la elegís: sale de {rama === 'politica' ? 'tu territorio' : 'tu vertical y tu país'}.
+    </p>
+    <div className="ac-r-total">
+      <span>Total</span>
+      <b>USD 1,000 <s>/ mes</s></b>
+    </div>
+    <div className="ac-r-pie">IVA incluido · se renueva cada mes · cancelás cuando quieras</div>
+  </aside>
+);
 
 /* Lo justo del SDK de PayPal que usa el botón de suscripción. */
 interface PayPalSdk {
@@ -133,11 +171,16 @@ const Activar = () => {
     }
     setEnviando(true);
     setError(null);
+    const sector = f.sector === SECTOR_OTRO ? f.sectorOtro.trim() || 'Otro' : f.sector;
+    const elenco =
+      rama === 'politica'
+        ? { pais: f.pais, provincia: f.prov.trim(), ciudad: f.ciudad.trim(), cargo: f.cargo.trim() }
+        : { pais: f.pais, sector };
     const r = await guardarPedido({
       tipo: 'narra_id',
       telefono: f.wsp,
       email: f.mail,
-      datos: { nombre: f.nombre.trim(), cuenta: f.cuenta.trim(), rama, quien: f.quien },
+      datos: { nombre: f.nombre.trim(), cuenta: f.cuenta.trim(), rama, quien: f.quien, ...elenco },
       honeypot: f.hp,
     });
     setEnviando(false);
@@ -157,7 +200,7 @@ const Activar = () => {
   );
 
   return (
-    <div className="pos-wrap">
+    <div className="pos-wrap ancho">
       <div className="pos-top">
         <div className="in">
           <Link className="pos-volver" to="/">← Volver a la home</Link>
@@ -173,6 +216,8 @@ const Activar = () => {
           <span className={'pos-pt' + (pedido ? ' on' : '')}><b>2</b><span>Cómo pagás</span></span>
         </div>
 
+        <div className="ac-grid">
+        <div className="ac-col">
         {pedido && paypalListo ? (
           <section className="pos-tarjeta">
             <span className="pos-eyebrow">Narra ID · pedido {pedido.numero}</span>
@@ -220,8 +265,10 @@ const Activar = () => {
             </div>
             <div className="pos-preg">Activá tu Narra ID</div>
             <p className="pos-sub">
-              USD 1,000 por mes, IVA incluido. Se renueva cada mes y cancelás cuando quieras.
-              <b> Con tu correo te damos de alta en el tablero</b>; a quiénes mirar de cerca lo elegís después, en el alta.
+              <b>Con tu correo te damos de alta en el tablero.</b>{' '}
+              {rama === 'politica'
+                ? 'Tu territorio define contra quién te medimos: se fija al alta y no se cambia.'
+                : 'Tu vertical y tu país definen contra quién te medimos: se fijan al alta y se revisan cada trimestre.'}
             </p>
             <div className="pos-campos">
               <div className="pos-fila">
@@ -244,6 +291,57 @@ const Activar = () => {
                   <input id="ac-wsp" type="tel" placeholder="+54 9 341 …" value={f.wsp} onChange={set('wsp')} required />
                 </div>
               </div>
+              {rama === 'politica' ? (
+                <>
+                  <div className="pos-fila">
+                    <div className="pos-campo">
+                      <label htmlFor="ac-pais">País</label>
+                      <select id="ac-pais" value={f.pais} onChange={set('pais')}>
+                        {PAISES.map((p) => <option key={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    <div className="pos-campo">
+                      <label htmlFor="ac-prov">Provincia</label>
+                      <input id="ac-prov" type="text" placeholder="Santa Fe, Córdoba, Buenos Aires…" value={f.prov} onChange={set('prov')} required />
+                    </div>
+                  </div>
+                  <div className="pos-fila">
+                    <div className="pos-campo">
+                      <label htmlFor="ac-ciudad">Ciudad · tu municipio</label>
+                      <input id="ac-ciudad" type="text" placeholder="Rosario, Paraná, Salta…" value={f.ciudad} onChange={set('ciudad')} required />
+                    </div>
+                    <div className="pos-campo">
+                      <label htmlFor="ac-cargo">Cargo o candidatura</label>
+                      <input id="ac-cargo" type="text" placeholder="Concejala, senador, intendente…" value={f.cargo} onChange={set('cargo')} />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="pos-fila">
+                    <div className="pos-campo">
+                      <label htmlFor="ac-pais">País</label>
+                      <select id="ac-pais" value={f.pais} onChange={set('pais')}>
+                        {PAISES.map((p) => <option key={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    <div className="pos-campo">
+                      <label htmlFor="ac-sector">Sector · tu vertical</label>
+                      <select id="ac-sector" value={f.sector} onChange={set('sector')} required>
+                        <option value="">Elegí tu sector</option>
+                        {SECTORES.map((x) => <option key={x}>{x}</option>)}
+                        <option>{SECTOR_OTRO}</option>
+                      </select>
+                    </div>
+                  </div>
+                  {f.sector === SECTOR_OTRO && (
+                    <div className="pos-campo">
+                      <label htmlFor="ac-sector-otro">¿Cuál?</label>
+                      <input id="ac-sector-otro" type="text" placeholder="Tu sector" value={f.sectorOtro} onChange={set('sectorOtro')} required />
+                    </div>
+                  )}
+                </>
+              )}
               <div className="pos-fila">
                 <div className="pos-campo">
                   <label htmlFor="ac-quien">¿Quién lo activa?</label>
@@ -269,9 +367,11 @@ const Activar = () => {
               <Link className="pos-btn t" to="/">← Volver</Link>
               <button className="pos-btn p" type="submit" disabled={enviando}>{enviando ? 'Guardando…' : 'Elegir cómo pago →'}</button>
             </div>
-            <div className="pos-pie">USD 1,000 / mes · IVA incluido · cancelás cuando quieras</div>
           </form>
         )}
+        </div>
+        <Resumen rama={rama} />
+        </div>
       </div>
     </div>
   );
