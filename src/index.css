@@ -55,7 +55,10 @@
   .modo-b.on,.modo-b.on:hover{background:#fff;color:var(--blue)}
 
   /* ===================== CLIENTES — carrusel ===================== */
-  .clients{padding:84px 0 60px;text-align:center}
+  .hero-clients{position:relative;z-index:2;padding:6px 0 60px;text-align:center}
+  .hero-clients .cl-eyebrow{color:rgba(255,255,255,.72)}
+  .hero-clients .mq{margin-top:26px}
+  .hero-clients .mq .lf{color:rgba(255,255,255,.8)}
   .cl-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mute)}
   .cl-title{font-weight:800;font-size:clamp(20px,2.4vw,27px);letter-spacing:-.03em;line-height:1.2;color:var(--ink);margin:12px auto 0;max-width:34ch;padding:0 5vw}
   .mq{position:relative;overflow:hidden;margin-top:44px;
@@ -182,6 +185,7 @@
 
   /* ===================== IN-COMPANY — placa negra, dos pasos ===================== */
   #incompany.shot-zone{padding-top:36px}
+  #tablero.shot-zone{padding-top:72px}
   .shot-frame.negra{background:#111319;color:#fff}
   .shot-frame.negra::after{content:"";position:absolute;inset:0;pointer-events:none;
     background:radial-gradient(80% 110% at 85% 0%, rgba(62,28,255,.35), transparent 60%)}
