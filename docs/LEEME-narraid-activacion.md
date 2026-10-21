@@ -20,8 +20,11 @@ azul. El menú queda en Workshops · Acceso clientes · Activá tu Narra ID.
 
 **`/activar` (nuevo).** El botón «Activá tu Narra ID» lleva acá. Paso 1: nombre,
 correo, cuenta, WhatsApp y el elenco (país, provincia y ciudad en política; país y
-sector en negocios — la competencia no se elige). Se guarda como pedido
-`narra_id` **antes** del pago. Paso 2: tres medios con link fijo —Mercado Pago
+sector en negocios — la competencia no se elige). El WhatsApp se escribe como se
+marca en el país (sin «+»): `telefonoConPais` en `src/lib/pedidos.ts` le pone el código
+del país elegido (en Argentina, el 9 y sin el 15). Hay una salida secundaria siempre
+visible, «Prefiero hacerlo por WhatsApp». Se guarda como pedido `narra_id` **antes**
+del pago. Paso 2: tres medios con link fijo —Mercado Pago
 (suscripción en pesos), PayPal (botón de suscripción) y efectivo por WhatsApp—. Al
 costado, siempre, el resumen de lo que se compra.
 
@@ -42,7 +45,9 @@ altas viejas que la cargaron.
 ## 2 · Antes de mergear (bloquea la publicación)
 
 - [ ] **Aplicar la migración** `supabase/migrations/20261020120000_pedido_narra_id.sql`
-      (`supabase db push` o SQL Editor). Sin ella `/activar` no guarda y ofrece WhatsApp.
+      (`supabase db push` o SQL Editor). Sin ella `/activar` no guarda: el 21-10 dos pruebas
+      desde Safari volvieron con `pedido_invalido` (en los logs) y Safari lo mostró como
+      «TypeError: Load failed».
 - [ ] **Link de Mercado Pago** (`MP_NARRA_ID` en `src/lib/enlaces.ts`,
       `https://mpago.la/1QsU9Go`): confirmar que es de **suscripción** y el monto en pesos.
       No se pudo abrir desde el entorno de desarrollo.

@@ -26,6 +26,36 @@ export const telefonoCanonico = (s: string) => s.trim().replace(/[\s().-]/g, '')
    cosa de 8 dígitos y quedaba guardado como si fuera internacional. */
 export const telefonoValido = (s: string) => /^\+[1-9]\d{7,14}$/.test(telefonoCanonico(s));
 
+/** El código de país (sin «+») de cada país de la lista. */
+const CODIGO_PAIS: Record<string, string> = {
+  Argentina: '54', Bolivia: '591', Brasil: '55', Chile: '56', Colombia: '57', 'Costa Rica': '506',
+  Ecuador: '593', 'El Salvador': '503', Guatemala: '502', Honduras: '504', México: '52',
+  Nicaragua: '505', Panamá: '507', Paraguay: '595', Perú: '51', 'República Dominicana': '1',
+  Uruguay: '598', Venezuela: '58',
+};
+
+/* El WhatsApp sin exigir el «+»: si lo escribieron como se marca en su país
+   («341 555 1234», «0341 15 555 1234»), el código sale del país elegido. Un
+   número que ya trae «+» o «00» se respeta tal cual. En Argentina los
+   celulares van con el 9 después del 54 y sin el 15 local. */
+export const telefonoConPais = (s: string, pais: string): string => {
+  const t = telefonoCanonico(s);
+  if (t.startsWith('+')) return t;
+  if (t.startsWith('00')) return '+' + soloDigitos(t.slice(2));
+  const cod = CODIGO_PAIS[pais];
+  let d = soloDigitos(t).replace(/^0+/, '');
+  if (!cod) return '+' + d;
+  // ya venía con el código, sin el «+»
+  if (d.startsWith(cod) && d.length >= cod.length + 8) return '+' + d;
+  if (cod === '54') {
+    // «341 15 555 1234» → «341 555 1234»: el 15 va después del código de área (2 a 4 dígitos)
+    const m = d.match(/^(\d{2,4})15(\d{6,8})$/);
+    if (m && (m[1] + m[2]).length === 10) d = m[1] + m[2];
+    if (!d.startsWith('9')) d = '9' + d;
+  }
+  return '+' + cod + d;
+};
+
 /** Lo que se le dice a quien escribió el número sin el código. */
 export const AVISO_TELEFONO =
   'Escribí tu WhatsApp con el código de país y el + adelante: +54 9 341 555 1234.';
@@ -67,7 +97,8 @@ const explicar = (e: { message: string; hint?: string | null }): string => {
   const m = e.message ?? '';
   if (/rate limit/i.test(m)) return 'ya recibimos varios pedidos desde este WhatsApp hoy';
   if (/pedido_invalido/.test(m) && e.hint) return e.hint.replace(/\.$/, '');
-  if (/failed to fetch|network/i.test(m)) return 'no hubo conexión con la base';
+  // «Failed to fetch» en Chrome, «Load failed» en Safari: el pedido no llegó o no volvió
+  if (/failed to fetch|load failed|network/i.test(m)) return 'no hubo conexión con la base';
   return m || 'la base no contestó';
 };
 
