@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PAISES, guardarPedido, numeroPedido, telefonoConPais, telefonoValido, unir } from '@/lib/pedidos';
+import { AVISO_TELEFONO_PAIS, PAISES, guardarPedido, numeroPedido, telefonoConPais, telefonoValido, unir } from '@/lib/pedidos';
 import { supabase } from '@/integrations/supabase/client';
 import {
   MP_NARRA_ID,
@@ -159,11 +159,13 @@ const Activar = () => {
     window.scrollTo({ top: 0 });
   }, [pedido]);
 
+  // el WhatsApp como va a la base: es también lo que se le muestra después, para que un error de armado se vea a tiempo
+  const telefono = telefonoConPais(f.wsp, f.pais);
+
   const enviar = async (e: FormEvent) => {
     e.preventDefault();
-    const telefono = telefonoConPais(f.wsp, f.pais);
-    if (!telefonoValido(telefono)) {
-      setError({ texto: 'Revisá tu WhatsApp: tiene que tener el código de área y el número.', fallo: false });
+    if (!telefono || !telefonoValido(telefono)) {
+      setError({ texto: AVISO_TELEFONO_PAIS, fallo: false });
       return;
     }
     setEnviando(true);
@@ -223,7 +225,7 @@ const Activar = () => {
             <div className="pos-ok-h"><span className="pos-ok-i" /><h2>¡Suscripción activa!</h2></div>
             <p className="pos-sub">
               PayPal confirmó tu suscripción{paypalListo !== 'ok' && <> (<b>{paypalListo}</b>)</>}. Te escribimos
-              al <b>{f.wsp.trim()}</b> para el alta y con <b>{f.mail.trim()}</b> entrás a tu tablero.
+              al <b>{telefono}</b> para el alta y con <b>{f.mail.trim()}</b> entrás a tu tablero.
             </p>
             <div className="pos-acciones">
               <Link className="pos-btn p" to="/">← Volver a narraglobal</Link>
@@ -253,7 +255,7 @@ const Activar = () => {
             </div>
             {verPayPal && <BotonPayPal pedidoId={pedido.id} numero={pedido.numero} onListo={alSuscribirPayPal} />}
             <div className="pos-pie">
-              Cuando se acredita el pago te escribimos al {f.wsp.trim()} para el alta · cancelás cuando quieras
+              Cuando se acredita el pago te escribimos al {telefono} para el alta · cancelás cuando quieras
             </div>
           </section>
         ) : (
@@ -280,7 +282,7 @@ const Activar = () => {
                   <input id="ac-cuenta" type="text" placeholder="@cuenta o link" value={f.cuenta} onChange={set('cuenta')} required />
                 </div>
                 <div className="pos-campo">
-                  <label htmlFor="ac-wsp">WhatsApp</label>
+                  <label htmlFor="ac-wsp">WhatsApp · si no es de {f.pais}, con el +</label>
                   <input id="ac-wsp" type="tel" placeholder="341 555 1234" value={f.wsp} onChange={set('wsp')} required />
                 </div>
               </div>
@@ -351,7 +353,7 @@ const Activar = () => {
               <div className="pos-error" role="alert">
                 {error.texto}
                 {error.fallo && (
-                  <> Probá de nuevo o <a href={waFallback} target="_blank" rel="noopener noreferrer">escribinos por WhatsApp</a> y lo activamos igual.</>
+                  <> Probá de nuevo, o seguí por «Prefiero hacerlo por WhatsApp» y lo activamos igual.</>
                 )}
               </div>
             )}

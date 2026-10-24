@@ -7,12 +7,32 @@ import type { Json } from '@/integrations/supabase/types';
 
 export type TipoPedido = 'demo_persona' | 'demo_empresa' | 'reporte' | 'narra_id';
 
-/** Los países de la lista de la maqueta. */
-export const PAISES = [
-  'Argentina', 'Bolivia', 'Brasil', 'Chile', 'Colombia', 'Costa Rica', 'Ecuador', 'El Salvador',
-  'Guatemala', 'Honduras', 'México', 'Nicaragua', 'Panamá', 'Paraguay', 'Perú',
-  'República Dominicana', 'Uruguay', 'Venezuela',
-];
+/** Los países de la lista de la maqueta, con el código de país (sin «+») y
+    cuántos dígitos tiene, como mucho, un número nacional completo: sin el 0
+    de marcado ni, en Argentina, el 9 y el 15. Una sola tabla: PAISES sale de
+    acá, así no hay dos listas que mantener a mano. */
+const TELEFONO_PAIS: Record<string, { codigo: string; largo: number }> = {
+  Argentina: { codigo: '54', largo: 10 },
+  Bolivia: { codigo: '591', largo: 8 },
+  Brasil: { codigo: '55', largo: 11 }, // 10 los fijos, 11 los celulares
+  Chile: { codigo: '56', largo: 9 },
+  Colombia: { codigo: '57', largo: 10 },
+  'Costa Rica': { codigo: '506', largo: 8 },
+  Ecuador: { codigo: '593', largo: 9 },
+  'El Salvador': { codigo: '503', largo: 8 },
+  Guatemala: { codigo: '502', largo: 8 },
+  Honduras: { codigo: '504', largo: 8 },
+  México: { codigo: '52', largo: 10 },
+  Nicaragua: { codigo: '505', largo: 8 },
+  Panamá: { codigo: '507', largo: 8 },
+  Paraguay: { codigo: '595', largo: 9 },
+  Perú: { codigo: '51', largo: 9 },
+  'República Dominicana': { codigo: '1', largo: 10 },
+  Uruguay: { codigo: '598', largo: 8 },
+  Venezuela: { codigo: '58', largo: 10 },
+};
+
+export const PAISES = Object.keys(TELEFONO_PAIS);
 
 export const soloDigitos = (s: string) => s.replace(/\D/g, '');
 
@@ -26,39 +46,43 @@ export const telefonoCanonico = (s: string) => s.trim().replace(/[\s().-]/g, '')
    cosa de 8 dígitos y quedaba guardado como si fuera internacional. */
 export const telefonoValido = (s: string) => /^\+[1-9]\d{7,14}$/.test(telefonoCanonico(s));
 
-/** El código de país (sin «+») de cada país de la lista. */
-const CODIGO_PAIS: Record<string, string> = {
-  Argentina: '54', Bolivia: '591', Brasil: '55', Chile: '56', Colombia: '57', 'Costa Rica': '506',
-  Ecuador: '593', 'El Salvador': '503', Guatemala: '502', Honduras: '504', México: '52',
-  Nicaragua: '505', Panamá: '507', Paraguay: '595', Perú: '51', 'República Dominicana': '1',
-  Uruguay: '598', Venezuela: '58',
-};
-
 /* El WhatsApp sin exigir el «+»: si lo escribieron como se marca en su país
    («341 555 1234», «0341 15 555 1234»), el código sale del país elegido. Un
-   número que ya trae «+» o «00» se respeta tal cual. En Argentina los
-   celulares van con el 9 después del 54 y sin el 15 local. */
-export const telefonoConPais = (s: string, pais: string): string => {
+   número que ya trae «+» o «00» se respeta tal cual. Si viene con el código
+   pero sin el «+» («54 9 341 555 1234») se reconoce porque es más largo que
+   cualquier número nacional: así el 55 de Santa Maria (Brasil) o el 51 de Puno
+   (Perú) no se confunden con el código de país. En Argentina los celulares van
+   con el 9 después del 54 y sin el 15 local, y el número nacional tiene siempre
+   10 dígitos. Devuelve null cuando no hay forma de armar un número con sentido
+   (país desconocido, o en Argentina si no quedan 10 dígitos). */
+export const telefonoConPais = (s: string, pais: string): string | null => {
   const t = telefonoCanonico(s);
   if (t.startsWith('+')) return t;
   if (t.startsWith('00')) return '+' + soloDigitos(t.slice(2));
-  const cod = CODIGO_PAIS[pais];
+  const tel = TELEFONO_PAIS[pais];
+  if (!tel) return null;
+  const { codigo, largo } = tel;
   let d = soloDigitos(t).replace(/^0+/, '');
-  if (!cod) return '+' + d;
-  // ya venía con el código, sin el «+»
-  if (d.startsWith(cod) && d.length >= cod.length + 8) return '+' + d;
-  if (cod === '54') {
-    // «341 15 555 1234» → «341 555 1234»: el 15 va después del código de área (2 a 4 dígitos)
-    const m = d.match(/^(\d{2,4})15(\d{6,8})$/);
-    if (m && (m[1] + m[2]).length === 10) d = m[1] + m[2];
-    if (!d.startsWith('9')) d = '9' + d;
+  // ya venía con el código, sin el «+»: se lo saca y se sigue como con un número nacional
+  if (d.startsWith(codigo) && d.length > largo) d = d.slice(codigo.length);
+  if (codigo === '54') {
+    // «341 15 555 1234» y «9 11 15 1234 5678»: el 15 va después del código de área (2 a 4 dígitos)
+    const m = d.match(/^(9?)(\d{2,4})15(\d{6,8})$/);
+    if (m && (m[2] + m[3]).length === 10) d = m[1] + m[2] + m[3];
+    if (d.length === 11 && d.startsWith('9')) d = d.slice(1);
+    if (d.length !== 10) return null;
+    d = '9' + d;
   }
-  return '+' + cod + d;
+  return '+' + codigo + d;
 };
 
-/** Lo que se le dice a quien escribió el número sin el código. */
+/** Lo que se le dice a quien escribió el número sin el código, en los formularios sin país (/reporte). */
 export const AVISO_TELEFONO =
   'Escribí tu WhatsApp con el código de país y el + adelante: +54 9 341 555 1234.';
+
+/** Lo mismo cuando el país ya se eligió en el formulario y el número no se pudo armar. */
+export const AVISO_TELEFONO_PAIS =
+  'Revisá tu WhatsApp: tiene que tener el código de área y el número. Si es de otro país, ponelo con el +: +598 99 123 456.';
 
 export interface Pedido {
   tipo: TipoPedido;

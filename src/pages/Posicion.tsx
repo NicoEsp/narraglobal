@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AVISO_TELEFONO, PAISES, enviarPedido, telefonoValido, unir } from '@/lib/pedidos';
+import { AVISO_TELEFONO_PAIS, PAISES, enviarPedido, telefonoConPais, telefonoValido, unir } from '@/lib/pedidos';
 import { waNarra } from '@/lib/enlaces';
 import '@/styles/posicion.css';
 
@@ -62,10 +62,13 @@ const Posicion = () => {
     setPaso(2);
   };
 
+  // el WhatsApp como va a la base, con el código del país elegido; es también lo que se muestra después
+  const telefono = telefonoConPais(f.wsp, f.pais);
+
   const enviar = async (e: FormEvent) => {
     e.preventDefault();
-    if (!telefonoValido(f.wsp)) {
-      setError({ texto: AVISO_TELEFONO, fallo: false });
+    if (!telefono || !telefonoValido(telefono)) {
+      setError({ texto: AVISO_TELEFONO_PAIS, fallo: false });
       return;
     }
     setEnviando(true);
@@ -76,7 +79,7 @@ const Posicion = () => {
         : { pais: f.pais, sector, empresa: f.empresa.trim(), cuentas: f.cuentasEmp.trim(), quien: f.quien };
     const err = await enviarPedido({
       tipo: rama === 'persona' ? 'demo_persona' : 'demo_empresa',
-      telefono: f.wsp,
+      telefono,
       email: f.mail,
       datos,
       honeypot: f.hp,
@@ -218,8 +221,8 @@ const Posicion = () => {
                   </div>
                 )}
                 <div className="pos-campo">
-                  <label htmlFor="wsp">WhatsApp · ahí te llega la demo</label>
-                  <input id="wsp" type="tel" placeholder="+54 9 341 …" value={f.wsp} onChange={set('wsp')} required autoFocus={rama === 'empresa'} />
+                  <label htmlFor="wsp">WhatsApp · ahí te llega la demo · si no es de {f.pais}, con el +</label>
+                  <input id="wsp" type="tel" placeholder="341 555 1234" value={f.wsp} onChange={set('wsp')} required autoFocus={rama === 'empresa'} />
                 </div>
               </div>
               <div className="pos-campo">
@@ -257,7 +260,7 @@ const Posicion = () => {
         {paso === 3 && (
           <section className="pos-tarjeta">
             <div className="pos-ok-h"><span className="pos-ok-i" /><h2>¡Listo!</h2></div>
-            <p className="pos-sub">En 48 horas hábiles, sin cargo, te la mandamos por WhatsApp al <b>{f.wsp.trim()}</b>, con tu puesto en cada ranking, qué de lo tuyo funciona y cómo está tu calidad narrativa e influencia a tus públicos. Por ese mismo número vas a poder hablar con nuestro asistente IA y comenzar a editar tu narrativa. Y al correo <b>{f.mail.trim()}</b> te llegará el alta del tablero para mejorar tu experiencia de visualización.</p>
+            <p className="pos-sub">En 48 horas hábiles, sin cargo, te la mandamos por WhatsApp al <b>{telefono}</b>, con tu puesto en cada ranking, qué de lo tuyo funciona y cómo está tu calidad narrativa e influencia a tus públicos. Por ese mismo número vas a poder hablar con nuestro asistente IA y comenzar a editar tu narrativa. Y al correo <b>{f.mail.trim()}</b> te llegará el alta del tablero para mejorar tu experiencia de visualización.</p>
             <div className="pos-resumen">
               {rama === 'persona' ? (
                 <>
@@ -272,7 +275,7 @@ const Posicion = () => {
                 </>
               )}
               <div className="pos-rr"><span className="rk">Lo pidió</span><span className="rv">{f.quien || '—'}</span></div>
-              <div className="pos-rr"><span className="rk">Llega por WhatsApp</span><span className="rv">{f.wsp.trim()}</span></div>
+              <div className="pos-rr"><span className="rk">Llega por WhatsApp</span><span className="rv">{telefono}</span></div>
               <div className="pos-rr"><span className="rk">Alta del tablero</span><span className="rv">{f.mail.trim()}</span></div>
             </div>
             <div className="pos-acciones">
