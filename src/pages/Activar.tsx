@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AVISO_TELEFONO, PAISES, guardarPedido, numeroPedido, telefonoValido, unir } from '@/lib/pedidos';
+import { AVISO_TELEFONO_PAIS, PAISES, guardarPedido, numeroPedido, telefonoConPais, telefonoValido, unir } from '@/lib/pedidos';
 import { supabase } from '@/integrations/supabase/client';
 import {
   MP_NARRA_ID,
@@ -51,9 +51,6 @@ const Resumen = ({ rama }: { rama: Rama }) => (
       <li>Un asistente IA en WhatsApp, a cualquier hora, para pensar tu próxima narrativa</li>
       <li>Call táctica mensual con Lisandro Bregant, director de narraglobal</li>
     </ul>
-    <p className="ac-r-nota">
-      Tu competencia no la elegís: sale de {rama === 'politica' ? 'tu territorio' : 'tu vertical y tu país'}.
-    </p>
     <div className="ac-r-total">
       <span>Total</span>
       <b>USD 1,000 <s>/ mes</s></b>
@@ -162,10 +159,13 @@ const Activar = () => {
     window.scrollTo({ top: 0 });
   }, [pedido]);
 
+  // el WhatsApp como va a la base: es también lo que se le muestra después, para que un error de armado se vea a tiempo
+  const telefono = telefonoConPais(f.wsp, f.pais);
+
   const enviar = async (e: FormEvent) => {
     e.preventDefault();
-    if (!telefonoValido(f.wsp)) {
-      setError({ texto: AVISO_TELEFONO, fallo: false });
+    if (!telefono || !telefonoValido(telefono)) {
+      setError({ texto: AVISO_TELEFONO_PAIS, fallo: false });
       return;
     }
     setEnviando(true);
@@ -177,7 +177,7 @@ const Activar = () => {
         : { pais: f.pais, sector };
     const r = await guardarPedido({
       tipo: 'narra_id',
-      telefono: f.wsp,
+      telefono,
       email: f.mail,
       datos: { nombre: f.nombre.trim(), cuenta: f.cuenta.trim(), rama, quien: f.quien, ...elenco },
       honeypot: f.hp,
@@ -190,9 +190,11 @@ const Activar = () => {
     setPedido({ id: r.id, numero: numeroPedido(r.id) });
   };
 
+  // también es la salida «Prefiero hacerlo por WhatsApp»: lleva lo que ya escribió, si escribió algo
+  const yaCargado = unir(f.nombre, f.cuenta, f.mail);
   const waFallback = waLisandro(
-    'Hola, quiero activar mi Narra ID (' + (rama === 'politica' ? 'política' : 'negocios') + '). ' +
-      unir(f.nombre, f.cuenta, f.mail) + '.',
+    'Hola Lisandro, quiero activar mi Narra ID (' + (rama === 'politica' ? 'política' : 'negocios') + ').' +
+      (yaCargado ? ' ' + yaCargado + '.' : ''),
   );
   const waEfectivo = waLisandro(
     'Hola, quiero activar mi Narra ID. Pedido ' + (pedido?.numero ?? '') + '. Pago en efectivo.',
@@ -223,7 +225,7 @@ const Activar = () => {
             <div className="pos-ok-h"><span className="pos-ok-i" /><h2>¡Suscripción activa!</h2></div>
             <p className="pos-sub">
               PayPal confirmó tu suscripción{paypalListo !== 'ok' && <> (<b>{paypalListo}</b>)</>}. Te escribimos
-              al <b>{f.wsp.trim()}</b> para el alta y con <b>{f.mail.trim()}</b> entrás a tu tablero.
+              al <b>{telefono}</b> para el alta y con <b>{f.mail.trim()}</b> entrás a tu tablero.
             </p>
             <div className="pos-acciones">
               <Link className="pos-btn p" to="/">← Volver a narraglobal</Link>
@@ -253,22 +255,16 @@ const Activar = () => {
             </div>
             {verPayPal && <BotonPayPal pedidoId={pedido.id} numero={pedido.numero} onListo={alSuscribirPayPal} />}
             <div className="pos-pie">
-              Cuando se acredita el pago te escribimos al {f.wsp.trim()} para el alta · cancelás cuando quieras
+              Cuando se acredita el pago te escribimos al {telefono} para el alta · cancelás cuando quieras
             </div>
           </section>
         ) : (
           <form className="pos-tarjeta" onSubmit={enviar}>
-            <div className="pos-rama" role="group" aria-label="A quién medimos">
+            <div className="pos-preg">Activá tu Narra ID</div>
+            <div className="pos-rama ac-rama" role="group" aria-label="A quién medimos">
               <button type="button" className={'pos-rb' + (rama === 'politica' ? ' on' : '')} aria-pressed={rama === 'politica'} onClick={() => cambiarRama('politica')}>Política</button>
               <button type="button" className={'pos-rb' + (rama === 'negocios' ? ' on' : '')} aria-pressed={rama === 'negocios'} onClick={() => cambiarRama('negocios')}>Negocios</button>
             </div>
-            <div className="pos-preg">Activá tu Narra ID</div>
-            <p className="pos-sub">
-              <b>Con tu correo te damos de alta en el tablero.</b>{' '}
-              {rama === 'politica'
-                ? 'Tu territorio define contra quién te medimos: se fija al alta y no se cambia.'
-                : 'Tu vertical y tu país definen contra quién te medimos: se fijan al alta y se revisan cada trimestre.'}
-            </p>
             <div className="pos-campos">
               <div className="pos-fila">
                 <div className="pos-campo">
@@ -286,8 +282,8 @@ const Activar = () => {
                   <input id="ac-cuenta" type="text" placeholder="@cuenta o link" value={f.cuenta} onChange={set('cuenta')} required />
                 </div>
                 <div className="pos-campo">
-                  <label htmlFor="ac-wsp">WhatsApp</label>
-                  <input id="ac-wsp" type="tel" placeholder="+54 9 341 …" value={f.wsp} onChange={set('wsp')} required />
+                  <label htmlFor="ac-wsp">WhatsApp · si no es de {f.pais}, con el +</label>
+                  <input id="ac-wsp" type="tel" placeholder="341 555 1234" value={f.wsp} onChange={set('wsp')} required />
                 </div>
               </div>
               {rama === 'politica' ? (
@@ -357,7 +353,7 @@ const Activar = () => {
               <div className="pos-error" role="alert">
                 {error.texto}
                 {error.fallo && (
-                  <> Probá de nuevo o <a href={waFallback} target="_blank" rel="noopener noreferrer">escribinos por WhatsApp</a> y lo activamos igual.</>
+                  <> Probá de nuevo, o seguí por «Prefiero hacerlo por WhatsApp» y lo activamos igual.</>
                 )}
               </div>
             )}
@@ -365,6 +361,7 @@ const Activar = () => {
             <div className="pos-acciones">
               <Link className="pos-btn t" to="/">← Volver</Link>
               <button className="pos-btn p" type="submit" disabled={enviando}>{enviando ? 'Guardando…' : 'Elegir cómo pago →'}</button>
+              <a className="ac-wa" href={waFallback} target="_blank" rel="noopener noreferrer">Prefiero hacerlo por WhatsApp</a>
             </div>
           </form>
         )}

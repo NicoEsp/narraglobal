@@ -18,10 +18,16 @@ azul. El menú queda en Workshops · Acceso clientes · Activá tu Narra ID.
 **`/narraid`.** No es otra página: es la landing parada en la placa del Narra ID
 (sin `#`, para tipear o dictar al aire). `src/App.tsx` + `SECCIONES` en `Index.tsx`.
 
-**`/activar` (nuevo).** El botón «Activá tu Narra ID» lleva acá. Paso 1: nombre,
-correo, cuenta, WhatsApp y el elenco (país, provincia y ciudad en política; país y
-sector en negocios — la competencia no se elige). Se guarda como pedido
-`narra_id` **antes** del pago. Paso 2: tres medios con link fijo —Mercado Pago
+**`/activar` (nuevo).** El botón «Activá tu Narra ID» lleva acá. Paso 1: nombre, correo,
+cuenta, WhatsApp y el elenco (país, provincia y ciudad en política; país y sector en
+negocios — la competencia no se elige). El WhatsApp se escribe como se marca en el país
+(sin «+»): `telefonoConPais` en `src/lib/pedidos.ts` le pone el código del país elegido
+(en Argentina, el 9 y sin el 15). El mismo armado se usa en `/posicion`; `/reporte`, que
+no pregunta el país, sigue pidiendo el «+». Si el WhatsApp es de otro país que el
+elegido se escribe con el «+». Las pantallas de pago y de alta muestran el número ya
+armado, tal como quedó guardado. Tests: `npm test` (`src/lib/pedidos.test.ts`). Hay una
+salida secundaria siempre visible, «Prefiero hacerlo por WhatsApp». Se guarda como
+pedido `narra_id` **antes** del pago. Paso 2: tres medios con link fijo —Mercado Pago
 (suscripción en pesos), PayPal (botón de suscripción) y efectivo por WhatsApp—. Al
 costado, siempre, el resumen de lo que se compra.
 
@@ -42,7 +48,13 @@ altas viejas que la cargaron.
 ## 2 · Antes de mergear (bloquea la publicación)
 
 - [ ] **Aplicar la migración** `supabase/migrations/20261020120000_pedido_narra_id.sql`
-      (`supabase db push` o SQL Editor). Sin ella `/activar` no guarda y ofrece WhatsApp.
+      (`supabase db push` o SQL Editor). Sin ella `/activar` no guarda: el 21-10 dos pruebas
+      volvieron con `pedido_invalido` (400, en los logs). Ese 400 llega a la pantalla como
+      el aviso de la base, no como el «TypeError: Load failed» que vio Safari ese mismo día:
+      un fetch que recibe un 400 resuelve, y «Load failed» es un corte de red o de CORS antes
+      de la respuesta. Son dos problemas; el segundo queda por investigar aparte.
+- [ ] **«Load failed» en Safari**: reproducirlo con la migración ya aplicada (consola de
+      Safari, pestaña Red) para ver si es CORS, un bloqueador de contenido o la conexión.
 - [ ] **Link de Mercado Pago** (`MP_NARRA_ID` en `src/lib/enlaces.ts`,
       `https://mpago.la/1QsU9Go`): confirmar que es de **suscripción** y el monto en pesos.
       No se pudo abrir desde el entorno de desarrollo.
