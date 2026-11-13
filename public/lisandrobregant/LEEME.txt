@@ -1,0 +1,21 @@
+lisandrobregant.com — web del taller del mes
+Paquete armado el 10-11-2026.
+
+Qué es
+Un sitio estático: index.html y la carpeta assets/. No tiene build, base de datos ni dependencias para instalar.
+
+Cómo se sube
+Copiar el contenido de esta carpeta a la raíz del dominio lisandrobregant.com, tal cual: index.html en la raíz y assets/ al lado.
+
+Para tener en cuenta
+- Las tipografías (Lora y Permanent Marker) se cargan desde Google Fonts.
+- Los links de pago y de WhatsApp están en el objeto LINKS, al principio del <script> del final de index.html. El de Mercado Pago de la consulta (mp_consulta) está vacío a propósito: ese botón se ve apagado hasta que se cargue.
+- La sección «Sumá la consulta» está oculta: se ve solo entrando por lisandrobregant.com/#consulta.
+- La vista previa al compartir el link usa https://lisandrobregant.com/assets/img/og-taller-generacion-z.jpg. Si el sitio queda en otro dominio, cambiar og:url y og:image en el <head>.
+
+En el repo de narraglobal (13-11-2026)
+- El sitio vive en public/lisandrobregant/. middleware.ts (raíz) sirve esa carpeta cuando el pedido entra por lisandrobregant.com o www.lisandrobregant.com.
+- Para que funcione, el dominio tiene que estar agregado al mismo proyecto de Vercel que narraglobal.com.
+- Logos de clientes y medios y la foto salen de public/land/. Faltan y hay que subirlos a public/lisandrobregant/assets/img/:
+  firma-lisandro-bregant.png, og-taller-generacion-z.jpg (1080x1080),
+  caras/ana-elisa.jpg, caras/talarico.jpg, caras/don-bosco.jpg, caras/franco-colapinto.jpg, caras/davoo-xeneize.jpg (480x600).
