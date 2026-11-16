@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lisandro Bregant — Talleres · Biografía</title>
+  <meta name="description" content="Lisandro Bregant. Taller del mes: Narrativas para llegar a la generación Z. Biografía.">
+  <!-- Vista previa al compartir el link (WhatsApp, X, LinkedIn): la placa cuadrada del taller del mes. Se cambia con cada taller. -->
+  <link rel="canonical" href="https://lisandrobregant.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lisandrobregant.com/">
+  <meta property="og:title" content="Lisandro Bregant — Talleres · Biografía">
+  <meta property="og:description" content="Lisandro Bregant. Taller del mes: Narrativas para llegar a la generación Z. Biografía.">
+  <meta property="og:image" content="https://lisandrobregant.com/assets/img/og-taller-generacion-z.jpg">
+  <meta property="og:image:width" content="1080">
+  <meta property="og:image:height" content="1080">
+  <meta property="og:locale" content="es_AR">
+  <meta name="twitter:card" content="summary">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Lora (Cyreal, SIL OFL 1.1) y Permanent Marker (Font Diner, Apache 2.0), ambas desde Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Permanent+Marker&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       lisandrobregant.com · gris claro con flúor moderado (elegido el 07-11-2026)
+       Lo de mano alzada (el 5, títulos, precios, pasos, el @) va en Permanent Marker.
+       ============================================================ */
+    :root {
+      --tinta: #121315; --texto: #1E2023; --texto-2: #4A4D52; --gris: #6F7277; --linea: #E1E2DD;
+      --lima: #B9FF2E; --lima-grad: linear-gradient(160deg, #D8FF4A, #B9FF2E 45%, #8CF52A); --lima-texto: #4E7A00;
+      --papel: #ECECEA; --blanco: #FFFFFF;
+      --serif: 'Lora', Georgia, 'Times New Roman', serif;
+      --marker: 'Permanent Marker', cursive;
+      --ancho: 1080px; --curva: cubic-bezier(.22, 1, .36, 1);
+      --radio: 2px;
+      --fuente-cifra: var(--marker); --fuente-titular: var(--marker);
+    }
+    :root { --fondo: #EEEFEC; --fondo-2: #E4E5E1; --tarjeta: #FFFFFF; --linea: #D8D9D4; }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--fondo); color: var(--texto); font-family: var(--serif); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    .wrap { max-width: var(--ancho); margin: 0 auto; padding: 0 20px; }
+    @media (min-width: 900px) { .wrap { padding: 0 40px; } }
+    .grilla > * { min-width: 0; }
+    :focus-visible { outline: 3px solid var(--tinta); outline-offset: 3px; }
+
+    /* ---- etiquetas, botones ---- */
+    .etiqueta { display: inline-block; background: var(--lima); color: var(--tinta); font-family: var(--serif); font-weight: 600; font-size: 13px; letter-spacing: .02em; padding: 6px 10px 7px; line-height: 1.2; }
+    .btn { display: inline-block; font-family: var(--serif); font-weight: 600; font-size: 16px; line-height: 1.2; padding: 14px 20px; text-decoration: none; border: 2px solid var(--tinta); color: var(--tinta); background: transparent; min-height: 48px; text-align: center; transition: transform .18s var(--curva); cursor: pointer; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-tinta { background: var(--tinta); color: var(--blanco); }
+    .btn-lima { background: var(--lima); border-color: var(--lima); color: var(--tinta); }
+    .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+    .btn small { display: block; font-weight: 400; font-size: 12.5px; opacity: .8; margin-top: 3px; }
+    .ver-mas { background: none; border: 0; padding: 0; color: var(--tinta); font-family: var(--serif); font-weight: 600; font-size: 15px; text-decoration: underline; text-decoration-color: var(--lima); text-decoration-thickness: 3px; text-underline-offset: 5px; cursor: pointer; min-height: 44px; }
+
+    /* ---- header ---- */
+    header { padding: 20px 0 8px; }
+    header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .firma-header { height: 32px; width: auto; }
+    @media (min-width: 900px) { .firma-header { height: 40px; } }
+    nav.principal { display: flex; gap: 20px; font-size: 15px; }
+    nav.principal a { text-decoration: none; color: var(--texto-2); padding: 8px 0; border-bottom: 3px solid transparent; min-height: 44px; display: inline-flex; align-items: center; }
+    nav.principal a:hover, nav.principal a.activo { color: var(--tinta); border-bottom-color: var(--lima); }
+
+    /* ---- cartelera ---- */
+    .cartelera { padding: 28px 0 44px; }
+    .cartelera .grilla { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start; }
+    @media (min-width: 900px) { .cartelera { padding: 44px 0 64px; } .cartelera .grilla { grid-template-columns: 7fr 5fr; gap: 56px; } }
+    .cartelera .etiqueta { margin-bottom: 18px; }
+    .titulo { margin: 0 0 16px; font-family: var(--fuente-titular); font-size: clamp(40px, 7.4vw, 72px); line-height: .98; color: var(--tinta); letter-spacing: .005em; }
+    .titulo { text-transform: uppercase; }
+    .titulo .cinco { display: inline-block; position: relative; font-family: var(--fuente-cifra); font-size: 1.75em; line-height: .8; padding: .08em .14em .02em; margin: 0 .1em .08em 0; vertical-align: -.1em; color: var(--tinta); background: var(--lima-grad); transform: rotate(-3deg); }
+    .titulo .sub { position: relative; display: inline-block; white-space: nowrap; }
+    .titulo .sub svg { position: absolute; left: -2%; right: -2%; bottom: -.1em; width: 104%; height: .2em; }
+    .bajada { font-size: 18px; line-height: 1.55; color: var(--texto-2); max-width: 46ch; margin: 0 0 18px; }
+    @media (min-width: 900px) { .bajada { font-size: 20px; } }
+    .bajada-lista { margin: -6px 0 18px; padding-left: 1.15em; font-size: 18px; line-height: 1.5; color: var(--texto-2); max-width: 46ch; }
+    .bajada-lista li { margin: 0 0 6px; }
+    .bajada-lista li::marker { color: var(--tinta); }
+    @media (min-width: 900px) { .bajada-lista { font-size: 20px; } }
+    .fecha { font-size: 15.5px; color: var(--texto-2); margin: 0 0 22px; line-height: 1.75; }
+    .fecha b { color: var(--tinta); font-weight: 600; }
+    .cta-hero { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .cta-hero .nota { font-size: 14px; color: var(--gris); }
+
+    .caras { display: flex; gap: 14px; overflow-x: auto; padding: 16px 4px 18px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .caras::-webkit-scrollbar { height: 0; }
+    .cara { flex: 0 0 124px; scroll-snap-align: start; background: var(--fondo-2); border: 2px solid var(--tinta); position: relative; display: flex; flex-direction: column; align-items: stretch; box-shadow: 0 6px 0 rgba(0, 0, 0, .12); }
+    .cara::before { content: ""; position: absolute; top: -9px; left: 50%; width: 54px; height: 16px; background: var(--lima); transform: translateX(-50%) rotate(-3deg); opacity: .95; }   /* cinta lima */
+    .cara img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
+    .cara .nombre .pais { font-weight: 400; color: var(--texto-2); letter-spacing: .02em; }
+    .cara .nombre { position: relative; z-index: 1; flex: 1; margin: 0; padding: 6px 8px; font-family: var(--serif); font-weight: 600; font-size: 11.5px; letter-spacing: .03em; text-transform: uppercase; color: var(--tinta); width: 100%; background: var(--blanco); border-top: 2px solid var(--tinta); }
+    .cara.l-a { transform: rotate(-2.5deg); } .cara.l-b { transform: rotate(1.6deg); } .cara.l-c { transform: rotate(-1.2deg); } .cara.l-d { transform: rotate(2.2deg); } .cara.l-e { transform: rotate(-2deg); }
+    @media (min-width: 900px) {
+      .caras { display: grid; grid-template-columns: repeat(2, 1fr); gap: 34px 26px; overflow: visible; padding: 16px 0 0 12px; }
+      .cara { flex: none; width: 100%; }
+      .cara:nth-child(2) { transform: translateY(26px) rotate(1.6deg); } .cara:nth-child(3) { transform: translateY(-6px) rotate(-1.2deg); } .cara:nth-child(4) { transform: translateY(18px) rotate(2.2deg); }
+      .cara:nth-child(5) { transform: translateY(-12px) rotate(-2deg); grid-column: 1 / span 2; width: 48%; margin-left: 26%; }
+      .cara .nombre { font-size: 14px; padding: 8px 10px; letter-spacing: .04em; }
+    }
+
+    /* ---- secciones ---- */
+    section.bloque { padding: 8px 0 44px; }
+    .seccion-titulo { font-family: var(--fuente-titular); font-size: clamp(30px, 5.4vw, 52px); margin: 0 0 6px; color: var(--tinta); line-height: 1; }
+    .seccion-titulo { text-transform: uppercase; }
+    .seccion-bajada { color: var(--texto-2); margin: 0 0 22px; max-width: 54ch; font-size: 16.5px; }
+
+    .planes { display: grid; grid-template-columns: 1fr; gap: 18px; }
+    @media (min-width: 820px) { .planes { grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; } }
+    .plan { background: var(--tarjeta); border: 1px solid var(--linea); padding: 22px 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+    @media (min-width: 900px) { .plan { padding: 28px 28px 30px; } }
+    .plan.doble { border-left: 8px solid var(--lima); }
+    .plan-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .plan-nombre { font-family: var(--serif); font-weight: 600; font-size: 20px; margin: 0; }
+    .plan-tag { font-size: 12.5px; }
+    .precio { display: flex; align-items: baseline; gap: 10px; margin: 0; }
+    .precio .num { font-family: var(--fuente-cifra); font-size: 76px; line-height: .85; color: var(--tinta); }
+    .precio .usd { font-size: 15px; color: var(--gris); font-weight: 500; }
+    .plan-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .plan-lista li { position: relative; padding-left: 20px; line-height: 1.45; font-size: 16px; }
+    .plan-lista li::before { content: ""; position: absolute; left: 0; top: .64em; width: 10px; height: 3px; background: var(--tinta); }
+    .plan-lista li.mas { font-weight: 600; }
+    .plan-lista li small { display: block; color: var(--texto-2); font-size: 14.5px; line-height: 1.5; margin-top: 3px; }
+    .pago { margin-top: auto; padding-top: 8px; display: flex; flex-direction: column; gap: 10px; }
+    .pago-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pago-botones .btn { padding-left: 10px; padding-right: 10px; }
+    .pago-nota { font-size: 13.5px; color: var(--gris); margin: 0; line-height: 1.5; }
+    .pago-nota a { color: var(--texto-2); }
+
+    .pasos-grilla { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 820px) { .pasos-grilla { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+    .paso { border-top: 2px solid var(--tinta); padding-top: 12px; display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: start; }
+    .paso .n { font-family: var(--fuente-cifra); font-size: 46px; line-height: .85; color: var(--tinta); display: inline-block; border-bottom: 5px solid var(--lima); padding-bottom: 2px; }
+    .paso h3 { margin: 4px 0 6px; font-size: 17.5px; font-weight: 600; }
+    .paso p { margin: 0; color: var(--texto-2); font-size: 15.5px; line-height: 1.55; }
+
+    .cajas-consulta { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 900px) { .cajas-consulta { grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; } }
+    .caja-org { background: var(--tarjeta); border: 1px solid var(--linea); padding: 22px 20px 22px; display: grid; gap: 10px; align-content: start; }
+    @media (min-width: 900px) { .caja-org { padding: 26px 28px; } }
+    .caja-org h2 { font-family: var(--serif); font-weight: 600; font-size: 22px; line-height: 1.2; margin: 6px 0 0; }
+    .caja-org p { margin: 0; color: var(--texto-2); font-size: 16px; }
+    .caja-org .btn { justify-self: start; margin-top: 4px; }
+
+    .upsell { display: none; }
+    .upsell.visible { display: block; }
+    .upsell .caja { background: var(--tarjeta); border: 1px solid var(--linea); border-left: 8px solid var(--lima); padding: 24px 20px 26px; }
+    @media (min-width: 900px) { .upsell .caja { padding: 34px 36px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 36px; align-items: center; } }
+    .upsell h2 { font-family: var(--fuente-titular); font-size: clamp(34px, 6vw, 60px); line-height: .95; margin: 12px 0 12px; }
+    .upsell h2 { text-transform: uppercase; }
+    .upsell p { margin: 0 0 10px; font-size: 16.5px; max-width: 48ch; color: var(--texto-2); }
+
+    .viene { padding: 0 0 48px; }
+    .viene a { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-items: center; padding: 18px 20px; background: var(--tinta); color: var(--papel); text-decoration: none; }
+    @media (min-width: 700px) { .viene a { grid-template-columns: auto 1fr auto; } }
+    .viene .num { font-family: var(--fuente-cifra); font-size: 30px; line-height: .9; color: var(--lima); }
+    .viene .que { font-size: 16px; font-weight: 500; }
+    .viene .meta { font-size: 14px; font-weight: 600; color: var(--lima); grid-column: 2; }
+    @media (min-width: 700px) { .viene .meta { grid-column: auto; } }
+
+    /* ---- biografía, compacta ---- */
+    .compacta { padding: 0 0 36px; }
+    .compacta .tarjeta { background: var(--tarjeta); border: 1px solid var(--linea); padding: 18px 18px 20px; display: grid; grid-template-columns: 112px 1fr; gap: 16px 18px; align-items: start; }
+    @media (min-width: 820px) { .compacta .tarjeta { grid-template-columns: 220px 1fr; gap: 20px 32px; padding: 26px 28px; } }
+    .compacta h2 { font-family: var(--serif); font-weight: 600; font-size: 22px; margin: 0 0 4px; line-height: 1.2; }
+    .compacta p { margin: 0 0 8px; color: var(--texto-2); font-size: 16px; line-height: 1.6; }
+    .compacta .acciones { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin-top: 4px; }
+    .compacta .clientes { grid-column: 1 / -1; border-top: 1px solid var(--linea); padding-top: 2px; }
+    .enlace { text-decoration: underline; text-decoration-color: var(--lima); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+    .enlace:hover { background: var(--lima); }
+    .compacta .mas { display: none; grid-column: 1 / -1; padding-top: 6px; border-top: 1px solid var(--linea); }
+    .compacta .mas.abierta { display: block; }
+    
+    .subseccion { font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--gris); margin: 14px 0 10px; }
+    .logos { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; }
+    .logos img { height: 18px; width: auto; filter: grayscale(1); opacity: .7; }
+    .foto-fluo { position: relative; width: 100%; }
+    .foto-fluo::before { content: ""; position: absolute; inset: 0; background: var(--lima-grad); transform: translate(10px, 10px); }
+    .foto-fluo img { position: relative; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; filter: contrast(1.05) saturate(1.05); }
+    .handle { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; min-height: 30px; }
+    .handle .marker { font-family: var(--marker); font-size: 22px; line-height: 1; color: var(--tinta); }
+    .redes { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14.5px; margin: 0 0 10px; }
+    .redes a { color: var(--texto-2); }
+    .compacta .mas p strong { color: var(--tinta); font-weight: 600; }
+
+    .consulta { padding: 0 0 40px; }
+    .consulta .caja { background: var(--fondo-2); padding: 18px; display: grid; grid-template-columns: 56px 1fr; gap: 14px; align-items: center; }
+    @media (min-width: 820px) { .consulta .caja { grid-template-columns: 64px 1fr auto; gap: 22px; padding: 22px 26px; } }
+    .consulta-avatar { width: 56px; height: 56px; object-fit: cover; border: 2px solid var(--tinta); }
+    .consulta-titulo { font-weight: 600; font-size: 18px; margin: 0 0 2px; }
+    .consulta p { margin: 0; color: var(--texto-2); font-size: 15px; }
+    .consulta .btn { grid-column: 1 / -1; }
+    @media (min-width: 820px) { .consulta .btn { grid-column: auto; } }
+
+    footer { padding: 20px 0 48px; border-top: 1px solid var(--linea); color: var(--gris); font-size: 14px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+    footer a { color: var(--texto-2); text-decoration: none; }
+
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <a href="#talleres" aria-label="Lisandro Bregant, inicio"><img class="firma-header" src="assets/img/firma-lisandro-bregant.png" alt="Lisandro Bregant"></a>
+      <nav class="principal" aria-label="Secciones">
+        <a href="#talleres" class="activo">Talleres</a>
+        <a href="#biografia">Biografía</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== CARTELERA ===== -->
+  <section class="cartelera" id="talleres">
+    <div class="wrap">
+      <div class="grilla">
+        <div class="texto">
+          <span class="etiqueta">Taller del mes · noviembre 2026</span>
+          <h1 class="titulo">Narrativas para llegar a&nbsp;la <span class="sub">generación Z<svg viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M4 15 C 60 5, 130 21, 205 12 S 330 6, 396 15" stroke="#B9FF2E" stroke-width="8" fill="none" stroke-linecap="round"/></svg></span></h1>
+          <p class="bajada">En este taller práctico de comunicación contamos los resortes narrativos que usaron 5 figuras públicas para llegar a la generación Z, y por qué funcionaron:</p>
+          <ul class="bajada-lista">
+            <li>Comunicar entre pares, como Davoo Xeneize.</li>
+            <li>Convertir en fans y vender, como Franco Colapinto con Mercado Libre.</li>
+            <li>Tocar el corazón y movilizar, como Don Bosco, Ana Elisa y Talarico.</li>
+          </ul>
+          <p class="bajada">Y lo transformamos en ejercicios para que lo lleves como herramienta a tus equipos, tus proyectos y tus clientes.</p>
+          <p class="fecha"><b>Sábado 21 de noviembre</b> · por Google Meet<br><b>9 a 11 h</b> 🇦🇷 🇺🇾 🇵🇾 🇨🇱<br>6 a 8 h 🇲🇽<br>7 a 9 h 🇨🇴 🇵🇪<br>13 a 15 h 🇪🇸</p>
+          <div class="cta-hero">
+            <a class="btn btn-lima" href="#opciones">Sumarme al taller</a>
+            <span class="nota">Encuentro único USD 49 · doble USD 89</span>
+          </div>
+        </div>
+        <div class="caras" aria-label="Los casos del taller">
+          <div class="cara l-a"><img src="assets/img/caras/ana-elisa.jpg" alt="Ana Elisa" width="480" height="600" loading="eager"><p class="nombre">Ana Elisa <span class="pais">(BRA)</span></p></div>
+          <div class="cara l-b"><img src="assets/img/caras/talarico.jpg" alt="Talarico" width="480" height="600" loading="eager"><p class="nombre">Talarico <span class="pais">(USA)</span></p></div>
+          <div class="cara l-c"><img src="assets/img/caras/don-bosco.jpg" alt="Don Bosco" width="480" height="600" loading="eager"><p class="nombre">Don Bosco <span class="pais">(ITA)</span></p></div>
+          <div class="cara l-d"><img src="assets/img/caras/franco-colapinto.jpg" alt="Franco Colapinto" width="480" height="600" loading="eager"><p class="nombre">Franco Colapinto <span class="pais">(ARG)</span></p></div>
+          <div class="cara l-e"><img src="assets/img/caras/davoo-xeneize.jpg" alt="Davoo Xeneize" width="480" height="600" loading="eager"><p class="nombre">Davoo Xeneize <span class="pais">(ARG)</span></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== OPCIONES ===== -->
+  <section class="bloque" id="opciones">
+    <div class="wrap">
+      <h2 class="seccion-titulo">Dos formas de entrar</h2>
+      <p class="seccion-bajada">El mismo taller en vivo. El doble suma una segunda reunión y un mes de asistente.</p>
+      <div class="planes">
+        <div class="plan unico">
+          <div class="plan-cab"><h3 class="plan-nombre">Encuentro único</h3></div>
+          <div class="precio"><span class="num">49</span><span class="usd">USD</span></div>
+          <ul class="plan-lista">
+            <li>El taller en vivo, 1 h 30</li>
+            <li>Acceso a la grabación por 24 horas</li>
+            <li>Archivo MD con el contenido del taller, para alimentar tu IA</li>
+          </ul>
+          <div class="pago">
+            <div class="pago-botones">
+              <a class="btn btn-tinta" data-link="mp_unico" href="#" target="_blank" rel="noopener">Mercado Pago<small>en pesos argentinos</small></a>
+              <a class="btn" data-link="pp_unico" href="#" target="_blank" rel="noopener">PayPal<small>en dólares</small></a>
+            </div>
+            <p class="pago-nota">Pagás, mandás el comprobante por <a data-link="wa_comprobante" href="#" target="_blank" rel="noopener">WhatsApp</a> o a <a href="mailto:lisandro@narraglobal.com">lisandro@narraglobal.com</a>, y te llega el link del encuentro.</p>
+          </div>
+        </div>
+        <div class="plan doble">
+          <div class="plan-cab"><h3 class="plan-nombre">Encuentro doble</h3><span class="etiqueta plan-tag">Incluye consulta y asistente</span></div>
+          <div class="precio"><span class="num">89</span><span class="usd">USD</span></div>
+          <ul class="plan-lista">
+            <li class="mas">Todo lo del encuentro único, más:</li>
+            <li>Tu caso, trabajado en vivo con Lisandro<small>En el consultorio del sábado 28 de noviembre (9 a 10.30 h, Argentina) llevás lo que tenés que decir y lo trabajamos en grupo. Aprendés con tu caso y con el de los demás.</small></li>
+            <li>Un mes para practicar por WhatsApp<small>Durante 30 días, el asistente de IA de narraglobal te ayuda a preparar cada conversación antes de tenerla, con el método del taller y el feedback personalizado del encuentro consultorio.</small></li>
+          </ul>
+          <div class="pago">
+            <div class="pago-botones">
+              <a class="btn btn-tinta" data-link="mp_doble" href="#" target="_blank" rel="noopener">Mercado Pago<small>en pesos argentinos</small></a>
+              <a class="btn" data-link="pp_doble" href="#" target="_blank" rel="noopener">PayPal<small>en dólares</small></a>
+            </div>
+            <p class="pago-nota">Pagás, mandás el comprobante por <a data-link="wa_comprobante" href="#" target="_blank" rel="noopener">WhatsApp</a> o a <a href="mailto:lisandro@narraglobal.com">lisandro@narraglobal.com</a>, y te llega el link de los encuentros.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CÓMO FUNCIONA ===== -->
+  <section class="bloque">
+    <div class="wrap">
+      <div class="pasos-grilla">
+        <div class="paso"><div><span class="n">1</span></div><div><h3>Pagás</h3><p>Con Mercado Pago en pesos o con PayPal en dólares. Sin registro, sin cuenta.</p></div></div>
+        <div class="paso"><div><span class="n">2</span></div><div><h3>Mandás el comprobante</h3><p>Una captura por <a data-link="wa_comprobante" href="#" target="_blank" rel="noopener">WhatsApp</a> o por mail. Te confirmo personalmente.</p></div></div>
+        <div class="paso"><div><span class="n">3</span></div><div><h3>Te llega el link</h3><p>El acceso al encuentro, la grabación durante 24 horas y el archivo MD después del taller.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ORGANIZACIONES Y BECAS ===== -->
+  <section class="bloque" id="organizaciones">
+    <div class="wrap">
+      <div class="cajas-consulta">
+        <div class="caja-org">
+          <span class="etiqueta">Organizaciones</span>
+          <h2>¿Trabajás en una empresa?</h2>
+          <p>Consultá por beneficios para organizaciones.</p>
+          <a class="btn btn-tinta" data-link="wa_organizaciones" href="#" target="_blank" rel="noopener">Consultar</a>
+        </div>
+        <div class="caja-org" id="becas">
+          <span class="etiqueta">Becas</span>
+          <h2>¿Querés participar pero no podés económicamente?</h2>
+          <p>Consultá becas del 50 y 100 %.</p>
+          <a class="btn btn-tinta" data-link="wa_becas" href="#" target="_blank" rel="noopener">Consultar becas</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SUMÁ LA CONSULTA (solo #consulta) ===== -->
+  <section class="bloque upsell" id="consulta">
+    <div class="wrap">
+      <div class="caja">
+        <div>
+          <span class="etiqueta">Para los que ya hicieron el taller</span>
+          <h2>Sumá la consulta</h2>
+          <p>Hiciste el encuentro único. Por 40 dólares más entrás al encuentro consultorio y tenés un mes de asistente afinado con lo que trabajaste.</p>
+        </div>
+        <div class="plan" style="border:0;padding:0;background:transparent">
+          <div class="precio"><span class="num">40</span><span class="usd">USD</span></div>
+          <ul class="plan-lista">
+            <li>Tu caso, trabajado en vivo con Lisandro<small>En el consultorio del sábado 28 de noviembre llevás lo que tenés que decir y lo trabajamos en grupo. Aprendés con tu caso y con el de los demás.<br>9 a 10.30 h 🇦🇷 🇺🇾 🇵🇾 🇨🇱<br>6 a 7.30 h 🇲🇽<br>7 a 8.30 h 🇨🇴 🇵🇪<br>13 a 14.30 h 🇪🇸</small></li>
+            <li>Un mes para practicar por WhatsApp<small>Durante 30 días, el asistente de IA de narraglobal te ayuda a preparar cada conversación antes de tenerla, con el método del taller y el feedback personalizado del encuentro consultorio.</small></li>
+          </ul>
+          <div class="pago">
+            <div class="pago-botones">
+              <a class="btn btn-tinta" data-link="mp_consulta" href="#" target="_blank" rel="noopener">Mercado Pago<small>en pesos argentinos</small></a>
+              <a class="btn" data-link="pp_consulta" href="#" target="_blank" rel="noopener">PayPal<small>en dólares</small></a>
+            </div>
+            <p class="pago-nota">Pagás y mandás el comprobante por <a data-link="wa_comprobante" href="#" target="_blank" rel="noopener">WhatsApp</a>. Te llega el link del consultorio y el alta del asistente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== LO QUE VIENE ===== -->
+  <section class="viene" id="viene">
+    <div class="wrap">
+      <a data-link="wa_aviso" href="#" target="_blank" rel="noopener"><span class="num">DIC</span><span class="que">Lo que viene: el taller de diciembre</span><span class="meta">Avisame cuando abra →</span></a>
+    </div>
+  </section>
+
+  <!-- ===== BIOGRAFÍA (compacta) ===== -->
+  <section class="compacta" id="biografia">
+    <div class="wrap">
+      <div class="tarjeta">
+        <div class="foto-fluo"><img src="assets/img/lisandro-avatar.jpg" alt="Foto de Lisandro Bregant"></div>
+        <div>
+          <h2>Lisandro Bregant</h2>
+          <div class="handle" aria-label="@lisandrobregant">
+            <span class="marker">@lisandrobregant</span>
+          </div>
+          <div class="redes">
+            <a href="https://x.com/lisandrobregant" target="_blank" rel="noopener">X ↗</a>
+            <a href="https://www.instagram.com/lisandrobregant/" target="_blank" rel="noopener">Instagram ↗</a>
+            <a href="https://www.linkedin.com/in/lisandrobregant/" target="_blank" rel="noopener">LinkedIn ↗</a>
+            <a href="mailto:lisandro@narraglobal.com">Email</a>
+          </div>
+          <p>Lisandro Bregant es fundador de <a class="enlace" href="https://narraglobal.com" target="_blank" rel="noopener"><strong>narraglobal</strong></a> y consultor en narrativas públicas. Analiza, de forma técnica y basada en evidencia, cómo comunican los líderes, los gobiernos y negocios.</p>
+          <div class="acciones"><button class="ver-mas" type="button" data-mas="bio-mas" aria-expanded="false" aria-controls="bio-mas">Ver más</button></div>
+        </div>
+        <div class="mas" id="bio-mas">
+          <p>Lisandro llegó a las narrativas de forma lateral: empezó en Ingeniería Mecánica, pasó por las Ciencias de la Educación, Publicidad y se formó en talleres con Alberto Laiseca y Pedro Mairal, en escenografía teatral con responsables del Teatro Colón y en clown con artistas del Cirque du Soleil.</p>
+          <p>Durante cuatro años asesoró al agro argentino viajando por todo el país y desarrollando un método de construcción de credibilidad para negocios. Otra etapa de cuatro años fue la de asesoramiento a más de 100 startups científicas ayudando a contar ciencia en 5 minutos para levantar capital internacionalmente. De estas dos etapas surgió el diseño de <strong>narranoise®</strong>, un modelo de análisis de narrativa y comportamiento de públicos para negocios y políticos que implementa en su firma de consultora <a class="enlace" href="https://narraglobal.com" target="_blank" rel="noopener">Narraglobal</a> para clientes en todo latinoamérica y habla hispana. En paralelo Lisandro coordina talleres no-tradicionales de narrativa y creatividad.</p>
+          <p>Actualmente reside en Rosario, Argentina. Es salesiano, padre y esposo.</p>
+        </div>
+        <div class="clientes">
+          <div class="subseccion">Clientes Narraglobal</div>
+          <div class="logos">
+            <img src="assets/img/logos/clientes/accenture.png" alt="Accenture"><img src="assets/img/logos/clientes/amgen.png" alt="Amgen"><img src="assets/img/logos/clientes/bayer.png" alt="Bayer"><img src="assets/img/logos/clientes/bid.png" alt="BID"><img src="assets/img/logos/clientes/google.png" alt="Google"><img src="assets/img/logos/clientes/hbo-max.png" alt="HBO Max"><img src="assets/img/logos/clientes/l-oreal.png" alt="L'Oréal"><img src="assets/img/logos/clientes/river-plate.png" alt="River Plate"><img src="assets/img/logos/clientes/syngenta.png" alt="Syngenta"><img src="assets/img/logos/clientes/volkswagen.png" alt="Volkswagen">
+          </div>
+        </div>
+        <div class="clientes">
+          <div class="subseccion">Medios que publican datos de Narraglobal</div>
+          <div class="logos">
+            <img src="assets/img/logos/medios/clarin.jpg" alt="Clarín"><img src="assets/img/logos/medios/infobae.png" alt="Infobae"><img src="assets/img/logos/medios/la-nacion.png" alt="La Nación"><img src="assets/img/logos/medios/cnn.png" alt="CNN"><img src="assets/img/logos/medios/forbes.png" alt="Forbes"><img src="assets/img/logos/medios/telefe.jpg" alt="Telefe"><img src="assets/img/logos/medios/tn.png" alt="TN"><img src="assets/img/logos/medios/tve.png" alt="TVE"><img src="assets/img/logos/medios/univision.png" alt="Univision">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONSULTA DIRECTA ===== -->
+  <section class="consulta">
+    <div class="wrap">
+      <div class="caja">
+        <img class="consulta-avatar" src="assets/img/lisandro-avatar.jpg" alt="">
+        <div>
+          <div class="consulta-titulo">¿Dudas antes de sumarte?</div>
+          <p>Contame en qué estás y te digo si el Taller te sirve. Te respondo personalmente.</p>
+        </div>
+        <a class="btn btn-tinta" data-link="wa_hacer_consulta" href="#" target="_blank" rel="noopener">Hacer una consulta</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>Lisandro Bregant · Rosario, Argentina</span>
+      <a href="mailto:lisandro@narraglobal.com">lisandro@narraglobal.com</a>
+      <a data-link="wa_consulta" href="#" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="https://x.com/lisandrobregant" target="_blank" rel="noopener">X</a>
+      <a href="https://narraglobal.com" target="_blank" rel="noopener">narraglobal.com</a>
+    </div>
+  </footer>
+
+  <script>
+    /* LINKS — de pago, los que pasó Lisandro el 09-11 a las 11:51: Mercado Pago del único y del doble; PayPal el mismo para todos («el paypal es para ambos»), con el monto en dólares. Falta el Mercado Pago de la consulta: ese botón queda apagado. WhatsApp: 11 3073-1011 (verificado en la web de julio y en el contacto comercial). */
+    const WA = "https://wa.me/5491130731011?text=";
+    const LINKS = {
+      mp_unico: "https://mpago.la/22DWEN6", pp_unico: "https://paypal.me/LISANDROBREGANT/49USD",
+      mp_doble: "https://mpago.la/2s7mMTw", pp_doble: "https://paypal.me/LISANDROBREGANT/89USD",
+      mp_consulta: "", pp_consulta: "https://paypal.me/LISANDROBREGANT/40USD",
+      wa_comprobante:    WA + encodeURIComponent("Hola Lisandro, te mando el comprobante del taller «Narrativas para llegar a la generación Z»."),
+      wa_consulta:       WA + encodeURIComponent("Hola Lisandro, tengo una consulta sobre el taller del mes."),
+      wa_aviso:          WA + encodeURIComponent("Hola Lisandro, avisame cuando abra el taller de diciembre."),
+      wa_organizaciones: WA + encodeURIComponent("[Web · Organizaciones] Hola, trabajo en una empresa y quiero conocer los beneficios para organizaciones"),
+      wa_becas:          WA + encodeURIComponent("[Web · Becas] Hola, estoy interesado en las becas del taller"),
+      wa_hacer_consulta: WA + encodeURIComponent("[Web · Consulta] Hola Lisandro, tengo una consulta sobre el taller del mes.")
+    };
+    document.querySelectorAll('[data-link]').forEach(a => {
+      const url = LINKS[a.getAttribute('data-link')];
+      if (url) { a.href = url; a.removeAttribute('aria-disabled'); }
+      else { a.setAttribute('aria-disabled', 'true'); a.addEventListener('click', e => e.preventDefault()); a.title = 'Link de pago pendiente'; }
+    });
+
+    /* Ver más */
+    document.querySelectorAll('[data-mas]').forEach(b => b.addEventListener('click', () => {
+      const el = document.getElementById(b.getAttribute('data-mas'));
+      const abierta = el.classList.toggle('abierta');
+      b.setAttribute('aria-expanded', abierta ? 'true' : 'false');
+      b.textContent = abierta ? 'Ver menos' : 'Ver más';
+    }));
+
+    /* #consulta muestra la caja de «Sumá la consulta» */
+    function ruta() {
+      const h = location.hash.slice(1);
+      document.getElementById('consulta').classList.toggle('visible', h === 'consulta');
+      const links = [...document.querySelectorAll('nav.principal a')];
+      links.forEach(l => l.classList.toggle('activo', l.getAttribute('href') === '#' + (h || 'talleres')));
+    }
+    window.addEventListener('hashchange', ruta); ruta();
+
+    /* Nav activa al scrollear */
+    const secs = ['talleres', 'biografia'].map(id => document.getElementById(id));
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (e.isIntersecting) document.querySelectorAll('nav.principal a').forEach(l => l.classList.toggle('activo', l.getAttribute('href') === '#' + e.target.id));
+      }), { rootMargin: '-30% 0px -60% 0px' });
+      secs.forEach(s => s && io.observe(s));
+    }
+  </script>
+</body>
+</html>
