@@ -16,7 +16,12 @@ export default function middleware(request: Request) {
     return new Response(null, { headers: { "x-middleware-next": "1" } });
   }
 
-  // assets/ tal cual; cualquier otra ruta muestra la página (usa #anclas, no rutas)
+  // El HTML pide las imágenes con ruta absoluta (/lisandrobregant/assets/...): pasan tal cual.
+  if (url.pathname.startsWith(CARPETA + "/assets/")) {
+    return new Response(null, { headers: { "x-middleware-next": "1" } });
+  }
+
+  // /assets/ (p. ej. la og:image) va a la carpeta; cualquier otra ruta muestra la página (usa #anclas)
   url.pathname = url.pathname.startsWith("/assets/")
     ? CARPETA + url.pathname
     : CARPETA + "/index.html";
