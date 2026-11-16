@@ -16,6 +16,4 @@ Para tener en cuenta
 En el repo de narraglobal (13-11-2026)
 - El sitio vive en public/lisandrobregant/. middleware.ts (raíz) sirve esa carpeta cuando el pedido entra por lisandrobregant.com o www.lisandrobregant.com.
 - Para que funcione, el dominio tiene que estar agregado al mismo proyecto de Vercel que narraglobal.com.
-- Logos de clientes y medios y la foto salen de public/land/. Faltan y hay que subirlos a public/lisandrobregant/assets/img/:
-  firma-lisandro-bregant.png, og-taller-generacion-z.jpg (1080x1080),
-  caras/ana-elisa.jpg, caras/talarico.jpg, caras/don-bosco.jpg, caras/franco-colapinto.jpg, caras/davoo-xeneize.jpg (480x600).
+- Logos de clientes y medios y la foto salen de public/land/. Firma, caras y placa OG están en assets/img/.
